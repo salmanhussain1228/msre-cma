@@ -144,21 +144,21 @@
         <span class="key-status" id="keyStatus"></span>
       </div>
       <div class="api-hint">
-        Free at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — sign in with Gmail, click "Get API Key". Saved in this browser only, never shared.
+        <strong>Sign in with your @markspain.com account</strong> at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — this gives Gemini access to live Zillow, Redfin, and HouseCanary data through MSRE. Click "Get API Key", copy it, paste above, click Save Key. Stored in this browser only.
       </div>
     </div>
   </div>
 
   <!-- AVMs -->
   <div class="card">
-    <div class="card-header"><div class="dot"></div><h2>Automated Valuations (AVMs)</h2><span class="sub">Gemini auto-fills + manual entry from each site</span></div>
+    <div class="card-header"><div class="dot"></div><h2>Automated Valuations (AVMs)</h2><span class="sub">Gemini auto-fills using MSRE @markspain.com account</span></div>
     <div class="card-body">
 
       <!-- Gemini auto row -->
       <div class="avm-row">
         <div class="avm-source">
           <span class="avm-badge" style="background:#4285F4">G</span>
-          <span class="avm-name">Gemini AI (Auto)</span>
+          <span class="avm-name">Gemini AI — Live Market Data</span>
         </div>
         <input id="g_v" placeholder="Auto-fills" readonly style="background:#f0f4ff;color:#4285F4;font-weight:600;">
         <input id="g_r" placeholder="Range auto-fills" readonly style="background:#f0f4ff;color:#4285F4;">
@@ -227,7 +227,7 @@
 
       <div class="step-hint">
         <div class="step"><span class="step-num">1</span> Type address</div>
-        <div class="step"><span class="step-num">2</span> Click Auto-Fill via Gemini</div>
+        <div class="step"><span class="step-num">2</span> Click Auto-Fill via Gemini (uses live Zillow, Redfin &amp; HouseCanary data)</div>
         <div class="step"><span class="step-num">3</span> Click Open All 4 Sites, copy each estimate</div>
         <div class="step"><span class="step-num">4</span> Enter your 3 CMA values below</div>
         <div class="step"><span class="step-num">5</span> Download PDF</div>
@@ -354,6 +354,7 @@ function fetchGemini(){
   if(!addr){ alert('Please enter a property address first.'); return; }
   if(!key){  alert('Please paste your free Gemini API key and click Save Key.\n\nGet it free at aistudio.google.com'); return; }
 
+  document.getElementById('gemini-loading').textContent = 'Fetching live market data via Gemini (Zillow, Redfin, HouseCanary)...';
   document.getElementById('gemini-loading').style.display='block';
   document.getElementById('gemini-error').style.display='none';
   document.getElementById('gemini-box').classList.remove('show');
