@@ -365,7 +365,20 @@ function fetchGemini(){
     '{"estimate": 450000, "low": 430000, "high": 470000, "summary": "2-3 sentence market summary"}\n\n' +
     'Base estimate on comparable sales, location, market conditions. Return only valid JSON.';
 
-  fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + key, {
+  // Try models in order until one works
+  var models = ['gemini-2.0-flash-lite','gemini-1.5-flash','gemini-1.5-flash-8b','gemini-pro'];
+  
+  function tryModel(idx) {
+    if(idx >= models.length) {
+      document.getElementById('gemini-loading').style.display='none';
+      document.getElementById('g_v').value = 'Error';
+      var errEl = document.getElementById('gemini-error');
+      errEl.textContent = 'All models failed. Check your API key at aistudio.google.com and try again.';
+      errEl.style.display='block';
+      return;
+    }
+    var modelName = models[idx];
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent?key=' + key, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
@@ -374,9 +387,10 @@ function fetchGemini(){
     })
   })
   .then(function(res){
-    if(res.status===400) throw new Error('Invalid API key. Check your key at aistudio.google.com');
-    if(res.status===429) throw new Error('Rate limit hit. Wait a moment and try again.');
-    if(!res.ok) throw new Error('Gemini error ' + res.status);
+    if(res.status===400) throw new Error('400 Invalid API key');
+    if(res.status===429) throw new Error('429 Rate limit');
+    if(res.status===404) throw new Error('404 Model not found');
+    if(!res.ok) throw new Error(res.status+' API error');
     return res.json();
   })
   .then(function(data){
