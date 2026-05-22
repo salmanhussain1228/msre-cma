@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Gemini Test</title></head>
+<body style="font-family:sans-serif;padding:30px;max-width:600px">
+<h2>Gemini API Test</h2>
+<label>API Key:</label><br>
+<input id="key" type="password" style="width:100%;padding:8px;margin:6px 0 12px" placeholder="Paste your Gemini API key"><br>
+<label>Address:</label><br>
+<input id="addr" style="width:100%;padding:8px;margin:6px 0 12px" value="6608 Ascot Ct, Cary NC 27518"><br>
+<button onclick="test()" style="padding:10px 20px;background:#C8102E;color:white;border:none;cursor:pointer;font-size:14px">Test Gemini Call</button>
+<pre id="out" style="margin-top:20px;background:#f5f5f5;padding:14px;white-space:pre-wrap;font-size:12px">Output will appear here...</pre>
+
+<script>
+function test(){
+  var key = document.getElementById('key').value.trim();
+  var addr = document.getElementById('addr').value.trim();
+  var out = document.getElementById('out');
+  
+  if(!key){ out.textContent='ERROR: No API key entered'; return; }
+  if(!addr){ out.textContent='ERROR: No address entered'; return; }
+  
+  out.textContent = 'Calling Gemini with model: gemini-1.5-flash...\nKey starts with: ' + key.substring(0,8) + '...';
+  
+  fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + key, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      contents:[{parts:[{text:'What is 2+2? Answer with just the number.'}]}]
+    })
+  })
+  .then(function(res){
+    out.textContent += '\n\nHTTP Status: ' + res.status;
+    return res.json().then(function(data){ return {status: res.status, data: data}; });
+  })
+  .then(function(result){
+    out.textContent += '\n\nFull response:\n' + JSON.stringify(result.data, null, 2);
+  })
+  .catch(function(err){
+    out.textContent += '\n\nFetch ERROR: ' + err.message;
+  });
+}
+</script>
+</body>
+</html>
