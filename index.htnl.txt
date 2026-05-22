@@ -1,0 +1,89 @@
+MARK
+SPAIN
+REAL ESTATE
+Mark Spain Real Estate
+CMA PRICING STRATEGY GENERATOR
+For internal agent use only
+markspain.com
+
+AGENT & PROPERTY INFORMATION
+AGENT NAME
+
+PHONE
+
+EMAIL
+
+NC LICENSE #
+
+Your info saves automatically — only enter it once.
+PROPERTY ADDRESS
+
+GEMINI API KEY
+
+Save Key
+
+Sign in with your @markspain.com account at aistudio.google.com — this gives Gemini access to live Zillow, Redfin, and HouseCanary data through MSRE. Click "Get API Key", copy it, paste above, click Save Key. Stored in this browser only.
+
+AUTOMATED VALUATIONS (AVMS)
+Gemini auto-fills using MSRE @markspain.com account
+G
+Gemini AI — Live Market Data
+
+
+Z
+Zillow
+Open ↗
+
+
+R
+Redfin
+Open ↗
+
+
+H
+Homes.com
+Open ↗
+
+
+R
+Realtor.com
+Open ↗
+
+
+Auto-Fill via Gemini
+Open All 4 Sites
+Enter address above first
+1 Type address 2 Click Auto-Fill via Gemini (uses live Zillow, Redfin & HouseCanary data) 3 Click Open All 4 Sites, copy each estimate 4 Enter your 3 CMA values below 5 Download PDF
+
+CMA TOOL OUTPUTS
+Enter your comp-based values
+CMAsnap
+
+CMA Easy
+
+CMA RPR
+
+CMA tools use actual MLS closed-sale comps — real buyer transactions. Far more reliable than AVMs. Enter all three for the most balanced recommendation.
+
+LIVE RECOMMENDATION
+RECOMMENDED LIST PRICE
+--
+Enter CMA values above
+--
+AVM AVG
+--
+CMA AVG
+--
+CONSERVATIVE
+--
+AGGRESSIVE
+PRICED TO MOVE
+--
+Fast close 7-10 days. Max traffic, some proceeds left.
+✓ RECOMMENDED
+--
+Best balance of traffic and net proceeds.
+TEST THE MARKET
+--
+Only if shows exceptionally well. Risk of 21+ day stale listing.
+DOWNLOAD PRICING STRATEGY PDF
