@@ -1,89 +1,679 @@
-MARK
-SPAIN
-REAL ESTATE
-Mark Spain Real Estate
-CMA PRICING STRATEGY GENERATOR
-For internal agent use only
-markspain.com
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mark Spain Real Estate — CMA Pricing Strategy Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--red:#C8102E;--dark:#1a1a1a;--light:#f8f5f0;--mgray:#e0dbd4;--gray:#6b6460;--blue:#0a4a8a;--orange:#c06000;--navy:#1a2a4a;--green:#1a7a3c;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Source Sans 3',sans-serif;background:var(--dark);min-height:100vh;color:var(--dark);}
+  .banner{background:var(--red);padding:13px 28px;display:flex;align-items:center;justify-content:space-between;}
 
-AGENT & PROPERTY INFORMATION
-AGENT NAME
+  .logo-box{width:58px;height:54px;background:#1a1a1a;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;flex-shrink:0;}
+  .logo-text-mark{color:white;font-size:11px;font-weight:900;letter-spacing:0.5px;line-height:1.1;}
+  .logo-text-spain{color:#C8102E;font-size:11px;font-weight:900;letter-spacing:0.5px;line-height:1.1;}
+  .logo-text-re{color:#aaa;font-size:7px;font-weight:600;letter-spacing:0.8px;line-height:1.4;}
+  .banner-left{display:flex;align-items:center;gap:14px;}
+  .logo-img{height:50px;width:50px;object-fit:cover;border-radius:4px;}
+  .banner-title h1{font-family:'Playfair Display',serif;font-size:19px;color:white;}
+  .banner-title p{font-size:10px;color:rgba(255,255,255,0.7);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+  .banner-right{color:white;text-align:right;font-size:10px;opacity:0.6;line-height:1.6;}
+  .main{max-width:860px;margin:0 auto;padding:24px 18px 50px;}
+  .card{background:white;border-radius:7px;margin-bottom:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.2);}
+  .card-header{background:var(--dark);color:white;padding:10px 18px;display:flex;align-items:center;gap:9px;}
+  .card-header .dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;}
+  .card-header h2{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;}
+  .card-header .sub{font-size:10px;opacity:0.4;margin-left:auto;}
+  .card-body{padding:16px 18px;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .form-group{display:flex;flex-direction:column;gap:4px;}
+  .form-group label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--gray);}
+  .form-group input{border:1.5px solid var(--mgray);border-radius:5px;padding:8px 10px;font-size:13px;font-family:'Source Sans 3',sans-serif;background:var(--light);width:100%;}
+  .form-group input:focus{outline:none;border-color:var(--red);background:white;}
 
-PHONE
+  /* API key */
+  .api-row{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--mgray);}
+  .api-row label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--gray);white-space:nowrap;}
+  .api-row input{border:1.5px solid var(--mgray);border-radius:5px;padding:7px 10px;font-size:12px;font-family:'Source Sans 3',sans-serif;background:var(--light);flex:1;}
+  .api-row input:focus{outline:none;border-color:var(--red);}
+  .btn-sm{border:none;border-radius:5px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;white-space:nowrap;}
+  .btn-dark{background:var(--dark);color:white;} .btn-dark:hover{background:#333;}
+  .btn-green{background:var(--green);color:white;} .btn-green:hover{background:#155f2f;}
+  .btn-blue{background:var(--blue);color:white;} .btn-blue:hover{background:#083878;}
+  .key-status{font-size:11px;} .key-status.ok{color:var(--green);font-weight:700;}
+  .api-hint{font-size:10px;color:var(--gray);margin-top:5px;}
+  .api-hint a{color:var(--blue);}
 
-EMAIL
+  /* Gemini result box */
+  .gemini-box{background:#f0f4ff;border:1.5px solid #c0ccee;border-radius:6px;padding:14px 16px;margin-top:12px;display:none;}
+  .gemini-box.show{display:block;}
+  .gemini-box .g-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:6px;}
+  .gemini-box .g-range{font-size:20px;font-weight:700;color:var(--blue);font-family:'Playfair Display',serif;}
+  .gemini-box .g-summary{font-size:11px;color:var(--gray);margin-top:6px;line-height:1.5;max-height:120px;overflow-y:auto;}
+  .gemini-loading{font-size:12px;color:var(--blue);margin-top:10px;display:none;}
+  .gemini-error{font-size:11px;color:var(--red);margin-top:8px;display:none;}
 
-NC LICENSE #
+  /* AVM rows */
+  .avm-row{display:grid;grid-template-columns:190px 130px 1fr;gap:9px;align-items:center;padding:7px 0;border-bottom:1px solid var(--mgray);}
+  .avm-row:last-child{border-bottom:none;}
+  .avm-source{display:flex;align-items:center;gap:7px;}
+  .avm-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;color:white;font-size:10px;font-weight:700;flex-shrink:0;}
+  .avm-name{font-size:12.5px;font-weight:600;color:var(--dark);}
+  .open-btn{font-size:10px;font-weight:700;color:white;border:none;border-radius:4px;padding:3px 8px;cursor:pointer;white-space:nowrap;font-family:'Source Sans 3',sans-serif;}
+  .open-btn:disabled{opacity:0.3;cursor:default;}
+  .avm-row input{border:1.5px solid var(--mgray);border-radius:5px;padding:6px 9px;font-size:13px;font-family:'Source Sans 3',sans-serif;background:var(--light);width:100%;}
+  .avm-row input:focus{outline:none;border-color:var(--red);background:white;}
 
-Your info saves automatically — only enter it once.
-PROPERTY ADDRESS
+  .action-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px;align-items:center;}
+  .lookup-hint{font-size:11px;color:var(--gray);}
 
-GEMINI API KEY
+  /* popup fallback */
+  .popup-warning{display:none;background:#fff8e1;border:1px solid #f0c040;border-radius:5px;padding:10px 14px;margin-top:10px;font-size:11px;color:#7a5c00;line-height:1.5;}
+  .popup-warning.show{display:block;}
+  .site-links{display:flex;flex-direction:column;gap:5px;margin-top:7px;}
+  .site-link{color:var(--blue);font-weight:600;font-size:12px;text-decoration:none;}
+  .site-link:hover{text-decoration:underline;}
 
-Save Key
+  .cma-row{display:grid;grid-template-columns:150px 150px;gap:9px;align-items:center;padding:6px 0;border-bottom:1px solid var(--mgray);}
+  .cma-row:last-child{border-bottom:none;}
+  .row-label{font-size:12px;font-weight:600;color:var(--dark);}
+  .cma-row input{border:1.5px solid #e8a0a0;border-radius:5px;padding:6px 9px;font-size:13px;font-family:'Source Sans 3',sans-serif;background:#fff8f8;width:100%;}
+  .cma-row input:focus{outline:none;border-color:var(--red);background:white;}
 
-Sign in with your @markspain.com account at aistudio.google.com — this gives Gemini access to live Zillow, Redfin, and HouseCanary data through MSRE. Click "Get API Key", copy it, paste above, click Save Key. Stored in this browser only.
+  .calc-box{background:linear-gradient(135deg,#fff5f5,#fff);border:2px solid var(--red);border-radius:7px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .calc-main{text-align:center;min-width:150px;}
+  .calc-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:3px;}
+  .calc-price{font-family:'Playfair Display',serif;font-size:38px;color:var(--red);line-height:1;}
+  .calc-sub{font-size:10px;color:var(--gray);margin-top:3px;}
+  .calc-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;max-width:290px;}
+  .stat-box{background:white;border:1px solid var(--mgray);border-radius:5px;padding:8px 10px;text-align:center;}
+  .stat-val{font-size:14px;font-weight:700;} .stat-lbl{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:0.4px;}
+  .tiers-preview{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;}
+  .tier-card{border-radius:6px;padding:12px;text-align:center;border:2.5px solid;}
+  .tier-card.move{background:#eef3ff;border-color:var(--navy);}
+  .tier-card.rec{background:#fff0f0;border-color:var(--red);}
+  .tier-card.test{background:#fff8ee;border-color:var(--navy);}
+  .t-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px;}
+  .tier-card.move .t-label,.tier-card.test .t-label{color:var(--navy);}
+  .tier-card.rec .t-label{color:var(--red);}
+  .t-price{font-family:'Playfair Display',serif;font-size:21px;margin-bottom:4px;}
+  .tier-card.move .t-price{color:var(--blue);}
+  .tier-card.rec .t-price{color:var(--red);font-size:25px;}
+  .tier-card.test .t-price{color:var(--orange);}
+  .t-desc{font-size:10px;color:var(--gray);line-height:1.4;}
+  .btn-generate{display:block;width:100%;padding:14px;background:var(--red);color:white;border:none;border-radius:6px;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:6px;}
+  .btn-generate:hover{background:#a00d24;}
+  .section-note{font-size:11px;color:var(--gray);background:var(--light);border-left:3px solid var(--red);padding:7px 10px;margin-top:11px;border-radius:0 4px 4px 0;}
+  .step-hint{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
+  .step{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);}
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--red);color:white;font-size:10px;font-weight:700;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="banner">
+  <div class="banner-left">
+    <div class="logo-box">
+      <div class="logo-text-mark">MARK</div>
+      <div class="logo-text-spain">SPAIN</div>
+      <div class="logo-text-re">REAL ESTATE</div>
+    </div>
+    <div class="banner-title">
+      <h1>Mark Spain Real Estate</h1>
+      <p>CMA Pricing Strategy Generator</p>
+    </div>
+  </div>
+  <div class="banner-right">For internal agent use only<br>markspain.com</div>
+</div>
 
-AUTOMATED VALUATIONS (AVMS)
-Gemini auto-fills using MSRE @markspain.com account
-G
-Gemini AI — Live Market Data
+<div class="main">
+
+  <!-- AGENT INFO -->
+  <div class="card">
+    <div class="card-header"><div class="dot"></div><h2>Agent &amp; Property Information</h2></div>
+    <div class="card-body">
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="form-group"><label>Agent Name</label><input id="agentName" placeholder="Your full name" oninput="saveAgentInfo()"></div>
+        <div class="form-group"><label>Phone</label><input id="agentPhone" placeholder="Your phone" oninput="saveAgentInfo()"></div>
+        <div class="form-group"><label>Email</label><input id="agentEmail" placeholder="name@markspain.com" oninput="saveAgentInfo()"></div>
+        <div class="form-group"><label>NC License #</label><input id="agentLicense" placeholder="NC License #" oninput="saveAgentInfo()"></div>
+      </div>
+      <div style="font-size:10px;color:#6b6460;margin-top:6px;">Your info saves automatically — only enter it once.</div>
+      <div class="form-group">
+        <label>Property Address</label>
+        <input id="propAddress" placeholder="e.g. 6608 Ascot Ct, Cary NC 27518" oninput="onAddressChange()">
+      </div>
+
+      <!-- Gemini API Key -->
+      <div class="api-row">
+        <label>Gemini API Key</label>
+        <input id="geminiKey" type="password" placeholder="Paste your free key from aistudio.google.com">
+        <button class="btn-sm btn-dark" onclick="saveKey()">Save Key</button>
+        <span class="key-status" id="keyStatus"></span>
+      </div>
+      <div class="api-hint">
+        <strong>Sign in with your @markspain.com account</strong> at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — this gives Gemini access to live Zillow, Redfin, and HouseCanary data through MSRE. Click "Get API Key", copy it, paste above, click Save Key. Stored in this browser only.
+      </div>
+    </div>
+  </div>
+
+  <!-- AVMs -->
+  <div class="card">
+    <div class="card-header"><div class="dot"></div><h2>Automated Valuations (AVMs)</h2><span class="sub">Gemini auto-fills using MSRE @markspain.com account</span></div>
+    <div class="card-body">
+
+      <!-- Gemini auto row -->
+      <div class="avm-row">
+        <div class="avm-source">
+          <span class="avm-badge" style="background:#4285F4">G</span>
+          <span class="avm-name">Gemini AI — Live Market Data</span>
+        </div>
+        <input id="g_v" placeholder="Auto-fills" readonly style="background:#f0f4ff;color:#4285F4;font-weight:600;">
+        <input id="g_r" placeholder="Range auto-fills" readonly style="background:#f0f4ff;color:#4285F4;">
+      </div>
+
+      <div class="avm-row">
+        <div class="avm-source">
+          <span class="avm-badge" style="background:#006aff">Z</span>
+          <span class="avm-name">Zillow</span>
+          <button class="open-btn" style="background:#006aff" id="btn-z" onclick="openSite('zillow')" disabled>Open ↗</button>
+        </div>
+        <input id="z_v" placeholder="Enter estimate" oninput="recalc()">
+        <input id="z_r" placeholder="Range e.g. 444K-500K">
+      </div>
+
+      <div class="avm-row">
+        <div class="avm-source">
+          <span class="avm-badge" style="background:#c8102e">R</span>
+          <span class="avm-name">Redfin</span>
+          <button class="open-btn" style="background:#c8102e" id="btn-r" onclick="openSite('redfin')" disabled>Open ↗</button>
+        </div>
+        <input id="r_v" placeholder="Enter estimate" oninput="recalc()">
+        <input id="r_r" placeholder="Range e.g. 465K-563K">
+      </div>
+
+      <div class="avm-row">
+        <div class="avm-source">
+          <span class="avm-badge" style="background:#00793a">H</span>
+          <span class="avm-name">Homes.com</span>
+          <button class="open-btn" style="background:#00793a" id="btn-h" onclick="openSite('homes')" disabled>Open ↗</button>
+        </div>
+        <input id="h_v" placeholder="Enter estimate" oninput="recalc()">
+        <input id="h_r" placeholder="Range (if shown)">
+      </div>
+
+      <div class="avm-row">
+        <div class="avm-source">
+          <span class="avm-badge" style="background:#d9232d">R</span>
+          <span class="avm-name">Realtor.com</span>
+          <button class="open-btn" style="background:#d9232d" id="btn-rl" onclick="openSite('realtor')" disabled>Open ↗</button>
+        </div>
+        <input id="rl_v" placeholder="Enter estimate" oninput="recalc()">
+        <input id="rl_r" placeholder="Range (if shown)">
+      </div>
+
+      <!-- Gemini result summary -->
+      <div class="gemini-box" id="gemini-box">
+        <div class="g-label">Gemini Market Analysis</div>
+        <div class="g-range" id="g-range">--</div>
+        <div class="g-summary" id="g-summary"></div>
+      </div>
+      <div class="gemini-loading" id="gemini-loading">Asking Gemini for market data...</div>
+      <div class="gemini-error" id="gemini-error"></div>
+
+      <div class="action-row">
+        <button class="btn-sm btn-blue" onclick="fetchGemini()">Auto-Fill via Gemini</button>
+        <button class="btn-sm btn-dark" onclick="openAllSites()">Open All 4 Sites</button>
+        <span class="lookup-hint" id="lookup-hint">Enter address above first</span>
+      </div>
+
+      <!-- Popup fallback -->
+      <div class="popup-warning" id="popup-warning">
+        <strong>Click each link if sites did not open:</strong>
+        <div class="site-links" id="site-links"></div>
+      </div>
+
+      <div class="step-hint">
+        <div class="step"><span class="step-num">1</span> Type address</div>
+        <div class="step"><span class="step-num">2</span> Click Auto-Fill via Gemini (uses live Zillow, Redfin &amp; HouseCanary data)</div>
+        <div class="step"><span class="step-num">3</span> Click Open All 4 Sites, copy each estimate</div>
+        <div class="step"><span class="step-num">4</span> Enter your 3 CMA values below</div>
+        <div class="step"><span class="step-num">5</span> Download PDF</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CMAs -->
+  <div class="card">
+    <div class="card-header"><div class="dot"></div><h2>CMA Tool Outputs</h2><span class="sub">Enter your comp-based values</span></div>
+    <div class="card-body">
+      <div class="cma-row"><div class="row-label">CMAsnap</div><input id="c_s" placeholder="e.g. 465000" oninput="recalc()"></div>
+      <div class="cma-row"><div class="row-label">CMA Easy</div><input id="c_e" placeholder="e.g. 492000" oninput="recalc()"></div>
+      <div class="cma-row"><div class="row-label">CMA RPR</div><input id="c_r" placeholder="e.g. 476000" oninput="recalc()"></div>
+      <div class="section-note">CMA tools use actual MLS closed-sale comps — real buyer transactions. Far more reliable than AVMs. Enter all three for the most balanced recommendation.</div>
+    </div>
+  </div>
+
+  <!-- LIVE CALC -->
+  <div class="card">
+    <div class="card-header"><div class="dot"></div><h2>Live Recommendation</h2></div>
+    <div class="card-body">
+      <div class="calc-box">
+        <div class="calc-main">
+          <div class="calc-label">Recommended List Price</div>
+          <div class="calc-price" id="rec-price">--</div>
+          <div class="calc-sub" id="rec-sub">Enter CMA values above</div>
+        </div>
+        <div class="calc-stats">
+          <div class="stat-box"><div class="stat-val" id="s-avm">--</div><div class="stat-lbl">AVM Avg</div></div>
+          <div class="stat-box"><div class="stat-val" id="s-cma">--</div><div class="stat-lbl">CMA Avg</div></div>
+          <div class="stat-box"><div class="stat-val" id="s-low">--</div><div class="stat-lbl">Conservative</div></div>
+          <div class="stat-box"><div class="stat-val" id="s-high">--</div><div class="stat-lbl">Aggressive</div></div>
+        </div>
+      </div>
+      <div class="tiers-preview">
+        <div class="tier-card move"><div class="t-label">Priced to Move</div><div class="t-price" id="t-low">--</div><div class="t-desc">Fast close 7-10 days. Max traffic, some proceeds left.</div></div>
+        <div class="tier-card rec"><div class="t-label">&#10003; Recommended</div><div class="t-price" id="t-mid">--</div><div class="t-desc">Best balance of traffic and net proceeds.</div></div>
+        <div class="tier-card test"><div class="t-label">Test the Market</div><div class="t-price" id="t-high">--</div><div class="t-desc">Only if shows exceptionally well. Risk of 21+ day stale listing.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-generate" onclick="generatePDF()">Download Pricing Strategy PDF</button>
+</div>
+
+<script>
+var DS = String.fromCharCode(36);
+var LOGO = null; // logo rendered in CSS
 
 
-Z
-Zillow
-Open ↗
 
+// ── KEY STORAGE ───────────────────────────────────────────────────────────────
+function saveKey(){
+  var k = document.getElementById('geminiKey').value.trim();
+  if(!k){ alert('Please paste your Gemini API key first.'); return; }
+  localStorage.setItem('gemini_api_key', k);
+  setKeyStatus('Saved!');
+}
+function saveAgentInfo(){
+  localStorage.setItem('agent_name',    document.getElementById('agentName').value);
+  localStorage.setItem('agent_phone',   document.getElementById('agentPhone').value);
+  localStorage.setItem('agent_email',   document.getElementById('agentEmail').value);
+  localStorage.setItem('agent_license', document.getElementById('agentLicense').value);
+}
+function loadAgentInfo(){
+  var n=localStorage.getItem('agent_name');
+  var p=localStorage.getItem('agent_phone');
+  var e=localStorage.getItem('agent_email');
+  var l=localStorage.getItem('agent_license');
+  if(n) document.getElementById('agentName').value=n;
+  if(p) document.getElementById('agentPhone').value=p;
+  if(e) document.getElementById('agentEmail').value=e;
+  if(l) document.getElementById('agentLicense').value=l;
+}
+function loadKey(){
+  var k = localStorage.getItem('gemini_api_key');
+  if(k){ document.getElementById('geminiKey').value = k; setKeyStatus('Key loaded'); }
+}
+function getKey(){ return document.getElementById('geminiKey').value.trim() || localStorage.getItem('gemini_api_key') || ''; }
+function setKeyStatus(msg){ var el=document.getElementById('keyStatus'); el.textContent=msg; el.className='key-status ok'; }
 
-R
-Redfin
-Open ↗
+// ── SITE URLS ─────────────────────────────────────────────────────────────────
+var currentUrls = {};
+function buildUrls(addr){
+  var q = encodeURIComponent(addr);
+  return {
+    zillow:  'https://www.zillow.com/homes/' + q + '_rb/',
+    redfin:  'https://www.redfin.com/search#location=' + q,
+    homes:   'https://www.homes.com/search/?q=' + q,
+    realtor: 'https://www.realtor.com/realestateandhomes-search/' + q.replace(/%20/g,'_'),
+  };
+}
 
+function onAddressChange(){
+  var addr = document.getElementById('propAddress').value.trim();
+  var btns = ['btn-z','btn-r','btn-h','btn-rl'];
+  if(!addr){
+    btns.forEach(function(b){ document.getElementById(b).disabled=true; });
+    document.getElementById('lookup-hint').textContent = 'Enter address above first';
+    currentUrls={};
+    return;
+  }
+  currentUrls = buildUrls(addr);
+  btns.forEach(function(b){ document.getElementById(b).disabled=false; });
+  document.getElementById('lookup-hint').textContent = 'Ready';
+  document.getElementById('popup-warning').classList.remove('show');
+}
 
-H
-Homes.com
-Open ↗
+function openSite(s){ if(currentUrls[s]) window.open(currentUrls[s],'_blank'); }
 
+function openAllSites(){
+  var addr = document.getElementById('propAddress').value.trim();
+  if(!addr){ alert('Please enter a property address first.'); return; }
+  currentUrls = buildUrls(addr);
+  var keys   = ['zillow','redfin','homes','realtor'];
+  var names  = ['Zillow','Redfin','Homes.com','Realtor.com'];
+  // Use anchor click — best cross-browser approach for multiple popups
+  keys.forEach(function(s){
+    var a = document.createElement('a');
+    a.href = currentUrls[s]; a.target='_blank'; a.rel='noopener';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+  // Always show fallback links
+  var linksDiv = document.getElementById('site-links');
+  linksDiv.innerHTML = '';
+  keys.forEach(function(s,i){
+    var a = document.createElement('a');
+    a.href=currentUrls[s]; a.target='_blank'; a.className='site-link';
+    a.textContent=(i+1)+'. '+names[i];
+    linksDiv.appendChild(a);
+  });
+  document.getElementById('popup-warning').classList.add('show');
+}
 
-R
-Realtor.com
-Open ↗
+// ── GEMINI AUTO-FILL ──────────────────────────────────────────────────────────
+function fetchGemini(){
+  var addr = document.getElementById('propAddress').value.trim();
+  var key  = getKey();
+  if(!addr){ alert('Please enter a property address first.'); return; }
+  if(!key){  alert('Please paste your Gemini API key and click Save Key.\n\nGet it free:\n1. Go to aistudio.google.com\n2. Sign in with @markspain.com\n3. Click Get API Key'); return; }
 
+  var loadEl  = document.getElementById('gemini-loading');
+  var errEl   = document.getElementById('gemini-error');
+  var boxEl   = document.getElementById('gemini-box');
 
-Auto-Fill via Gemini
-Open All 4 Sites
-Enter address above first
-1 Type address 2 Click Auto-Fill via Gemini (uses live Zillow, Redfin & HouseCanary data) 3 Click Open All 4 Sites, copy each estimate 4 Enter your 3 CMA values below 5 Download PDF
+  loadEl.textContent = 'Fetching live market data via Gemini...';
+  loadEl.style.display = 'block';
+  errEl.style.display  = 'none';
+  boxEl.classList.remove('show');
+  document.getElementById('g_v').value = 'Loading...';
+  document.getElementById('g_r').value = '';
 
-CMA TOOL OUTPUTS
-Enter your comp-based values
-CMAsnap
+  var prompt = 'You are a real estate market analyst with access to live MLS, Zillow, Redfin, and HouseCanary data. ' +
+    'For the property at: ' + addr + ' ' +
+    'Provide a current sale price estimate. ' +
+    'Respond ONLY with a JSON object in this exact format, no markdown, no extra text: ' +
+    '{"estimate":450000,"low":430000,"high":470000,"summary":"2-3 sentence market summary with comp data"}';
 
-CMA Easy
+  var models = ['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-flash-8b'];
+  var modelIdx = 0;
 
-CMA RPR
+  function tryNext() {
+    if(modelIdx >= models.length) {
+      loadEl.style.display = 'none';
+      document.getElementById('g_v').value = '';
+      errEl.textContent = 'Could not connect. Check your API key is from your @markspain.com account.';
+      errEl.style.display = 'block';
+      return;
+    }
+    var model = models[modelIdx];
+    modelIdx++;
 
-CMA tools use actual MLS closed-sale comps — real buyer transactions. Far more reliable than AVMs. Enter all three for the most balanced recommendation.
+    fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key,
+      {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          contents: [{parts: [{text: prompt}]}],
+          generationConfig: {temperature: 0.1, maxOutputTokens: 400}
+        })
+      }
+    )
+    .then(function(res) {
+      return res.json().then(function(body) {
+        if(res.status === 429 || res.status === 404) { tryNext(); return null; }
+        if(res.status === 400) { throw new Error('Invalid API key — ' + (body.error && body.error.message ? body.error.message : 'check key')); }
+        if(!res.ok) { throw new Error('HTTP ' + res.status + ': ' + (body.error && body.error.message ? body.error.message : JSON.stringify(body))); }
+        return body;
+      });
+    })
+    .then(function(data) {
+      if(!data) return;
+      var text = data.candidates[0].content.parts[0].text.trim();
+      text = text.replace(/```json/gi,'').replace(/```/g,'').trim();
+      // Extract JSON even if wrapped in text
+      var jsonMatch = text.match(/\{[\s\S]*\}/);
+      if(!jsonMatch) throw new Error('Could not parse response');
+      var parsed = JSON.parse(jsonMatch[0]);
 
-LIVE RECOMMENDATION
-RECOMMENDED LIST PRICE
---
-Enter CMA values above
---
-AVM AVG
---
-CMA AVG
---
-CONSERVATIVE
---
-AGGRESSIVE
-PRICED TO MOVE
---
-Fast close 7-10 days. Max traffic, some proceeds left.
-✓ RECOMMENDED
---
-Best balance of traffic and net proceeds.
-TEST THE MARKET
---
-Only if shows exceptionally well. Risk of 21+ day stale listing.
-DOWNLOAD PRICING STRATEGY PDF
+      var est  = Math.round(parsed.estimate || parsed.value || parsed.price || 0);
+      var low  = Math.round(parsed.low  || parsed.priceLow  || est * 0.96);
+      var high = Math.round(parsed.high || parsed.priceHigh || est * 1.04);
+      var summary = parsed.summary || '';
+
+      document.getElementById('g_v').value = est.toLocaleString();
+      document.getElementById('g_r').value = DS+Math.round(low/1000)+'K - '+DS+Math.round(high/1000)+'K';
+      document.getElementById('g-range').textContent = DS+Math.round(low/1000)+'K - '+DS+Math.round(high/1000)+'K  (mid: '+DS+Math.round(est/1000)+'K)';
+      document.getElementById('g-summary').textContent = summary;
+      boxEl.classList.add('show');
+      loadEl.style.display = 'none';
+      recalc();
+    })
+    .catch(function(err) {
+      loadEl.style.display = 'none';
+      document.getElementById('g_v').value = '';
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    });
+  }
+
+  tryNext();
+}
+
+// ── CALCULATION ───────────────────────────────────────────────────────────────
+function pv(id){
+  var v=((document.getElementById(id)||{}).value||'').replace(/[^0-9.]/g,'');
+  var n=parseFloat(v);
+  return isNaN(n)?null:(n<1000?n*1000:n);
+}
+function fmtK(n){ return n?DS+Math.round(n/1000)+'K':'--'; }
+function fmtC(n){ return n?DS+Math.round(n).toLocaleString():'--'; }
+function fmtVs(v,rec){
+  if(!v||!rec) return '--';
+  var diff=Math.round(v-rec);
+  return (diff>=0?'+':'')+DS+Math.abs(diff).toLocaleString();
+}
+function snap(n){ return Math.round(n/5000)*5000-100; }
+function gv(id){ return ((document.getElementById(id)||{}).value||'').trim(); }
+
+function recalc(){
+  var avms=[pv('g_v'),pv('z_v'),pv('r_v'),pv('h_v'),pv('rl_v')].filter(Boolean);
+  var cmas=[pv('c_s'),pv('c_e'),pv('c_r')].filter(Boolean);
+  var avmA=avms.length?avms.reduce(function(a,b){return a+b;})/avms.length:null;
+  var cmaA=cmas.length?cmas.reduce(function(a,b){return a+b;})/cmas.length:null;
+  document.getElementById('s-avm').textContent=fmtK(avmA);
+  document.getElementById('s-cma').textContent=fmtK(cmaA);
+  if(!cmaA){
+    ['rec-price','t-low','t-mid','t-high'].forEach(function(i){document.getElementById(i).textContent='--';});
+    document.getElementById('rec-sub').textContent='Enter CMA values above';
+    document.getElementById('s-low').textContent='--';
+    document.getElementById('s-high').textContent='--';
+    return;
+  }
+  var combo=avmA?avmA*0.4+cmaA*0.6:cmaA;
+  var rec=snap(combo*1.01),low=snap(rec-10000),high=snap(rec+10000);
+  document.getElementById('rec-price').textContent=DS+rec.toLocaleString();
+  document.getElementById('rec-sub').textContent='Based on '+avms.length+' AVMs + '+cmas.length+' CMA tools';
+  document.getElementById('t-low').textContent=DS+low.toLocaleString();
+  document.getElementById('t-mid').textContent=DS+rec.toLocaleString();
+  document.getElementById('t-high').textContent=DS+high.toLocaleString();
+  document.getElementById('s-low').textContent=fmtK(low);
+  document.getElementById('s-high').textContent=fmtK(high);
+}
+
+// ── PDF ────────────────────────────────────────────────────────────────────────
+function generatePDF(){
+  var doc=new window.jspdf.jsPDF({unit:'pt',format:'letter'});
+  var PW=612,PH=792,ML=28,MR=28,MT=26,MB=26,CW=556;
+  var y=MT;
+  function sf(r,g,b){doc.setFillColor(r,g,b);}
+  function sc(r,g,b){doc.setTextColor(r,g,b);}
+  function ss(r,g,b){doc.setDrawColor(r,g,b);}
+  function fn(st,sz){doc.setFont('helvetica',st);doc.setFontSize(sz);}
+  function fr(x,fy,w,h,r,g,b){sf(r,g,b);doc.rect(x,fy,w,h,'F');}
+  function cell(txt,x,cy,w,h,br,bg2,bb,tcr,tcg,tcb,fs,bold,align){
+    fr(x,cy,w,h,br,bg2,bb);sc(tcr,tcg,tcb);fn(bold?'bold':'normal',fs);
+    var t=String(txt===null||txt===undefined?'--':txt);
+    var ty=cy+h/2+fs*0.35;
+    if(align==='C') doc.text(t,x+w/2,ty,{align:'center'});
+    else doc.text(t,x+6,ty);
+  }
+  function mcell(lines,x,cy,w,h,br,bg2,bb,tcr,tcg,tcb,fs){
+    fr(x,cy,w,h,br,bg2,bb);sc(tcr,tcg,tcb);fn('normal',fs);
+    doc.text(lines,x+6,cy+fs+3);
+  }
+  function drawGrid(x,gy,cols,rows,rh){
+    ss(200,200,200);doc.setLineWidth(0.3);
+    var cx=x;
+    for(var i=0;i<cols.length;i++){doc.line(cx,gy,cx,gy+rh*rows);cx+=cols[i];}
+    doc.line(cx,gy,cx,gy+rh*rows);
+    for(var j=0;j<=rows;j++) doc.line(x,gy+j*rh,cx,gy+j*rh);
+  }
+
+  var avmVals=[pv('g_v'),pv('z_v'),pv('r_v'),pv('h_v'),pv('rl_v')].filter(Boolean);
+  var cmaVals=[pv('c_s'),pv('c_e'),pv('c_r')].filter(Boolean);
+  var avmA=avmVals.length?avmVals.reduce(function(a,b){return a+b;})/avmVals.length:null;
+  var cmaA=cmaVals.length?cmaVals.reduce(function(a,b){return a+b;})/cmaVals.length:null;
+  var combo=avmA?avmA*0.4+cmaA*0.6:cmaA;
+  var recN=cmaA?snap(combo*1.01):0;
+  var lowN=snap(recN-10000),highN=snap(recN+10000);
+  var recStr=recN?DS+recN.toLocaleString():'--';
+  var lowStr=lowN?DS+lowN.toLocaleString():'--';
+  var highStr=highN?DS+highN.toLocaleString():'--';
+  var avmStr=fmtK(avmA),cmaStr=fmtK(cmaA);
+  function avmDisp(id){var v=pv(id);return v?DS+Math.round(v).toLocaleString():'--';}
+
+  // HEADER
+  fr(ML,y,CW,38,200,16,46);
+  // Logo text box in PDF
+  doc.setFillColor(26,26,26); doc.rect(PW-MR-54,y+3,48,32,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.text('MARK',PW-MR-30,y+14,{align:'center'});
+  doc.setTextColor(200,16,46);
+  doc.text('SPAIN',PW-MR-30,y+23,{align:'center'});
+  doc.setTextColor(180,180,180); doc.setFont('helvetica','normal'); doc.setFontSize(6);
+  doc.text('REAL ESTATE',PW-MR-30,y+31,{align:'center'});
+  sc(255,255,255);fn('bold',16);doc.text(gv('agentName')+', Realtor(R)',ML+11,y+15);
+  fn('normal',8);sc(255,190,190);
+  doc.text('Mark Spain Real Estate  |  '+gv('agentPhone')+'  |  '+gv('agentEmail'),ML+11,y+28);
+  y+=41;
+
+  // ADDRESS
+  fr(ML,y,CW,19,26,26,26);sc(255,255,255);fn('bold',8.5);
+  doc.text(gv('propAddress')+' -- Comparative Market Analysis and Pricing Strategy',ML+10,y+13);
+  y+=26;
+
+  // HERO
+  fr(ML,y,CW,42,245,245,245);ss(200,16,46);doc.setLineWidth(1.5);doc.rect(ML,y,CW,42);
+  sc(100,100,100);fn('normal',7.5);doc.text('RECOMMENDED LIST PRICE',ML+CW/2,y+9,{align:'center'});
+  sc(200,16,46);fn('bold',26);doc.text(recStr,ML+CW/2,y+33,{align:'center'});
+  sc(100,100,100);fn('normal',7);doc.text('Based on '+avmVals.length+' AVMs + '+cmaVals.length+' CMA tools',ML+CW/2,y+41,{align:'center'});
+  y+=49;
+
+  // AVM + CMA
+  var half=(CW-6)/2,RH=15;
+  sc(200,16,46);fn('bold',8);doc.text('AUTOMATED VALUATIONS (AVMs)',ML,y);doc.text('CMA TOOL OUTPUTS',ML+half+6,y);
+  y+=6;
+  var avmY=y,aC=[half*0.38,half*0.28,half*0.34];
+  var avmRows=[
+    ['AVM Source','Estimate','Range'],
+    ['Gemini AI', avmDisp('g_v'), gv('g_r')||'--'],
+    ['Zillow',    avmDisp('z_v'), gv('z_r')||'--'],
+    ['Redfin',    avmDisp('r_v'), gv('r_r')||'--'],
+    ['Homes.com', avmDisp('h_v'), gv('h_r')||'--'],
+    ['Realtor.com',avmDisp('rl_v'),gv('rl_r')||'--'],
+    ['AVM Average',avmStr,''],
+  ];
+  avmRows.forEach(function(row,ri){
+    var ry=avmY+ri*RH,isHdr=ri===0,isAvg=ri===avmRows.length-1,isG=ri===1;
+    var bg=isHdr?[26,26,26]:isAvg?[255,232,232]:isG?[235,241,255]:ri%2===1?[255,255,255]:[245,245,245];
+    var tc=isHdr?[255,255,255]:isG?[30,70,180]:[26,26,26];
+    var ax=ML;
+    row.forEach(function(t,ci){cell(t,ax,ry,aC[ci],RH,bg[0],bg[1],bg[2],tc[0],tc[1],tc[2],7.5,isHdr||isAvg,'L');ax+=aC[ci];});
+  });
+  drawGrid(ML,avmY,aC,avmRows.length,RH);
+  sc(120,120,120);fn('normal',6.5);doc.text('Gemini AI auto-filled. Zillow, Redfin, Homes.com, Realtor.com entered manually from each site.',ML,avmY+avmRows.length*RH+5);
+
+  var cX=ML+half+6,cC=[half*0.42,half*0.30,half*0.28];
+  var csn=pv('c_s'),cse=pv('c_e'),csr=pv('c_r');
+  var cmaRows=[
+    ['CMA Tool','Output','vs. List'],
+    ['CMAsnap',fmtC(csn),fmtVs(csn,recN)],
+    ['CMA Easy',fmtC(cse),fmtVs(cse,recN)],
+    ['CMA RPR',fmtC(csr),fmtVs(csr,recN)],
+    ['CMA Average',cmaStr,''],
+  ];
+  cmaRows.forEach(function(row,ri){
+    var ry=avmY+ri*RH,isHdr=ri===0,isAvg=ri===cmaRows.length-1;
+    var bg=isHdr?[26,26,26]:isAvg?[255,232,232]:ri%2===1?[255,255,255]:[245,245,245];
+    var tc=isHdr?[255,255,255]:[26,26,26];
+    var cx2=cX;
+    row.forEach(function(t,ci){cell(t,cx2,ry,cC[ci],RH,bg[0],bg[1],bg[2],tc[0],tc[1],tc[2],7.5,isHdr||isAvg,'L');cx2+=cC[ci];});
+  });
+  drawGrid(cX,avmY,cC,cmaRows.length,RH);
+  sc(120,120,120);fn('normal',6.5);doc.text('CMAs use actual MLS closed-sale comps. Average of all 3 tools = most balanced, defensible value.',cX,avmY+cmaRows.length*RH+5);
+
+  y=avmY+Math.max(avmRows.length,cmaRows.length)*RH+14;
+
+  // RATIONALE
+  sc(200,16,46);fn('bold',8.5);doc.text('WHY '+recStr+' -- THE RATIONALE',ML,y);y+=6;
+  var rW=CW/5,hdrH=17,bodyH=46;
+  var rHdrs=['Data Consensus','Search Filters','Ignore Outliers','Negotiation Room','Day 14 Rule'];
+  var rBody=[
+    'All sources cluster between AVM avg ('+avmStr+') and CMA avg ('+cmaStr+'). '+recStr+' sits at the heart of this consensus range.',
+    'Buyers filter in '+DS+'25K-'+DS+'50K steps. '+recStr+' maximizes buyer pool. Pricing at '+highStr+' risks being filtered out entirely.',
+    'Any AVM showing a high outlier is not supported by comp-based CMAs. Listing at the outlier causes extended DOM and larger price cuts later.',
+    'Buyers expect to negotiate. '+recStr+' leaves '+DS+'10K-'+DS+'15K room for concessions without dropping below the '+cmaStr+' CMA average.',
+    'No contract by Day 14: cut to '+lowStr+' before Day 21. Resets listing freshness before buyers wonder what is wrong with it.',
+  ];
+  rHdrs.forEach(function(h,i){cell(h,ML+i*rW,y,rW,hdrH,26,26,26,255,255,255,7.5,true,'C');});
+  y+=hdrH;
+  rBody.forEach(function(b,i){
+    var bg=i%2===0?[245,245,245]:[240,244,255];
+    mcell(doc.splitTextToSize(b,rW-12),ML+i*rW,y,rW,bodyH,bg[0],bg[1],bg[2],100,100,100,7);
+  });
+  ss(200,200,200);doc.setLineWidth(0.3);
+  for(var i=0;i<=5;i++) doc.line(ML+i*rW,y-hdrH,ML+i*rW,y+bodyH);
+  doc.line(ML,y-hdrH,ML+CW,y-hdrH);doc.line(ML,y,ML+CW,y);doc.line(ML,y+bodyH,ML+CW,y+bodyH);
+  y+=bodyH+7;
+  ss(200,200,200);doc.setLineWidth(0.5);doc.line(ML,y,ML+CW,y);y+=7;
+
+  // TIERS
+  sc(200,16,46);fn('bold',8.5);doc.text('PRICING STRATEGY TIERS',ML,y);y+=6;
+  var footerH=20,tierH=PH-MB-footerH-y-8;
+  if(tierH<75) tierH=75;
+  var tW=[CW*0.305,CW*0.39,CW*0.305],tX=[ML,ML+tW[0],ML+tW[0]+tW[1]];
+  var tBgs=[[232,240,255],[255,240,240],[255,248,238]];
+  var tBorders=[[26,42,74],[200,16,46],[26,42,74]];
+  var tPClr=[[10,74,138],[200,16,46],[192,96,0]];
+  var tLabels=['PRICED TO MOVE','MARKET RATE (Recommended)','TEST THE MARKET'];
+  var tPrices=[lowStr,recStr,highStr];
+  var tDesc=[
+    'Best for sellers wanting a fast close within 7-10 days. Maximizes first-weekend buyer traffic. Sits just above CMA floor. Some net proceeds left on the table.',
+    'Ideal balance of traffic and net proceeds. Sits between CMA average ('+cmaStr+') and top estimate. Falls below key search threshold -- maximum buyer pool.',
+    'Only defensible if home shows exceptionally well with recent updates. Real risk of stale listing past 21 days. Do not use without clear justification.',
+  ];
+  tX.forEach(function(tx,i){
+    fr(tx,y,tW[i],tierH,tBgs[i][0],tBgs[i][1],tBgs[i][2]);
+    ss(tBorders[i][0],tBorders[i][1],tBorders[i][2]);doc.setLineWidth(2);doc.rect(tx,y,tW[i],tierH);
+    sc(26,26,26);fn('bold',8.5);doc.text(tLabels[i],tx+tW[i]/2,y+13,{align:'center'});
+    sc(tPClr[i][0],tPClr[i][1],tPClr[i][2]);fn('bold',i===1?22:18);doc.text(tPrices[i],tx+tW[i]/2,y+34,{align:'center'});
+    sc(80,80,80);fn('normal',7.5);doc.text(doc.splitTextToSize(tDesc[i],tW[i]-16),tx+tW[i]/2,y+46,{align:'center'});
+  });
+  ss(200,200,200);doc.setLineWidth(0.4);
+  doc.line(tX[1],y,tX[1],y+tierH);doc.line(tX[2],y,tX[2],y+tierH);
+  y+=tierH+7;
+
+  // FOOTER
+  fr(ML,y,CW,footerH,26,26,26);sc(155,155,155);fn('normal',7);
+  doc.text(gv('agentName')+', Realtor(R)  |  Mark Spain Real Estate  |  NC License #'+gv('agentLicense')+'  |  '+gv('agentPhone')+'  |  '+gv('agentEmail')+'  |  Chatham - Durham - Harnett - Johnston - Wake',ML+CW/2,y+13,{align:'center'});
+  doc.save('PricingStrategy_'+(gv('propAddress')||'Property').replace(/[^a-zA-Z0-9]/g,'_').substring(0,28)+'.pdf');
+}
+
+window.onload=function(){ loadKey(); loadAgentInfo(); recalc(); };
+</script>
+</body>
+</html>
