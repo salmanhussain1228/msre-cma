@@ -11,6 +11,11 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Source Sans 3',sans-serif;background:var(--dark);min-height:100vh;color:var(--dark);}
   .banner{background:var(--red);padding:13px 28px;display:flex;align-items:center;justify-content:space-between;}
+
+  .logo-box{width:58px;height:54px;background:#1a1a1a;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;flex-shrink:0;}
+  .logo-text-mark{color:white;font-size:11px;font-weight:900;letter-spacing:0.5px;line-height:1.1;}
+  .logo-text-spain{color:#C8102E;font-size:11px;font-weight:900;letter-spacing:0.5px;line-height:1.1;}
+  .logo-text-re{color:#aaa;font-size:7px;font-weight:600;letter-spacing:0.8px;line-height:1.4;}
   .banner-left{display:flex;align-items:center;gap:14px;}
   .logo-img{height:50px;width:50px;object-fit:cover;border-radius:4px;}
   .banner-title h1{font-family:'Playfair Display',serif;font-size:19px;color:white;}
@@ -110,7 +115,11 @@
 <body>
 <div class="banner">
   <div class="banner-left">
-    <img class="logo-img" id="logo-img" alt="Mark Spain Real Estate">
+    <div class="logo-box">
+      <div class="logo-text-mark">MARK</div>
+      <div class="logo-text-spain">SPAIN</div>
+      <div class="logo-text-re">REAL ESTATE</div>
+    </div>
     <div class="banner-title">
       <h1>Mark Spain Real Estate</h1>
       <p>CMA Pricing Strategy Generator</p>
@@ -126,11 +135,12 @@
     <div class="card-header"><div class="dot"></div><h2>Agent &amp; Property Information</h2></div>
     <div class="card-body">
       <div class="form-grid" style="margin-bottom:12px">
-        <div class="form-group"><label>Agent Name</label><input id="agentName" value="Salman Hussain"></div>
-        <div class="form-group"><label>Phone</label><input id="agentPhone" value="919-802-2207"></div>
-        <div class="form-group"><label>Email</label><input id="agentEmail" value="salmanhussain@markspain.com"></div>
-        <div class="form-group"><label>NC License #</label><input id="agentLicense" value="316046"></div>
+        <div class="form-group"><label>Agent Name</label><input id="agentName" placeholder="Your full name" oninput="saveAgentInfo()"></div>
+        <div class="form-group"><label>Phone</label><input id="agentPhone" placeholder="Your phone" oninput="saveAgentInfo()"></div>
+        <div class="form-group"><label>Email</label><input id="agentEmail" placeholder="name@markspain.com" oninput="saveAgentInfo()"></div>
+        <div class="form-group"><label>NC License #</label><input id="agentLicense" placeholder="NC License #" oninput="saveAgentInfo()"></div>
       </div>
+      <div style="font-size:10px;color:#6b6460;margin-top:6px;">Your info saves automatically — only enter it once.</div>
       <div class="form-group">
         <label>Property Address</label>
         <input id="propAddress" placeholder="e.g. 6608 Ascot Ct, Cary NC 27518" oninput="onAddressChange()">
@@ -276,9 +286,9 @@
 
 <script>
 var DS = String.fromCharCode(36);
-var LOGO_B64 = "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";
-document.getElementById('logo-img').src = 'data:image/jpeg;base64,' + LOGO_B64;
-var LOGO = 'data:image/jpeg;base64,' + LOGO_B64;
+var LOGO = null; // logo rendered in CSS
+
+
 
 // ── KEY STORAGE ───────────────────────────────────────────────────────────────
 function saveKey(){
@@ -286,6 +296,22 @@ function saveKey(){
   if(!k){ alert('Please paste your Gemini API key first.'); return; }
   localStorage.setItem('gemini_api_key', k);
   setKeyStatus('Saved!');
+}
+function saveAgentInfo(){
+  localStorage.setItem('agent_name',    document.getElementById('agentName').value);
+  localStorage.setItem('agent_phone',   document.getElementById('agentPhone').value);
+  localStorage.setItem('agent_email',   document.getElementById('agentEmail').value);
+  localStorage.setItem('agent_license', document.getElementById('agentLicense').value);
+}
+function loadAgentInfo(){
+  var n=localStorage.getItem('agent_name');
+  var p=localStorage.getItem('agent_phone');
+  var e=localStorage.getItem('agent_email');
+  var l=localStorage.getItem('agent_license');
+  if(n) document.getElementById('agentName').value=n;
+  if(p) document.getElementById('agentPhone').value=p;
+  if(e) document.getElementById('agentEmail').value=e;
+  if(l) document.getElementById('agentLicense').value=l;
 }
 function loadKey(){
   var k = localStorage.getItem('gemini_api_key');
@@ -352,76 +378,87 @@ function fetchGemini(){
   var addr = document.getElementById('propAddress').value.trim();
   var key  = getKey();
   if(!addr){ alert('Please enter a property address first.'); return; }
-  if(!key){  alert('Please paste your free Gemini API key and click Save Key.\n\nGet it free at aistudio.google.com'); return; }
+  if(!key){  alert('Please paste your Gemini API key and click Save Key.\n\nGet it free:\n1. Go to aistudio.google.com\n2. Sign in with @markspain.com\n3. Click Get API Key'); return; }
 
-  document.getElementById('gemini-loading').textContent = 'Fetching live market data via Gemini (Zillow, Redfin, HouseCanary)...';
-  document.getElementById('gemini-loading').style.display='block';
-  document.getElementById('gemini-error').style.display='none';
-  document.getElementById('gemini-box').classList.remove('show');
+  var loadEl  = document.getElementById('gemini-loading');
+  var errEl   = document.getElementById('gemini-error');
+  var boxEl   = document.getElementById('gemini-box');
+
+  loadEl.textContent = 'Fetching live market data via Gemini...';
+  loadEl.style.display = 'block';
+  errEl.style.display  = 'none';
+  boxEl.classList.remove('show');
   document.getElementById('g_v').value = 'Loading...';
   document.getElementById('g_r').value = '';
 
-  var prompt = 'You are a real estate market analyst. For the property at: ' + addr + '\n\n' +
-    'Provide a sale price estimate in this exact JSON format only, no other text:\n' +
-    '{"estimate": 450000, "low": 430000, "high": 470000, "summary": "2-3 sentence market summary"}\n\n' +
-    'Base estimate on comparable sales, location, market conditions. Return only valid JSON.';
+  var prompt = 'You are a real estate market analyst with access to live MLS, Zillow, Redfin, and HouseCanary data. ' +
+    'For the property at: ' + addr + ' ' +
+    'Provide a current sale price estimate. ' +
+    'Respond ONLY with a JSON object in this exact format, no markdown, no extra text: ' +
+    '{"estimate":450000,"low":430000,"high":470000,"summary":"2-3 sentence market summary with comp data"}';
 
-  // Try models in order until one works
-  var models = ['gemini-2.0-flash-lite','gemini-1.5-flash','gemini-1.5-flash-8b','gemini-pro'];
-  
-  function tryModel(idx) {
-    if(idx >= models.length) {
-      document.getElementById('gemini-loading').style.display='none';
-      document.getElementById('g_v').value = 'Error';
-      var errEl = document.getElementById('gemini-error');
-      errEl.textContent = 'All models failed. Check your API key at aistudio.google.com and try again.';
-      errEl.style.display='block';
+  var models = ['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-flash-8b'];
+  var modelIdx = 0;
+
+  function tryNext() {
+    if(modelIdx >= models.length) {
+      loadEl.style.display = 'none';
+      document.getElementById('g_v').value = '';
+      errEl.textContent = 'Could not connect. Check your API key is from your @markspain.com account.';
+      errEl.style.display = 'block';
       return;
     }
-    var modelName = models[idx];
-    fetch('https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent?key=' + key, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      contents: [{parts: [{text: prompt}]}],
-      generationConfig: {temperature: 0.2, maxOutputTokens: 300}
+    var model = models[modelIdx];
+    modelIdx++;
+
+    fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key,
+      {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          contents: [{parts: [{text: prompt}]}],
+          generationConfig: {temperature: 0.1, maxOutputTokens: 400}
+        })
+      }
+    )
+    .then(function(res) {
+      if(res.status === 429 || res.status === 404) { tryNext(); return null; }
+      if(res.status === 400) { throw new Error('Invalid API key. Make sure you copied the full key from aistudio.google.com'); }
+      if(!res.ok) { throw new Error('Error ' + res.status + ' — try again in a moment'); }
+      return res.json();
     })
-  })
-  .then(function(res){
-    if(res.status===400) throw new Error('400 Invalid API key');
-    if(res.status===429) throw new Error('429 Rate limit');
-    if(res.status===404) throw new Error('404 Model not found');
-    if(!res.ok) throw new Error(res.status+' API error');
-    return res.json();
-  })
-  .then(function(data){
-    var text = data.candidates[0].content.parts[0].text.trim();
-    // Strip markdown code fences if present
-    text = text.replace(/```json/gi,'').replace(/```/g,'').trim();
-    var parsed = JSON.parse(text);
+    .then(function(data) {
+      if(!data) return;
+      var text = data.candidates[0].content.parts[0].text.trim();
+      text = text.replace(/```json/gi,'').replace(/```/g,'').trim();
+      // Extract JSON even if wrapped in text
+      var jsonMatch = text.match(/\{[\s\S]*\}/);
+      if(!jsonMatch) throw new Error('Could not parse response');
+      var parsed = JSON.parse(jsonMatch[0]);
 
-    var est  = parsed.estimate || parsed.value || parsed.price || 0;
-    var low  = parsed.low  || parsed.priceLow  || (est * 0.96);
-    var high = parsed.high || parsed.priceHigh || (est * 1.04);
-    var summary = parsed.summary || '';
+      var est  = Math.round(parsed.estimate || parsed.value || parsed.price || 0);
+      var low  = Math.round(parsed.low  || parsed.priceLow  || est * 0.96);
+      var high = Math.round(parsed.high || parsed.priceHigh || est * 1.04);
+      var summary = parsed.summary || '';
 
-    document.getElementById('g_v').value = Math.round(est).toLocaleString();
-    document.getElementById('g_r').value = DS+Math.round(low/1000)+'K - '+DS+Math.round(high/1000)+'K';
+      document.getElementById('g_v').value = est.toLocaleString();
+      document.getElementById('g_r').value = DS+Math.round(low/1000)+'K - '+DS+Math.round(high/1000)+'K';
+      document.getElementById('g-range').textContent = DS+Math.round(low/1000)+'K - '+DS+Math.round(high/1000)+'K  (mid: '+DS+Math.round(est/1000)+'K)';
+      document.getElementById('g-summary').textContent = summary;
+      boxEl.classList.add('show');
+      loadEl.style.display = 'none';
+      recalc();
+    })
+    .catch(function(err) {
+      loadEl.style.display = 'none';
+      document.getElementById('g_v').value = '';
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    });
+  }
 
-    document.getElementById('g-range').textContent = DS+Math.round(low/1000)+'K - '+DS+Math.round(high/1000)+'K  (est. '+DS+Math.round(est/1000)+'K)';
-    document.getElementById('g-summary').textContent = summary;
-    document.getElementById('gemini-box').classList.add('show');
-    document.getElementById('gemini-loading').style.display='none';
-    recalc();
-  })
-  .catch(function(err){
-    document.getElementById('gemini-loading').style.display='none';
-    document.getElementById('g_v').value = 'Error';
-    document.getElementById('g_r').value = '';
-    var errEl = document.getElementById('gemini-error');
-    errEl.textContent = 'Gemini error: ' + err.message;
-    errEl.style.display='block';
-  });
+  tryNext();
 }
 
 // ── CALCULATION ───────────────────────────────────────────────────────────────
@@ -509,7 +546,14 @@ function generatePDF(){
 
   // HEADER
   fr(ML,y,CW,38,200,16,46);
-  try{doc.addImage(LOGO,'JPEG',PW-MR-46,y+3,40,32);}catch(e){}
+  // Logo text box in PDF
+  doc.setFillColor(26,26,26); doc.rect(PW-MR-54,y+3,48,32,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.text('MARK',PW-MR-30,y+14,{align:'center'});
+  doc.setTextColor(200,16,46);
+  doc.text('SPAIN',PW-MR-30,y+23,{align:'center'});
+  doc.setTextColor(180,180,180); doc.setFont('helvetica','normal'); doc.setFontSize(6);
+  doc.text('REAL ESTATE',PW-MR-30,y+31,{align:'center'});
   sc(255,255,255);fn('bold',16);doc.text(gv('agentName')+', Realtor(R)',ML+11,y+15);
   fn('normal',8);sc(255,190,190);
   doc.text('Mark Spain Real Estate  |  '+gv('agentPhone')+'  |  '+gv('agentEmail'),ML+11,y+28);
@@ -627,7 +671,7 @@ function generatePDF(){
   doc.save('PricingStrategy_'+(gv('propAddress')||'Property').replace(/[^a-zA-Z0-9]/g,'_').substring(0,28)+'.pdf');
 }
 
-window.onload=function(){ loadKey(); recalc(); };
+window.onload=function(){ loadKey(); loadAgentInfo(); recalc(); };
 </script>
 </body>
 </html>
