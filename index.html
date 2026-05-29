@@ -363,29 +363,37 @@
 <div class="footer">Mark Spain Real Estate &nbsp;|&nbsp; Salman Hussain &nbsp;|&nbsp; NC RE #316046 &nbsp;|&nbsp; 919-802-2207</div>
 
 <script>
-// ── Key storage (cookie-based, works on GitHub Pages) ─────────────────────
-function setCookie(name, value, days) {
-  const d = new Date();
-  d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
-}
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : null;
-}
-window.addEventListener('load', () => {
-  const saved = getCookie('gemini_api_key');
-  if (saved) {
-    document.getElementById('apiKey').value = saved;
-    document.getElementById('keyStatus').textContent = '✓ Key loaded';
-  }
-});
+// ── Key storage ────────────────────────────────────────────────────────────
+// Try localStorage, sessionStorage, and in-memory as fallbacks
+let _keyMemory = null;
 function saveKey() {
   const k = document.getElementById('apiKey').value.trim();
-  if (!k) return;
-  setCookie('gemini_api_key', k, 365);
-  document.getElementById('keyStatus').textContent = '✓ Saved';
+  if (!k) { alert('Please paste your API key first.'); return; }
+  _keyMemory = k;
+  try { localStorage.setItem('msre_gemini_key', k); } catch(e) {}
+  try { sessionStorage.setItem('msre_gemini_key', k); } catch(e) {}
+  const el = document.getElementById('keyStatus');
+  el.textContent = '✓ Key saved';
+  el.style.color = '#27ae60';
 }
+function getKey() {
+  if (_keyMemory) return _keyMemory;
+  try { const v = localStorage.getItem('msre_gemini_key'); if (v) return v; } catch(e) {}
+  try { const v = sessionStorage.getItem('msre_gemini_key'); if (v) return v; } catch(e) {}
+  return document.getElementById('apiKey').value.trim();
+}
+window.addEventListener('load', () => {
+  let saved = null;
+  try { saved = localStorage.getItem('msre_gemini_key'); } catch(e) {}
+  if (!saved) { try { saved = sessionStorage.getItem('msre_gemini_key'); } catch(e) {} }
+  if (saved) {
+    _keyMemory = saved;
+    document.getElementById('apiKey').value = saved;
+    const el = document.getElementById('keyStatus');
+    el.textContent = '✓ Key loaded';
+    el.style.color = '#27ae60';
+  }
+});
 
 // ── Open sites ─────────────────────────────────────────────────────────────
 function openSite(source) {
@@ -459,7 +467,7 @@ async function autoFill() {
   const address = document.getElementById('address').value.trim();
   if (!address) { setStatus('Please enter a property address first.', 'error'); return; }
 
-  const key = document.getElementById('apiKey').value.trim();
+  const key = getKey();
   if (!key) { setStatus('Please enter and save your Gemini API key first.', 'error'); return; }
 
   const btn = document.getElementById('autofillBtn');
