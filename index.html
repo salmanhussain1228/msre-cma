@@ -438,7 +438,7 @@ function updateCalc() {
     return;
   }
   const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
-  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const mn = vals.reduce(function(a,b){return a<b?a:b;}), mx = vals.reduce(function(a,b){return a>b?a:b;});
   consensusEl.textContent = `$${avg.toFixed(0)}k`;
   rangeEl.textContent = `${vals.length} sources · Range $${mn}k – $${mx}k`;
 }
@@ -740,7 +740,7 @@ function generatePDF() {
   if (cmaVals.length) {
     const cmaAvg = (cmaVals.reduce((a,b)=>a+b,0)/cmaVals.length).toFixed(0);
     doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(26,26,26);
-    doc.text(`CMA average: $${cmaAvg}k  |  Low: $${Math.min(...cmaVals)}k  |  High: $${Math.max(...cmaVals)}k`, 36, y + 8);
+    var cLow = cmaVals.reduce(function(a,b){return a<b?a:b;}); var cHigh = cmaVals.reduce(function(a,b){return a>b?a:b;}); doc.text("CMA average: $" + cmaAvg + "k  |  Low: $" + cLow + "k  |  High: $" + cHigh + "k", 36, y + 8);
   }
   y += 18;
 
