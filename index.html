@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MSRE CMA Pricing Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -496,7 +497,8 @@ Rules:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0 }
+            generationConfig: { temperature: 0 },
+            tools: [{ google_search: {} }]
           })
         }
       );
@@ -550,7 +552,9 @@ Rules:
   function fill(id, val) {
     const el = document.getElementById(id);
     if (el && val !== null && val !== undefined) {
-      el.value = parseFloat(val).toFixed(1);
+      let v = parseFloat(val);
+      if (v > 10000) v = v / 1000; // normalize if Gemini returns full dollars
+      el.value = v.toFixed(1);
     }
   }
 
@@ -597,34 +601,180 @@ function clearAll() {
   hideDebug();
 }
 
-// ── Generate PDF (calls the Python PDF generator via download) ─────────────
+// ── Generate PDF via jsPDF ─────────────────────────────────────────────────
 function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const W = 612, RED = [200, 16, 46], DARK = [26, 26, 26], GRAY = [245, 245, 245], MGRAY = [221, 221, 221];
+
   const address = document.getElementById('address').value.trim() || 'Property';
+  const z   = { est: v('z_est'),   low: v('z_low'),   high: v('z_high') };
+  const r   = { est: v('r_est'),   low: v('r_low'),   high: v('r_high') };
+  const h   = { est: v('h_est'),   low: v('h_low'),   high: v('h_high') };
+  const rc  = { est: v('rc_est'),  low: v('rc_low'),  high: v('rc_high') };
+  const cma = { snap: v('cma_snap'), easy: v('cma_easy'), rpr: v('cma_rpr') };
+  const rec = v('rec_price');
 
-  const data = {
-    address,
-    zillow:  { est: v('z_est'),  low: v('z_low'),  high: v('z_high') },
-    redfin:  { est: v('r_est'),  low: v('r_low'),  high: v('r_high') },
-    homes:   { est: v('h_est'),  low: v('h_low'),  high: v('h_high') },
-    realtor: { est: v('rc_est'), low: v('rc_low'), high: v('rc_high') },
-    cma:     { snap: v('cma_snap'), easy: v('cma_easy'), rpr: v('cma_rpr') },
-    rec:     v('rec_price')
-  };
+  const fmt  = val => val != null ? `$${val}k` : 'N/A';
+  const fmtR = val => val != null ? `$${Number(val).toLocaleString()}` : '—';
 
-  // Build a prefilled summary for copy/paste confirmation
-  const lines = [
-    `Address: ${data.address}`,
-    `Zillow: $${data.zillow.est}k (${data.zillow.low}–${data.zillow.high})`,
-    `Redfin: $${data.redfin.est}k (${data.redfin.low}–${data.redfin.high})`,
-    `Homes.com: $${data.homes.est}k (${data.homes.low}–${data.homes.high})`,
-    `Realtor.com: $${data.realtor.est}k`,
-    `CMAsnap: $${data.cma.snap}k | CMAeasy: $${data.cma.easy}k | RPR: $${data.cma.rpr}k`,
-    `Recommended: $${data.rec ? Number(data.rec).toLocaleString() : '—'}`
-  ].join('\n');
+  // AVM consensus
+  const avmVals = [z.est, r.est, h.est, rc.est].filter(x => x != null);
+  const consensus = avmVals.length ? (avmVals.reduce((a,b)=>a+b,0)/avmVals.length).toFixed(0) : null;
 
-  // For now, show the data summary and instruct to use Claude PDF generator
-  // In full deployment, this would POST to a server-side PDF endpoint
-  alert(`PDF Data Summary — copy this into the Claude PDF generator:\n\n${lines}`);
+  let y = 0;
+
+  // ── Header ──
+  doc.setFillColor(...RED);
+  doc.rect(0, 0, W, 72, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.text('MARK SPAIN REAL ESTATE', 36, 30);
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  doc.text('Salman Hussain  |  919-802-2207  |  salmanhussain@markspain.com', 36, 48);
+  doc.setFont('helvetica','italic');
+  doc.text('Pricing Strategy Report', W - 36, 42, { align: 'right' });
+
+  // ── Property banner ──
+  doc.setFillColor(...DARK);
+  doc.rect(0, 72, W, 36, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.text(address, W/2, 92, { align: 'center' });
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.text('Pricing Analysis  |  Mark Spain Real Estate', W/2, 104, { align: 'center' });
+
+  y = 124;
+
+  // ── Section header helper ──
+  function sectionHeader(label, yy) {
+    doc.setFillColor(...RED);
+    doc.rect(36, yy - 4, W - 72, 18, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.text(label.toUpperCase(), 42, yy + 8);
+    return yy + 22;
+  }
+
+  // ── Table helper ──
+  function drawTable(headers, rows, colWidths, startY) {
+    const rowH = 20, hdrH = 20;
+    const startX = 36;
+    // Header row
+    doc.setFillColor(...RED);
+    doc.rect(startX, startY, colWidths.reduce((a,b)=>a+b,0), hdrH, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    let cx = startX;
+    headers.forEach((h, i) => {
+      doc.text(h, cx + 6, startY + 13);
+      cx += colWidths[i];
+    });
+    // Data rows
+    rows.forEach((row, ri) => {
+      const ry = startY + hdrH + ri * rowH;
+      doc.setFillColor(ri % 2 === 0 ? 255 : ...GRAY);
+      doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'F');
+      doc.setDrawColor(...MGRAY);
+      doc.setLineWidth(0.4);
+      doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'S');
+      doc.setTextColor(...DARK);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8);
+      cx = startX;
+      row.forEach((cell, ci) => {
+        doc.text(String(cell ?? 'N/A'), ci === 0 ? cx + 6 : cx + colWidths[ci]/2, ry + 13, ci === 0 ? {} : { align: 'center' });
+        cx += colWidths[ci];
+      });
+    });
+    return startY + hdrH + rows.length * rowH;
+  }
+
+  // ── AVM Table ──
+  y = sectionHeader('Automated Valuation Models (AVM)', y);
+  const avmRows = [
+    ['Zillow (Zestimate)', fmt(z.est), fmt(z.low), fmt(z.high), z.low!=null&&z.high!=null ? `$${z.high-z.low}k` : 'N/A'],
+    ['Redfin Estimate',   fmt(r.est), fmt(r.low), fmt(r.high), r.low!=null&&r.high!=null ? `$${r.high-r.low}k` : 'N/A'],
+    ['Homes.com',         h.est!=null?fmt(h.est):'See range', fmt(h.low), fmt(h.high), h.low!=null&&h.high!=null ? `$${h.high-h.low}k` : 'N/A'],
+    ['Realtor.com',       fmt(rc.est), 'N/A', 'N/A', 'N/A'],
+  ];
+  y = drawTable(['Source','Estimate','Low','High','Range Width'], avmRows, [170,80,70,70,80], y) + 6;
+  doc.setTextColor(...DARK);
+  doc.setFont('helvetica','italic');
+  doc.setFontSize(8);
+  if (consensus) doc.text(`AVM consensus: $${consensus}k  |  Sources: ${avmVals.length} of 4`, 36, y + 8);
+  y += 18;
+
+  // ── CMA Table ──
+  y = sectionHeader('Comparative Market Analysis (CMA) Tools', y);
+  const cmaRows = [
+    ['CMAsnap',  fmt(cma.snap), 'Sales comp-based valuation'],
+    ['CMAeasy',  fmt(cma.easy), 'Broader comp pool'],
+    ['RPR (Realtors Property Resource)', fmt(cma.rpr), 'MLS-driven AVM'],
+  ];
+  y = drawTable(['Tool','Value','Notes'], cmaRows, [210,110,220], y) + 6;
+  const cmaVals = [cma.snap, cma.easy, cma.rpr].filter(x=>x!=null);
+  if (cmaVals.length) {
+    const cmaAvg = (cmaVals.reduce((a,b)=>a+b,0)/cmaVals.length).toFixed(0);
+    doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(...DARK);
+    doc.text(`CMA average: $${cmaAvg}k  |  Low: $${Math.min(...cmaVals)}k  |  High: $${Math.max(...cmaVals)}k`, 36, y + 8);
+  }
+  y += 18;
+
+  // ── Recommendation Box ──
+  y = sectionHeader('Pricing Recommendation', y);
+  doc.setFillColor(255, 245, 245);
+  doc.setDrawColor(...RED);
+  doc.setLineWidth(1);
+  doc.roundedRect(36, y, W - 72, 56, 4, 4, 'FD');
+  doc.setTextColor(...RED);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(26);
+  doc.text(rec ? fmtR(rec) : '—', W/2, y + 28, { align: 'center' });
+  doc.setFontSize(10);
+  doc.text('Recommended List Price', W/2, y + 44, { align: 'center' });
+  if (consensus) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,100,100);
+    doc.text(`AVM consensus: $${consensus}k  |  Position relative to market data`, W/2, y + 54, { align: 'center' });
+  }
+  y += 70;
+
+  // ── Rationale bullets ──
+  const bullets = [
+    `Zillow at ${fmt(z.est)} anchors buyer perception — buyers check Zillow first.`,
+    `Redfin at ${fmt(r.est)} and Realtor.com at ${fmt(rc.est)} support pricing above Zillow range.`,
+    `RPR at ${fmt(cma.rpr)} signals appraiser conservatism — stay defensible at appraisal.`,
+    `CMAeasy at ${fmt(cma.easy)} represents upper ceiling; overpricing risks sitting on market.`,
+    rec ? `List at ${fmtR(rec)} to drive traffic and generate competitive offer activity.` : 'Set recommended price above based on seller goals and market conditions.',
+  ];
+  doc.setTextColor(...DARK);
+  doc.setFontSize(8);
+  doc.setFont('helvetica','normal');
+  bullets.forEach(b => {
+    doc.setFillColor(...RED);
+    doc.circle(42, y + 2, 2.5, 'F');
+    doc.text(b, 50, y + 4, { maxWidth: W - 90 });
+    y += 14;
+  });
+
+  // ── Footer ──
+  doc.setFillColor(...RED);
+  doc.rect(0, 792 - 28, W, 28, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7);
+  doc.text('Mark Spain Real Estate  |  Salman Hussain, REALTOR®  |  NC RE License #316046  |  919-802-2207', W/2, 792 - 14, { align: 'center' });
+  doc.text('This analysis is based on available data and professional judgment. Not a guarantee of sale price.', W/2, 792 - 6, { align: 'center' });
+
+  // ── Save ──
+  const fname = address.replace(/[^a-z0-9]/gi, '_').substring(0, 40);
+  doc.save(`Pricing_Strategy_${fname}.pdf`);
 }
 
 function v(id) {
