@@ -363,9 +363,18 @@
 <div class="footer">Mark Spain Real Estate &nbsp;|&nbsp; Salman Hussain &nbsp;|&nbsp; NC RE #316046 &nbsp;|&nbsp; 919-802-2207</div>
 
 <script>
-// ── Key storage ────────────────────────────────────────────────────────────
+// ── Key storage (cookie-based, works on GitHub Pages) ─────────────────────
+function setCookie(name, value, days) {
+  const d = new Date();
+  d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
+}
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
 window.addEventListener('load', () => {
-  const saved = localStorage.getItem('gemini_api_key');
+  const saved = getCookie('gemini_api_key');
   if (saved) {
     document.getElementById('apiKey').value = saved;
     document.getElementById('keyStatus').textContent = '✓ Key loaded';
@@ -374,7 +383,7 @@ window.addEventListener('load', () => {
 function saveKey() {
   const k = document.getElementById('apiKey').value.trim();
   if (!k) return;
-  localStorage.setItem('gemini_api_key', k);
+  setCookie('gemini_api_key', k, 365);
   document.getElementById('keyStatus').textContent = '✓ Saved';
 }
 
