@@ -477,9 +477,10 @@ Rules:
 - Return ONLY the JSON object, nothing else`;
 
   const models = [
-    'gemini-2.0-flash',
-    'gemini-2.0-flash-lite',
-    'gemini-1.5-flash'
+    'gemini-2.5-flash-lite-preview-06-17',
+    'gemini-2.5-flash-lite',
+    'gemini-2.5-flash-preview-05-20',
+    'gemini-2.5-flash'
   ];
 
   let rawText = null;
@@ -503,7 +504,9 @@ Rules:
 
       if (res.status === 429) {
         const msg = model + ': rate limited';
-        allErrors.push(msg); lastError = msg; continue;
+        allErrors.push(msg); lastError = msg;
+        await new Promise(r => setTimeout(r, 2000));
+        continue;
       }
       if (!res.ok) {
         const e = await res.json();
