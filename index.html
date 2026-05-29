@@ -634,7 +634,7 @@ function generatePDF() {
   let y = 0;
 
   // ── Header ──
-  doc.setFillColor(...RED);
+  doc.setFillColor(200,16,46);
   doc.rect(0, 0, W, 72, 'F');
   doc.setTextColor(255,255,255);
   doc.setFont('helvetica','bold');
@@ -647,7 +647,7 @@ function generatePDF() {
   doc.text('Pricing Strategy Report', W - 36, 42, { align: 'right' });
 
   // ── Property banner ──
-  doc.setFillColor(...DARK);
+  doc.setFillColor(26,26,26);
   doc.rect(0, 72, W, 36, 'F');
   doc.setTextColor(255,255,255);
   doc.setFont('helvetica','bold');
@@ -661,7 +661,7 @@ function generatePDF() {
 
   // ── Section header helper ──
   function sectionHeader(label, yy) {
-    doc.setFillColor(...RED);
+    doc.setFillColor(200,16,46);
     doc.rect(36, yy - 4, W - 72, 18, 'F');
     doc.setTextColor(255,255,255);
     doc.setFont('helvetica','bold');
@@ -675,7 +675,7 @@ function generatePDF() {
     const rowH = 20, hdrH = 20;
     const startX = 36;
     // Header row
-    doc.setFillColor(...RED);
+    doc.setFillColor(200,16,46);
     doc.rect(startX, startY, colWidths.reduce((a,b)=>a+b,0), hdrH, 'F');
     doc.setTextColor(255,255,255);
     doc.setFont('helvetica','bold');
@@ -688,12 +688,12 @@ function generatePDF() {
     // Data rows
     rows.forEach((row, ri) => {
       const ry = startY + hdrH + ri * rowH;
-      doc.setFillColor(ri % 2 === 0 ? 255 : ...GRAY);
+      doc.setFillColor(ri % 2 === 0 ? 255 : 245, ri % 2 === 0 ? 255 : 245, ri % 2 === 0 ? 255 : 245);
       doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'F');
-      doc.setDrawColor(...MGRAY);
+      doc.setDrawColor(221,221,221);
       doc.setLineWidth(0.4);
       doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'S');
-      doc.setTextColor(...DARK);
+      doc.setTextColor(26,26,26);
       doc.setFont('helvetica','normal');
       doc.setFontSize(8);
       cx = startX;
@@ -714,7 +714,7 @@ function generatePDF() {
     ['Realtor.com',       fmt(rc.est), 'N/A', 'N/A', 'N/A'],
   ];
   y = drawTable(['Source','Estimate','Low','High','Range Width'], avmRows, [170,80,70,70,80], y) + 6;
-  doc.setTextColor(...DARK);
+  doc.setTextColor(26,26,26);
   doc.setFont('helvetica','italic');
   doc.setFontSize(8);
   if (consensus) doc.text(`AVM consensus: $${consensus}k  |  Sources: ${avmVals.length} of 4`, 36, y + 8);
@@ -731,7 +731,7 @@ function generatePDF() {
   const cmaVals = [cma.snap, cma.easy, cma.rpr].filter(x=>x!=null);
   if (cmaVals.length) {
     const cmaAvg = (cmaVals.reduce((a,b)=>a+b,0)/cmaVals.length).toFixed(0);
-    doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(...DARK);
+    doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(26,26,26);
     doc.text(`CMA average: $${cmaAvg}k  |  Low: $${Math.min(...cmaVals)}k  |  High: $${Math.max(...cmaVals)}k`, 36, y + 8);
   }
   y += 18;
@@ -739,10 +739,10 @@ function generatePDF() {
   // ── Recommendation Box ──
   y = sectionHeader('Pricing Recommendation', y);
   doc.setFillColor(255, 245, 245);
-  doc.setDrawColor(...RED);
+  doc.setDrawColor(200,16,46);
   doc.setLineWidth(1);
   doc.roundedRect(36, y, W - 72, 56, 4, 4, 'FD');
-  doc.setTextColor(...RED);
+  doc.setTextColor(200,16,46);
   doc.setFont('helvetica','bold');
   doc.setFontSize(26);
   doc.text(rec ? fmtR(rec) : '—', W/2, y + 28, { align: 'center' });
@@ -762,18 +762,18 @@ function generatePDF() {
     `CMAeasy at ${fmt(cma.easy)} represents upper ceiling; overpricing risks sitting on market.`,
     rec ? `List at ${fmtR(rec)} to drive traffic and generate competitive offer activity.` : 'Set recommended price above based on seller goals and market conditions.',
   ];
-  doc.setTextColor(...DARK);
+  doc.setTextColor(26,26,26);
   doc.setFontSize(8);
   doc.setFont('helvetica','normal');
   bullets.forEach(b => {
-    doc.setFillColor(...RED);
-    doc.circle(42, y + 2, 2.5, 'F');
+    doc.setFillColor(200,16,46);
+    doc.setFillColor(200,16,46); doc.circle(42, y + 2, 2.5, 'F');
     doc.text(b, 50, y + 4, { maxWidth: W - 90 });
     y += 14;
   });
 
   // ── Footer ──
-  doc.setFillColor(...RED);
+  doc.setFillColor(200,16,46);
   doc.rect(0, 792 - 28, W, 28, 'F');
   doc.setTextColor(255,255,255);
   doc.setFont('helvetica','normal');
