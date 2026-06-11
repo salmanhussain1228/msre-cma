@@ -574,11 +574,11 @@ Return ONLY a valid JSON object with NO other text, no markdown, no explanation,
   "realtor": { "estimate": <number or null>, "low": <number or null>, "high": <number or null> }
 }
 
-Rules:
-- All values in THOUSANDS of dollars (e.g. 379.9 for $379,900)
-- If a source does not publish a range, set low and high to null
-- If a source has no data for this property, set all its fields to null
-- Return ONLY the JSON object, nothing else`;
+CRITICAL RULES — violating any of these makes the response useless:
+1. All numeric values MUST be in THOUSANDS. Example: $379,900 = 379.9 NOT 379900. Divide by 1000.
+2. Each source will have DIFFERENT values — never repeat the same number across sources.
+3. If you cannot find a value after searching, use null — do not guess or copy another source's number.
+4. Return ONLY the raw JSON object. No markdown, no explanation, no extra text.`;
 
   const models = [
     'gemini-2.5-flash',
@@ -599,7 +599,7 @@ Rules:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ google_search: {} }],
+            tools: [{ google_search_retrieval: { dynamic_retrieval_config: { mode: 'MODE_DYNAMIC' } } }],
             generationConfig: { temperature: 0 }
           })
         }
