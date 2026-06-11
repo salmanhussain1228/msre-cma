@@ -599,7 +599,7 @@ CRITICAL RULES — violating any of these makes the response useless:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ google_search_retrieval: { dynamic_retrieval_config: { mode: 'MODE_DYNAMIC' } } }],
+            tools: [{ googleSearch: {} }],
             generationConfig: { temperature: 0 }
           })
         }
