@@ -222,8 +222,8 @@
 
 <div class="header">
   <div class="header-brand">
-    <img id="msreLogo" alt="Mark Spain Real Estate" style="height:48px;width:auto;">
-    <div class="sub" style="color:rgba(255,255,255,0.85);font-size:12px;margin-top:3px;">CMA Pricing Tool</div>
+    <div class="title">MARK SPAIN REAL ESTATE</div>
+    <div class="sub">CMA Pricing Tool</div>
   </div>
   <div class="header-agent">
     Salman Hussain, REALTOR&reg;<br>
@@ -336,62 +336,6 @@
     </div>
   </div>
 
-  <!-- Closed MLS Comps -->
-  <div class="card">
-    <div class="card-header">Closed MLS Comparables (optional)</div>
-    <div class="card-body">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-        <div class="cma-source" id="box-comp1">
-          <div class="cma-source-name">Comp 1</div>
-          <div class="avm-fields" style="margin-top:6px;">
-            <div class="avm-field"><label>MLS #</label><input type="text" id="comp1_mls" placeholder="10132186" oninput="markFilledBlue('box-comp1')"></div>
-            <div class="avm-field"><label>Sold Price ($)</label><input type="number" id="comp1_price" placeholder="552000" oninput="updateCalc();markFilledBlue('box-comp1')"></div>
-          </div>
-        </div>
-        <div class="cma-source" id="box-comp2">
-          <div class="cma-source-name">Comp 2</div>
-          <div class="avm-fields" style="margin-top:6px;">
-            <div class="avm-field"><label>MLS #</label><input type="text" id="comp2_mls" placeholder="10152051" oninput="markFilledBlue('box-comp2')"></div>
-            <div class="avm-field"><label>Sold Price ($)</label><input type="number" id="comp2_price" placeholder="580000" oninput="updateCalc();markFilledBlue('box-comp2')"></div>
-          </div>
-        </div>
-        <div class="cma-source" id="box-comp3">
-          <div class="cma-source-name">Comp 3</div>
-          <div class="avm-fields" style="margin-top:6px;">
-            <div class="avm-field"><label>MLS #</label><input type="text" id="comp3_mls" placeholder="10119172" oninput="markFilledBlue('box-comp3')"></div>
-            <div class="avm-field"><label>Sold Price ($)</label><input type="number" id="comp3_price" placeholder="562000" oninput="updateCalc();markFilledBlue('box-comp3')"></div>
-          </div>
-        </div>
-      </div>
-      <div id="compsAvgNote" style="font-size:12px;color:var(--light);margin-top:10px;"></div>
-    </div>
-  </div>
-
-  <!-- Tax Record -->
-  <div class="card">
-    <div class="card-header">Tax Record (optional)</div>
-    <div class="card-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;">
-        <div class="cma-source">
-          <div class="cma-source-name">Assessed Value ($)</div>
-          <input type="number" id="tax_assessed" placeholder="285000">
-        </div>
-        <div class="cma-source">
-          <div class="cma-source-name">Tax Year</div>
-          <input type="number" id="tax_year" placeholder="2024">
-        </div>
-        <div class="cma-source">
-          <div class="cma-source-name">Annual Taxes ($)</div>
-          <input type="number" id="tax_annual" placeholder="2850">
-        </div>
-        <div class="cma-source">
-          <div class="cma-source-name">County</div>
-          <input type="text" id="tax_county" placeholder="Wake County">
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Recommended Price -->
   <div class="card">
     <div class="card-header">Pricing Recommendation</div>
@@ -419,9 +363,6 @@
 <div class="footer">Mark Spain Real Estate &nbsp;|&nbsp; Salman Hussain &nbsp;|&nbsp; NC RE #316046 &nbsp;|&nbsp; 919-802-2207</div>
 
 <script>
-
-const MSRE_LOGO_B64 = "data:image/png;base64,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";
-
 // ── Key storage ────────────────────────────────────────────────────────────
 // Try localStorage, sessionStorage, and in-memory as fallbacks
 let _keyMemory = null;
@@ -442,10 +383,6 @@ function getKey() {
   return document.getElementById('apiKey').value.trim();
 }
 window.addEventListener('load', () => {
-  // Set logo
-  const logoEl = document.getElementById('msreLogo');
-  if (logoEl) logoEl.src = MSRE_LOGO_B64;
-
   let saved = null;
   try { saved = localStorage.getItem('msre_gemini_key'); } catch(e) {}
   if (!saved) { try { saved = sessionStorage.getItem('msre_gemini_key'); } catch(e) {} }
@@ -498,27 +435,12 @@ function updateCalc() {
   if (vals.length === 0) {
     consensusEl.textContent = '—';
     rangeEl.textContent = 'Enter AVM values above';
-  } else {
-    const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
-    const mn = vals.reduce((a,b)=>a<b?a:b), mx = vals.reduce((a,b)=>a>b?a:b);
-    consensusEl.textContent = `$${avg.toFixed(0)}k`;
-    rangeEl.textContent = `${vals.length} sources · Range $${mn}k – $${mx}k`;
+    return;
   }
-
-  // Comps average
-  const compPrices = [
-    parseFloat(document.getElementById('comp1_price').value),
-    parseFloat(document.getElementById('comp2_price').value),
-    parseFloat(document.getElementById('comp3_price').value),
-  ].filter(v => !isNaN(v));
-  const noteEl = document.getElementById('compsAvgNote');
-  if (compPrices.length > 0) {
-    const avg = compPrices.reduce((a,b)=>a+b,0) / compPrices.length;
-    noteEl.textContent = `✓ Closed comps average: $${avg.toLocaleString(undefined,{maximumFractionDigits:0})}  (${compPrices.length} comp${compPrices.length>1?'s':''})`;
-    noteEl.style.color = 'var(--green)';
-  } else {
-    noteEl.textContent = '';
-  }
+  const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
+  const mn = vals.reduce(function(a,b){return a<b?a:b;}), mx = vals.reduce(function(a,b){return a>b?a:b;});
+  consensusEl.textContent = `$${avg.toFixed(0)}k`;
+  rangeEl.textContent = `${vals.length} sources · Range $${mn}k – $${mx}k`;
 }
 
 // ── Status helpers ─────────────────────────────────────────────────────────
@@ -555,17 +477,9 @@ async function autoFill() {
   hideDebug();
 
   // ── THE KEY PROMPT: force strict JSON only ──────────────────────────────
-  const prompt = `You are a real estate data assistant. Use Google Search to look up CURRENT, LIVE AVM (automated valuation model) estimates for this specific property: "${address}"
+  const prompt = `You are a real estate data assistant. Look up current AVM (automated valuation model) estimates for this property: "${address}"
 
-Search for each source separately:
-1. Search "Zillow Zestimate ${address}" and find the actual current Zestimate value and its confidence range
-2. Search "Redfin Estimate ${address}" and find the actual current Redfin Estimate and its range
-3. Search "Homes.com estimate ${address}" and find the actual current value
-4. Search "Realtor.com estimate ${address}" and find the actual current value
-
-IMPORTANT: Each AVM source (Zillow, Redfin, Homes.com, Realtor.com) uses a DIFFERENT algorithm and will return DIFFERENT values. Do NOT return the same number for multiple sources. If you cannot find a specific source's value after searching, set its fields to null.
-
-Return ONLY a valid JSON object with NO other text, no markdown, no explanation, no code fences:
+Return ONLY a valid JSON object with NO other text, no markdown, no explanation, no code fences. Use this exact schema:
 
 {
   "zillow":  { "estimate": <number or null>, "low": <number or null>, "high": <number or null> },
@@ -574,15 +488,16 @@ Return ONLY a valid JSON object with NO other text, no markdown, no explanation,
   "realtor": { "estimate": <number or null>, "low": <number or null>, "high": <number or null> }
 }
 
-CRITICAL RULES — violating any of these makes the response useless:
-1. All numeric values MUST be in THOUSANDS. Example: $379,900 = 379.9 NOT 379900. Divide by 1000.
-2. Each source will have DIFFERENT values — never repeat the same number across sources.
-3. If you cannot find a value after searching, use null — do not guess or copy another source's number.
-4. Return ONLY the raw JSON object. No markdown, no explanation, no extra text.`;
+Rules:
+- All values in THOUSANDS of dollars (e.g. 379.9 for $379,900)
+- If a source does not publish a range, set low and high to null
+- If a source has no data for this property, set all its fields to null
+- Return ONLY the JSON object, nothing else`;
 
   const models = [
+    'gemini-2.5-flash-lite',
     'gemini-2.5-flash',
-    'gemini-2.5-flash-lite'
+    'gemini-3.5-flash'
   ];
 
   let rawText = null;
@@ -599,7 +514,6 @@ CRITICAL RULES — violating any of these makes the response useless:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ googleSearch: {} }],
             generationConfig: { temperature: 0 }
           })
         }
@@ -681,14 +595,7 @@ CRITICAL RULES — violating any of these makes the response useless:
 
   // Count how many sources got data
   const filled = [z,r,h,rc].filter(s => s.estimate !== null && s.estimate !== undefined).length;
-  // Check if all estimates are identical (sign of hallucination)
-  const ests = [z.estimate, r.estimate, h.estimate, rc.estimate].filter(v => v !== null && v !== undefined);
-  const allSame = ests.length > 1 && ests.every(v => v === ests[0]);
-  if (allSame) {
-    setStatus(`⚠ All ${filled} sources returned the same value — Gemini may have guessed. Please verify manually on each site.`, 'error');
-  } else {
-    setStatus(`✓ Auto-filled ${filled} of 4 AVM sources. Always verify against live sites before downloading PDF.`, 'success');
-  }
+  setStatus(`✓ Auto-filled ${filled} of 4 AVM sources from Gemini. Verify against the live sites before downloading PDF.`, 'success');
   showDebug('JSON FROM GEMINI:\n' + JSON.stringify(parsed, null, 2));
 }
 
@@ -696,19 +603,15 @@ CRITICAL RULES — violating any of these makes the response useless:
 function clearAll() {
   ['z_est','z_low','z_high','r_est','r_low','r_high',
    'h_est','h_low','h_high','rc_est','rc_low','rc_high',
-   'cma_snap','cma_easy','cma_rpr','rec_price',
-   'comp1_mls','comp1_price','comp2_mls','comp2_price','comp3_mls','comp3_price',
-   'tax_assessed','tax_year','tax_annual','tax_county'].forEach(id => {
+   'cma_snap','cma_easy','cma_rpr','rec_price'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
   document.getElementById('address').value = '';
   ['box-zillow','box-redfin','box-homes','box-realtor',
-   'box-cmasnap','box-cmaeasy','box-rpr',
-   'box-comp1','box-comp2','box-comp3'].forEach(id => {
+   'box-cmasnap','box-cmaeasy','box-rpr'].forEach(id => {
     document.getElementById(id)?.classList.remove('filled');
   });
-  document.getElementById('compsAvgNote').textContent = '';
   updateCalc();
   clearStatus();
   hideDebug();
@@ -718,390 +621,281 @@ function clearAll() {
 function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'letter' });
-  const W = 612, H = 792;
-  const ML = 29, MR = 29, CW = W - ML - MR;
 
-  // Color helpers
-  const setFill   = (c) => doc.setFillColor(c[0], c[1], c[2]);
-  const setStroke = (c) => doc.setDrawColor(c[0], c[1], c[2]);
-  const setColor  = (c) => doc.setTextColor(c[0], c[1], c[2]);
-  const setFont   = (s, sz) => { doc.setFont('helvetica', s); if (sz) doc.setFontSize(sz); };
+  // ── constants matching Python exactly ────────────────────────────────────
+  const W = 612, H = 792, M = 14.4; // 0.38in = 27.36pt but jsPDF origin top-left
+  // Colors as arrays [r,g,b]
+  const RED    = [200,16,46],   DARK  = [26,26,26],   TGRAY = [68,68,68];
+  const MGRAY  = [119,119,119], LGRAY = [242,242,242], RULE  = [221,221,221];
+  const WHITE  = [255,255,255], GREEN = [39,174,96],   BLUE  = [36,113,163];
+  const LTGRN  = [234,250,241], LTBLU = [234,244,251], LTRED = [253,237,236];
 
-  const RED   = [200, 16, 46];
-  const DARK  = [26, 26, 26];
-  const TGRAY = [85, 85, 85];
-  const MGRAY = [153, 153, 153];
-  const LGRAY = [240, 240, 240];
-  const RULE  = [200, 200, 200];
-  const WHITE = [255, 255, 255];
-  const LGREEN= [232, 245, 233];
-  const GREEN = [46, 125, 50];
-  const AMBER = [255, 248, 225];
-  const AMBDK = [123, 79, 0];
+  const sf = (r,g,b) => doc.setFillColor(r,g,b);
+  const st = (r,g,b) => doc.setTextColor(r,g,b);
+  const sd = (r,g,b) => doc.setDrawColor(r,g,b);
+  const fnt = (s,sz) => { doc.setFont('helvetica', s); if(sz) doc.setFontSize(sz); };
 
+  function wlines(txt, font, sz, maxW) {
+    if (!txt) return [];
+    doc.setFont('helvetica', font); doc.setFontSize(sz);
+    const words = txt.split(' '); let line = '', lines = [];
+    for (const w of words) {
+      const t = (line+' '+w).trim();
+      if (doc.getTextWidth(t) <= maxW) line = t;
+      else { if (line) lines.push(line); line = w; }
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  // ── read inputs ───────────────────────────────────────────────────────────
   const address = document.getElementById('address').value.trim() || 'Subject Property';
-  const z   = { est: v('z_est'),   low: v('z_low'),   high: v('z_high') };
-  const r   = { est: v('r_est'),   low: v('r_low'),   high: v('r_high') };
-  const h   = { est: v('h_est'),   low: v('h_low'),   high: v('h_high') };
-  const rc  = { est: v('rc_est'),  low: v('rc_low'),  high: v('rc_high') };
-  const cma = { snap: v('cma_snap'), easy: v('cma_easy'), rpr: v('cma_rpr') };
+  const z  = { est:v('z_est'),  lo:v('z_low'),  hi:v('z_high')  };
+  const r  = { est:v('r_est'),  lo:v('r_low'),  hi:v('r_high')  };
+  const h  = { est:v('h_est'),  lo:v('h_low'),  hi:v('h_high')  };
+  const rc = { est:v('rc_est'), lo:v('rc_low'), hi:v('rc_high') };
+  const cma = { snap:v('cma_snap'), easy:v('cma_easy'), rpr:v('cma_rpr') };
   const rec = v('rec_price');
+  const taxAssessed = v('tax_assessed');
+  const taxCounty   = document.getElementById('tax_county')?.value.trim() || '';
 
-  // Comps
-  const comps = [
-    { mls: document.getElementById('comp1_mls').value.trim(), price: v('comp1_price') },
-    { mls: document.getElementById('comp2_mls').value.trim(), price: v('comp2_price') },
-    { mls: document.getElementById('comp3_mls').value.trim(), price: v('comp3_price') },
-  ].filter(c => c.price != null);
+  const fmtK = val => val != null ? `$${val}k` : '';
+  const fmtKR = (lo,hi) => (lo!=null&&hi!=null) ? `$${lo}k \u2013 $${hi}k` : '';
+  const fmtD = val => val != null ? `$${Number(val*1000).toLocaleString()}` : '\u2014';
 
-  // Tax record
-  const tax = {
-    assessed: v('tax_assessed'),
-    year:     document.getElementById('tax_year').value.trim(),
-    annual:   v('tax_annual'),
-    county:   document.getElementById('tax_county').value.trim(),
-  };
-  const hasTax = tax.assessed || tax.annual || tax.county;
+  // tier price calculations
+  const avmVals = [z.est,r.est,rc.est].filter(x=>x!=null);
+  const cmaVals = [cma.snap,cma.easy,cma.rpr].filter(x=>x!=null);
+  const avmAvg  = avmVals.length ? avmVals.reduce((a,b)=>a+b)/avmVals.length : null;
+  const cmaAvg  = cmaVals.length ? cmaVals.reduce((a,b)=>a+b)/cmaVals.length : null;
 
-  const fmtK  = val => val != null ? `$${val}k` : '—';
-  const fmtD  = val => val != null ? `$${Number(val).toLocaleString()}` : '—';
+  let sweetK = rec ? rec/1000 : (avmAvg && cmaAvg ? (avmAvg+cmaAvg)/2 : (cmaAvg||avmAvg));
+  sweetK = sweetK ? Math.round(sweetK) : null;
+  const aggrK    = sweetK ? Math.round(sweetK*0.964/5)*5 : null;
+  const stretchK = sweetK ? Math.round(sweetK*1.036/5)*5 : null;
+  const fmtTier  = k => k ? `$${(k*1000).toLocaleString()}` : '\u2014';
+  const fmtTRng  = k => { if(!k) return ''; const lo=Math.round(k*0.985/5)*5, hi=Math.round(k*1.015/5)*5; return `$${lo}k \u2013 $${hi}k`; };
 
-  // ── Derive tier prices ────────────────────────────────────────────────────
-  const avmVals = [z.est, r.est, h.est, rc.est].filter(x => x != null);
-  const avmAvg  = avmVals.length ? avmVals.reduce((a,b)=>a+b,0)/avmVals.length : null;
-  const cmaVals = [cma.snap, cma.easy, cma.rpr].filter(x => x != null);
-  const cmaAvg  = cmaVals.length ? cmaVals.reduce((a,b)=>a+b,0)/cmaVals.length : null;
-  const compPrices = comps.map(c => c.price);
-  const compAvg = compPrices.length ? compPrices.reduce((a,b)=>a+b,0)/compPrices.length : null;
+  // data rows: [source, value, range, boldWhy, bodyWhy]
+  const dataRows = [
+    ['Zillow Zestimate',  fmtK(z.est),  fmtKR(z.lo,z.hi),
+     'Consumer AVMs show solid agreement.',
+     `Zillow anchors buyer perception${z.est?` at $${z.est}k`:''}. Tight range reflects strong data confidence and sets realistic expectations for buyers.`],
+    ['Redfin Estimate',   fmtK(r.est),  fmtKR(r.lo,r.hi),
+     'Redfin sets the upper boundary.',
+     `${r.hi?`Upper bound of $${r.hi}k supports`:'Redfin'} pricing above the AVM median and adds weight to the Test the Market tier.`],
+    ['Homes.com',         fmtK(h.est),  fmtKR(h.lo,h.hi),
+     'Homes.com confirms the floor.',
+     `${h.lo?`Range $${h.lo}k\u2013$${h.hi}k confirms`:'Range'} the pricing floor and aligns with the lower AVM cluster.`],
+    ['Realtor.com',       fmtK(rc.est), '',
+     'Realtor.com is the middle anchor.',
+     `Sits in the middle of the AVM pack${rc.est?` at $${rc.est}k`:''}. The single estimate is reliable and buyer-visible.`],
+    ['Snap CMA',          fmtK(cma.snap), cma.snap ? `Quick Sale: $${Math.round(cma.snap*0.95)}k` : '',
+     'Snap CMA anchors the floor.',
+     `The quick-sale figure is your lowest credible number and a powerful negotiation floor for motivated-seller scenarios.`],
+    ['Easy CMA',          fmtK(cma.easy), '',
+     'Easy CMA is the outlier \u2014 in your favor.',
+     `Easy CMA reflects a broader comp pool${cma.easy?` at $${cma.easy}k`:''}. It justifies the Test the Market tier and supports the RPR ceiling.`],
+    ['RPR CMA',           fmtK(cma.rpr), cma.rpr ? 'Comp-supported ceiling' : '',
+     'RPR CMA is your appraisal anchor.',
+     `The most defensible MLS-driven figure${cma.rpr?` at $${cma.rpr}k`:''}. Directly supports the Sweet Spot and anchors appraisal safety.`],
+    [taxCounty ? taxCounty+' Tax' : 'County Tax Assessment',
+     taxAssessed ? `$${taxAssessed}k` : '',
+     'Below market \u2014 not a list target',
+     'Tax assessment is context, not a ceiling.',
+     `The county assessment reflects a lagging tax value. Every market tool places actual value meaningfully higher.`],
+  ];
 
-  // Priority: rec_price > comps avg > CMA/AVM midpoint
-  let sweetRaw = rec
-    ? rec / 1000
-    : compAvg
-      ? compAvg / 1000
-      : (cmaAvg && avmAvg ? (cmaAvg + avmAvg) / 2 : (cmaAvg || avmAvg));
-  let sweetK = sweetRaw ? Math.round(sweetRaw) : null;
-  const aggrK    = sweetK ? Math.round(sweetK * 0.964 / 5) * 5 : null;
-  const stretchK = sweetK ? Math.round(sweetK * 1.036 / 5) * 5 : null;
+  // stat badges
+  const totalSources = dataRows.filter(r=>r[1]||r[2]).length;
+  const cmaLo = cmaVals.length ? Math.min(...cmaVals) : null;
+  const cmaHi = cmaVals.length ? Math.max(...cmaVals) : null;
+  const badges = [
+    [String(totalSources),                             'Valuation Sources'],
+    [cmaLo&&cmaHi ? `$${cmaLo}k\u2013$${cmaHi}k`:'', 'Professional Consensus'],
+    [sweetK ? `$${aggrK}k\u2013$${stretchK}k` : '',   'Recommended List Range'],
+    [avmAvg&&taxAssessed ? `$${Math.round((avmAvg-taxAssessed)*1000/1000)}k` : '', 'Market vs Tax Gap'],
+  ];
+  const proConsensus = `Easy CMA + Snap CMA + RPR CMA: ${cmaLo&&cmaHi?`$${cmaLo}k \u2013 $${cmaHi}k`:''}`;
 
-  const fmtTier = k => k ? `$${(k * 1000).toLocaleString()}` : '—';
-  const fmtTierRange = (k, pct) => {
-    if (!k) return '—';
-    const lo = Math.round(k * (1 - pct) / 5) * 5;
-    const hi = Math.round(k * (1 + pct) / 5) * 5;
-    return `$${lo}k – $${hi}k`;
-  };
+  // ── LAYOUT CONSTANTS (match Python exactly) ───────────────────────────────
+  const HDR   = 82;
+  const SPLIT = M + (W-2*M)*0.455;
+  const LCW   = SPLIT - M;
+  const RCW   = W - M - SPLIT;
+  const HDRH  = 19;
+  const ROW_H = 44;   // FIXED — never change
+  const CARD_H= 155;  // FIXED — never change
+  const BADGE_H = 62;
+  const BAND  = 26;
+  const CGAP  = 9;
+  const CW3   = (W-2*M-2*CGAP)/3;
 
+  // jsPDF y starts at top (0) and increases downward
   let y = 0;
 
-  // ── HEADER (dark bar) ─────────────────────────────────────────────────────
-  setFill(DARK); doc.rect(0, 0, W, 54, 'F');
-  // Logo in top-left (white version via filter handled by embedding)
-  try {
-    doc.addImage(MSRE_LOGO_B64, 'PNG', ML, 7, 90, 40, undefined, 'FAST');
-  } catch(e) {
-    setColor(WHITE); setFont('bold', 15);
-    doc.text('MARK SPAIN', ML, 29);
-  }
-  setFont('normal', 8.5); setColor([170,170,170]);
-  doc.text('Pricing Strategy Analysis', W - MR, 20, { align: 'right' });
-  doc.text('markspain.com', W - MR, 32, { align: 'right' });
+  // ── HEADER 82pt ───────────────────────────────────────────────────────────
+  sf(...WHITE); doc.rect(0,0,W,HDR,'F');
+  sf(...DARK);  doc.rect(W*0.54,0,W*0.46,HDR,'F');
+  // MARK SPAIN
+  sf(...RED); st(...RED); fnt('bold',26); doc.text('MARK SPAIN', M, 28);
+  st(...DARK); fnt('bold',11); doc.text('REAL ESTATE', M, 44);
+  st(...MGRAY); fnt('italic',8); doc.text('Guaranteed  \u2022  Certain  \u2022  Closed', M, 58);
+  // right block
+  const RX = W*0.54+12;
+  st(...WHITE); fnt('bold',9.5); doc.text('EXCLUSIVE SELLER PRESENTATION', RX, 20);
+  fnt('normal',8);
+  doc.text(`Salman Hussain, Realtor\u00ae  |  NC License #316046`, RX, 34);
+  doc.text(`919-802-2207  \u2022  salmanhussain@markspain.com`, RX, 47);
+  sd(...RULE); doc.setLineWidth(0.8); doc.line(0,HDR,W,HDR);
 
-  y = 66;
+  y = HDR + 12;
 
-  // ── ADDRESS ──────────────────────────────────────────────────────────────
-  setColor(DARK); setFont('bold', 13);
-  doc.text(address, ML, y);
-  y += 13;
-  setFont('normal', 8); setColor(TGRAY);
-  doc.text('Salman Hussain, REALTOR  |  NC License #316046  |  919-802-2207  |  salmanhussain@markspain.com', ML, y);
-  y += 8;
-  setStroke(RED); doc.setLineWidth(1.2);
-  doc.line(ML, y, W - MR, y);
-  y += 12;
+  // ── TITLE ROW ─────────────────────────────────────────────────────────────
+  st(...DARK); fnt('bold',13); doc.text('THE STRATEGIC PRICING.', M, y);
+  fnt('bold',9); st(...RED);
+  const aw = doc.getTextWidth(address);
+  const ax = W-M-aw-12;
+  sf(...RED); doc.circle(ax, y-3, 3.5, 'F');
+  doc.text(address, ax+9, y);
+  y += 14;
 
-  // ── TWO-COLUMN TABLES ─────────────────────────────────────────────────────
-  const colW  = (CW - 10) / 2;
-  const col1x = ML;
-  const col2x = ML + colW + 10;
-  const rowH  = 14, hdrH = 16;
+  // intro
+  fnt('italic',8); st(...TGRAY);
+  const intro = 'Thank you for trusting me to guide your pricing decision. The data below draws from multiple independent valuation sources, including the county tax assessment, and is designed to give you a clear, confident number \u2014 not a guess. Here is exactly what the market is telling us.';
+  for (const ln of wlines(intro,'italic',8,W-2*M)) { doc.text(ln,M,y); y+=11; }
+  y += 6;
 
-  function smallTable(title, rows, tx, ty, tw) {
-    // header
-    setFill(DARK); doc.rect(tx, ty, tw, hdrH, 'F');
-    setColor(WHITE); setFont('bold', 7.5);
-    doc.text(title, tx + 5, ty + 11);
-    let ry = ty + hdrH;
-    rows.forEach((row, i) => {
-      const bg = i % 2 === 0 ? [255,255,255] : [247,247,247];
-      setFill(bg); doc.rect(tx, ry, tw, rowH, 'F');
-      setStroke(RULE); doc.setLineWidth(0.3);
-      doc.line(tx, ry + rowH, tx + tw, ry + rowH);
-      setColor(DARK); setFont('normal', 7.5);
-      doc.text(row[0], tx + 5, ry + 10);
-      if (row[1]) { setFont('bold', 7.5); doc.text(row[1], tx + tw - (row[2] ? 60 : 5), ry + 10, { align: 'right' }); }
-      if (row[2]) { setFont('normal', 7); setColor(MGRAY); doc.text(row[2], tx + tw - 4, ry + 10, { align: 'right' }); }
-      ry += rowH;
-    });
-    setStroke(RULE); doc.setLineWidth(0.5);
-    doc.rect(tx, ty, tw, hdrH + rows.length * rowH, 'S');
-    return ry;
-  }
+  // ── DATA TABLE ────────────────────────────────────────────────────────────
+  // column headers
+  sf(...DARK);
+  doc.rect(M,     y, LCW, HDRH, 'F');
+  doc.rect(SPLIT, y, RCW, HDRH, 'F');
+  st(...WHITE); fnt('bold',8.5);
+  doc.text('WHAT THE DATA SAYS', M+7,    y+HDRH-6);
+  doc.text('WHY IT MATTERS',     SPLIT+7, y+HDRH-6);
+  const tblTop = y;
+  y += HDRH;
 
-  const avmTableRows = [
-    ['Zillow (Zestimate)', fmtK(z.est), z.low!=null&&z.high!=null ? `${fmtK(z.low)}-${fmtK(z.high)}` : ''],
-    ['Redfin Estimate',    fmtK(r.est), r.low!=null&&r.high!=null ? `${fmtK(r.low)}-${fmtK(r.high)}` : ''],
-    ['Homes.com',          h.est ? fmtK(h.est) : '', h.low!=null&&h.high!=null ? `${fmtK(h.low)}-${fmtK(h.high)}` : ''],
-    ['Realtor.com',        fmtK(rc.est), ''],
-  ];
-  const avmBot = smallTable('AUTOMATED VALUE MODELS (AVMs)', avmTableRows, col1x, y, colW);
+  dataRows.forEach(([src,val,rng,boldWhy,bodyWhy],i) => {
+    const bg = i%2===0 ? WHITE : LGRAY;
+    sf(...bg);
+    doc.rect(M,     y, LCW, ROW_H, 'F');
+    doc.rect(SPLIT, y, RCW, ROW_H, 'F');
+    sd(...RULE); doc.setLineWidth(0.3);
+    doc.line(M,     y+ROW_H, M+LCW,     y+ROW_H);
+    doc.line(SPLIT, y+ROW_H, SPLIT+RCW, y+ROW_H);
 
-  const cmaTableRows = [
-    ['CMAsnap',  fmtK(cma.snap), 'Comp-based'],
-    ['CMAeasy',  fmtK(cma.easy), 'Broad pool'],
-    ['RPR CMA',  fmtK(cma.rpr),  'MLS-driven'],
-  ];
-  const cmaBot = smallTable('CMA TOOL ESTIMATES', cmaTableRows, col1x, avmBot + 8, colW);
-
-  // ── RIGHT COLUMN: Closed Comps table OR data summary ─────────────────────
-  if (comps.length > 0) {
-    // Closed comps table
-    const compRows = comps.map(c => [c.mls || '—', fmtD(c.price), 'Closed']);
-    let compBot = smallTable('CLOSED MLS COMPARABLES', compRows, col2x, y, colW);
-    // Avg row
-    const avgRowH = 14;
-    setFill([255,240,240]); doc.rect(col2x, compBot, colW, avgRowH, 'F');
-    setStroke([200,16,46]); doc.setLineWidth(1); doc.line(col2x, compBot, col2x+colW, compBot);
-    setColor(DARK); setFont('bold', 7.5);
-    doc.text('Closed Comps Average', col2x + 5, compBot + 10);
-    setColor([200,16,46]); setFont('bold', 7.5);
-    doc.text(fmtD(compAvg), col2x + colW - 5, compBot + 10, { align: 'right' });
-    setStroke(RULE); doc.setLineWidth(0.5);
-    doc.rect(col2x, y, colW, compBot - y + avgRowH, 'S');
-  } else {
-    // No comps — show data summary
-    const rBoxH = avmBot - y;
-    setFill(LGRAY); doc.rect(col2x, y, colW, rBoxH, 'F');
-    setStroke(RULE); doc.setLineWidth(0.5); doc.rect(col2x, y, colW, rBoxH, 'S');
-    setFill(DARK); doc.rect(col2x, y, colW, 16, 'F');
-    setColor(WHITE); setFont('bold', 7.5);
-    doc.text('DATA SUMMARY', col2x + 5, y + 11);
-    const sumItems = [
-      ['AVM Avg', avmAvg ? `$${avmAvg.toFixed(0)}k` : '—', `${avmVals.length} of 4 sources`],
-      ['CMA Avg', cmaAvg ? `$${cmaAvg.toFixed(0)}k` : '—', `${cmaVals.length} of 3 tools`],
-      ['AVM Low', avmVals.length ? `$${Math.min(...avmVals).toFixed(0)}k` : '—', 'floor'],
-      ['AVM High', avmVals.length ? `$${Math.max(...avmVals).toFixed(0)}k` : '—', 'ceiling'],
-    ];
-    let sy = y + 26;
-    sumItems.forEach((item, i) => {
-      setFont('bold', 6.5); setColor(MGRAY); doc.text(item[0].toUpperCase(), col2x + 8, sy);
-      setFont('bold', 12); setColor(DARK); doc.text(item[1], col2x + 8, sy + 12);
-      setFont('normal', 6); setColor(MGRAY); doc.text(item[2], col2x + 8, sy + 20);
-      sy += 32;
-      if (i < sumItems.length - 1 && sy < y + rBoxH - 4) {
-        setStroke(RULE); doc.setLineWidth(0.2); doc.line(col2x+8, sy-6, col2x+colW-8, sy-6);
-      }
-    });
-  }
-
-  y = Math.max(avmBot, cmaBot) + 12;
-
-  // ── TIER BANNER ───────────────────────────────────────────────────────────
-  setFill(DARK); doc.rect(0, y, W, 22, 'F');
-  setColor(WHITE); setFont('bold', 9);
-  doc.text(`RECOMMENDED PRICING TIERS  —  ${address.toUpperCase()}`, W/2, y + 14, { align: 'center' });
-  y += 22;
-
-  // ── THREE TIER CARDS ──────────────────────────────────────────────────────
-  const cardGap = 8, cardH = 80;
-  const cardW = (CW - cardGap * 2) / 3;
-
-  const tiers = [
-    {
-      label: 'AGGRESSIVE',
-      sub:   'Quick sale / fast close',
-      price: fmtTier(aggrK),
-      range: fmtTierRange(aggrK, 0.01),
-      body:  'Priced below CMA average to drive immediate showings and offers. Best if timeline or motivation favors speed over top dollar.',
-      bg: LGRAY, tc: DARK, sc: TGRAY, border: [120,120,120], bw: 1.2, highlight: false,
-    },
-    {
-      label: 'SWEET SPOT',
-      sub:   'Recommended list price',
-      price: fmtTier(sweetK),
-      range: fmtTierRange(sweetK, 0.01),
-      body:  'Anchored by CMA tools and AVM data. Positions to generate strong early activity and competitive offers within 14 days.',
-      bg: LGREEN, tc: GREEN, sc: GREEN, border: GREEN, bw: 2, highlight: true,
-    },
-    {
-      label: 'TEST THE MARKET',
-      sub:   'Ceiling / stretch price',
-      price: fmtTier(stretchK),
-      range: fmtTierRange(stretchK, 0.01),
-      body:  'For strong condition or premium finishes. Monitor closely — reduce by day 21 if no strong activity to avoid stale listing.',
-      bg: AMBER, tc: AMBDK, sc: AMBDK, border: AMBDK, bw: 1.2, highlight: false,
-    },
-  ];
-
-  let cx = ML;
-  tiers.forEach(tier => {
-    // background
-    setFill(tier.bg); doc.rect(cx, y, cardW, cardH, 'F');
-    // border — ALL cards get visible border
-    setStroke(tier.border); doc.setLineWidth(tier.bw);
-    doc.rect(cx, y, cardW, cardH, 'S');
-
-    // tier label
-    setColor(tier.tc); setFont('bold', 8.5);
-    doc.text(tier.label, cx + cardW/2, y + 12, { align: 'center' });
-    // sub label
-    setFont('normal', 7); setColor(tier.sc);
-    doc.text(tier.sub, cx + cardW/2, y + 22, { align: 'center' });
-    // price
-    setColor(tier.tc); setFont('bold', tier.highlight ? 18 : 16);
-    doc.text(tier.price, cx + cardW/2, y + 42, { align: 'center' });
-    // range
-    setFont('normal', 7); setColor(tier.sc);
-    doc.text(tier.range, cx + cardW/2, y + 53, { align: 'center' });
-    // body text (wrapped)
-    setFont('normal', 6.5); setColor(TGRAY);
-    const lines = doc.splitTextToSize(tier.body, cardW - 12);
-    doc.text(lines, cx + cardW/2, y + 63, { align: 'center' });
-
-    // RECOMMENDED badge on sweet spot
-    if (tier.highlight) {
-      setFill(GREEN); doc.roundedRect(cx + cardW/2 - 34, y + cardH - 13, 68, 11, 2, 2, 'F');
-      setColor(WHITE); setFont('bold', 6.5);
-      doc.text('RECOMMENDED', cx + cardW/2, y + cardH - 5, { align: 'center' });
+    // left: source name then big red price
+    st(...DARK); fnt('bold',8);   doc.text(src, M+7, y+13);
+    st(...RED);  fnt('bold',14);  doc.text(val, M+7, y+30);
+    if (rng) {
+      const vw = doc.getTextWidth(val);
+      st(...MGRAY); fnt('normal',7); doc.text(rng, M+7+vw+5, y+30);
     }
 
-    cx += cardW + cardGap;
+    // right: red dot + bold headline + body
+    sf(...RED); doc.circle(SPLIT+3.5, y+12, 2.8, 'F');
+    st(...DARK); fnt('bold',8);   doc.text(boldWhy, SPLIT+8, y+13);
+    st(...TGRAY); fnt('normal',7.5);
+    let by = y+25;
+    for (const ln of wlines(bodyWhy,'normal',7.5,RCW-14)) { doc.text(ln, SPLIT+8, by); by+=10.5; }
+
+    y += ROW_H;
   });
 
-  y += cardH + 10;
+  // table borders
+  sd(...[187,187,187]); doc.setLineWidth(0.6);
+  doc.rect(M,     tblTop, LCW, y-tblTop, 'S');
+  doc.rect(SPLIT, tblTop, RCW, y-tblTop, 'S');
 
-  // ── AVM + CMA TABLES ─────────────────────────────────────────────────────
-  setStroke(RULE); doc.setLineWidth(0.5); doc.line(ML, y, W - MR, y);
+  // ── PRO CONSENSUS BAR ─────────────────────────────────────────────────────
+  y += 3;
+  sf(...DARK); doc.rect(M, y, W-2*M, 19, 'F');
+  st(...RED);   fnt('bold',7.5); doc.text('PROFESSIONAL', M+7, y+13);
+  st(...WHITE); fnt('normal',7.5);
+  doc.text(proConsensus, M+7+doc.getTextWidth('PROFESSIONAL')+3, y+13);
+  y += 19;
+
+  // ── TIER LABEL ────────────────────────────────────────────────────────────
+  y += 9;
+  st(...DARK); fnt('bold',10); doc.text('RECOMMENDED PRICING TIERS', M, y);
   y += 8;
 
-  // AVM full table
-  setColor(DARK); setFont('bold', 8);
-  doc.text('AUTOMATED VALUE MODELS', ML, y); y += 10;
-  const avmFullRows = [
-    ['Zillow (Zestimate)', fmtK(z.est), z.low!=null ? fmtK(z.low) : '—', z.high!=null ? fmtK(z.high) : '—'],
-    ['Redfin Estimate',    fmtK(r.est), r.low!=null ? fmtK(r.low) : '—', r.high!=null ? fmtK(r.high) : '—'],
-    ['Homes.com',          h.est ? fmtK(h.est) : '—', h.low!=null ? fmtK(h.low) : '—', h.high!=null ? fmtK(h.high) : '—'],
-    ['Realtor.com',        fmtK(rc.est), '—', '—'],
+  // ── THREE CARDS — FIXED CARD_H=155 ───────────────────────────────────────
+  const tiers = [
+    { label:'AGGRESSIVE',  sub:'Fast sale / quick exit',
+      price:fmtTier(aggrK),   range:fmtTRng(aggrK),
+      body:'Priced at the quick-sale level. Drives urgency, maximizes traffic, and invites multiple offers quickly.',
+      hcol:GREEN, bgcol:LTGRN },
+    { label:'SWEET SPOT',  sub:'Maximum market alignment',
+      price:fmtTier(sweetK),  range:fmtTRng(sweetK),
+      body:`Sits between AVM avg${avmAvg?` ($${Math.round(avmAvg)}k)`:''}  and CMA avg${cmaAvg?` ($${Math.round(cmaAvg)}k)`:''}. Best balance of buyer traffic, appraisal safety, and net proceeds.`,
+      hcol:BLUE, bgcol:LTBLU },
+    { label:'TEST MARKET', sub:'Stretch to top of market',
+      price:fmtTier(stretchK),range:fmtTRng(stretchK),
+      body:`Supported by Easy CMA${cma.easy?` ($${cma.easy}k)`:''}  and RPR${cma.rpr?` ($${cma.rpr}k)`:''}. Requires strong staging and presentation. Review at day 21.`,
+      hcol:RED, bgcol:LTRED },
   ];
-  const avmCols = [180, 90, 80, 80];
-  const avmHdrs = ['Source', 'Estimate', 'Low', 'High'];
-  // header row
-  setFill(DARK); doc.rect(ML, y, avmCols.reduce((a,b)=>a+b), 14, 'F');
-  setColor(WHITE); setFont('bold', 7.5); let cx2 = ML;
-  avmHdrs.forEach((h2,i) => { doc.text(h2, cx2+4, y+10); cx2+=avmCols[i]; });
-  y += 14;
-  avmFullRows.forEach((row, ri) => {
-    const bg = ri%2===0 ? [255,255,255] : [247,247,247];
-    setFill(bg); doc.rect(ML, y, avmCols.reduce((a,b)=>a+b), 13, 'F');
-    setStroke(RULE); doc.setLineWidth(0.3); doc.rect(ML, y, avmCols.reduce((a,b)=>a+b), 13, 'S');
-    setColor(DARK); setFont('normal', 7.5); cx2=ML;
-    row.forEach((cell,ci) => { doc.text(String(cell), ci===0?cx2+4:cx2+avmCols[ci]/2, y+9, ci===0?{}:{align:'center'}); cx2+=avmCols[ci]; });
-    y += 13;
-  });
-  if (avmAvg) {
-    setFont('italic', 7); setColor(TGRAY);
-    doc.text(`AVM consensus: $${avmAvg.toFixed(0)}k  |  ${avmVals.length} of 4 sources`, ML, y+8);
-    y += 14;
-  } else { y += 4; }
 
-  // CMA table
-  const cmaGap = 10;
-  setColor(DARK); setFont('bold', 8);
-  doc.text('CMA TOOL ESTIMATES', ML, y + 10); y += 20;
-  const cmaFullRows = [
-    ['CMAsnap',  fmtK(cma.snap), 'Sales comp-based valuation'],
-    ['CMAeasy',  fmtK(cma.easy), 'Broader comp pool'],
-    ['RPR CMA',  fmtK(cma.rpr),  'MLS-driven AVM'],
-  ];
-  const cmaCols = [150, 100, 280];
-  const cmaHdrs = ['Tool', 'Value', 'Notes'];
-  setFill(DARK); doc.rect(ML, y, cmaCols.reduce((a,b)=>a+b), 14, 'F');
-  setColor(WHITE); setFont('bold', 7.5); cx2=ML;
-  cmaHdrs.forEach((h2,i) => { doc.text(h2, cx2+4, y+10); cx2+=cmaCols[i]; });
-  y += 14;
-  cmaFullRows.forEach((row, ri) => {
-    const bg = ri%2===0 ? [255,255,255] : [247,247,247];
-    setFill(bg); doc.rect(ML, y, cmaCols.reduce((a,b)=>a+b), 13, 'F');
-    setStroke(RULE); doc.setLineWidth(0.3); doc.rect(ML, y, cmaCols.reduce((a,b)=>a+b), 13, 'S');
-    setColor(DARK); setFont('normal', 7.5); cx2=ML;
-    row.forEach((cell,ci) => { doc.text(String(cell), cx2+4, y+9); cx2+=cmaCols[ci]; });
-    y += 13;
-  });
-  if (cmaAvg) {
-    const cLo = Math.min(...cmaVals), cHi = Math.max(...cmaVals);
-    setFont('italic', 7); setColor(TGRAY);
-    doc.text(`CMA average: $${cmaAvg.toFixed(0)}k  |  Low: $${cLo}k  |  High: $${cHi}k`, ML, y+8);
-    y += 14;
-  } else { y += 4; }
-
-  // ── TAX RECORD ───────────────────────────────────────────────────────────
-  if (hasTax) {
-    y += 4;
-    setStroke(RULE); doc.setLineWidth(0.5); doc.line(ML, y, W-MR, y); y += 10;
-    setColor(DARK); setFont('bold', 8);
-    doc.text('TAX RECORD', ML, y); y += 10;
-    const taxCols = [160, 120, 130, 144];
-    const taxHdrs = ['County', 'Tax Year', 'Assessed Value', 'Annual Taxes'];
-    const taxVals = [
-      tax.county || '—',
-      tax.year || '—',
-      tax.assessed ? `$${Number(tax.assessed).toLocaleString()}` : '—',
-      tax.annual ? `$${Number(tax.annual).toLocaleString()}` : '—',
-    ];
-    setFill(DARK); doc.rect(ML, y, taxCols.reduce((a,b)=>a+b), 14, 'F');
-    setColor(WHITE); setFont('bold', 7.5); let cx3 = ML;
-    taxHdrs.forEach((h3,i) => { doc.text(h3, cx3+4, y+10); cx3+=taxCols[i]; });
-    y += 14;
-    setFill([255,255,255]); doc.rect(ML, y, taxCols.reduce((a,b)=>a+b), 13, 'F');
-    setStroke(RULE); doc.setLineWidth(0.3); doc.rect(ML, y, taxCols.reduce((a,b)=>a+b), 13, 'S');
-    setColor(DARK); setFont('normal', 7.5); cx3=ML;
-    taxVals.forEach((val,ci) => { doc.text(String(val), cx3+4, y+9); cx3+=taxCols[ci]; });
-    y += 16;
-  }
-
-  // ── PRICING RATIONALE ────────────────────────────────────────────────────
-  y += 4;
-  setStroke(RULE); doc.setLineWidth(0.5); doc.line(ML, y, W-MR, y); y += 10;
-  setColor(DARK); setFont('bold', 8);
-  doc.text('PRICING RATIONALE', ML, y); y += 12;
-
-  const bullets = [
-    sweetK ? `Sweet Spot at ${fmtTier(sweetK)} is ${compAvg ? `anchored by closed comps averaging ${fmtD(compAvg)}` : `aligned with the midpoint of CMA tools and AVM consensus`} — positioned to generate strong early activity within 14 days.` : 'Enter pricing data above to generate rationale.',
-    aggrK  ? `Aggressive at ${fmtTier(aggrK)} is priced for speed. Expect strong first-weekend traffic and likely multiple offers if priced correctly.` : '',
-    stretchK ? `Test the Market at ${fmtTier(stretchK)} requires exceptional condition or premium features to justify. A 21-day review trigger is strongly recommended.` : '',
-    compAvg ? `Closed comps average ${fmtD(compAvg)} across ${comps.length} MLS sale${comps.length>1?'s':''} — the strongest pricing signal in this analysis.` : '',
-    `Mark Spain model: Target under contract within 14 days. If no accepted offer by day 14 at the Sweet Spot, evaluate a $5K-$10K reduction before the 21-day stale listing window.`,
-    avmAvg ? `AVM consensus ($${avmAvg.toFixed(0)}k) reflects automated data — CMA tool values from actual comps carry more weight for list price decisions.` : '',
-  ].filter(Boolean);
-
-  bullets.forEach(b => {
-    setFill(RED); doc.circle(ML + 4, y + 2, 2, 'F');
-    setColor(DARK); setFont('normal', 7.5);
-    const lines = doc.splitTextToSize(b, CW - 14);
-    doc.text(lines, ML + 10, y + 4);
-    y += lines.length * 10 + 3;
+  let cx = M;
+  tiers.forEach(({label,sub,price,range,body,hcol,bgcol}) => {
+    // shadow
+    sf(...[204,204,204]); doc.rect(cx+3, y+3, CW3, CARD_H, 'F');
+    // body fill
+    sf(...bgcol); doc.rect(cx, y, CW3, CARD_H, 'F');
+    // header band
+    sf(...hcol); doc.rect(cx, y, CW3, BAND, 'F');
+    // border
+    sd(...hcol); doc.setLineWidth(1.8); doc.rect(cx, y, CW3, CARD_H, 'S');
+    // header text
+    st(...WHITE); fnt('bold',11);
+    doc.text(label, cx+CW3/2, y+BAND-8, {align:'center'});
+    // italic sub
+    st(...hcol); fnt('italic',8.5);
+    doc.text(sub, cx+CW3/2, y+BAND+13, {align:'center'});
+    // big price
+    st(...hcol); fnt('bold',28);
+    doc.text(price, cx+CW3/2, y+BAND+46, {align:'center'});
+    // range
+    st(...TGRAY); fnt('normal',8.5);
+    doc.text(range, cx+CW3/2, y+BAND+60, {align:'center'});
+    // divider
+    sd(...RULE); doc.setLineWidth(0.5);
+    doc.line(cx+14, y+BAND+67, cx+CW3-14, y+BAND+67);
+    // body text
+    st(...TGRAY); fnt('normal',8);
+    let ty = y+BAND+80;
+    for (const ln of wlines(body,'normal',8,CW3-22)) {
+      doc.text(ln, cx+CW3/2, ty, {align:'center'}); ty+=13;
+    }
+    cx += CW3+CGAP;
   });
 
-  // ── FOOTER ───────────────────────────────────────────────────────────────
-  setStroke(RED); doc.setLineWidth(1);
-  doc.line(0, H - 28, W, H - 28);
-  setFill(DARK); doc.rect(0, H - 27, W, 27, 'F');
-  setColor([170,170,170]); setFont('normal', 7);
-  doc.text('Salman Hussain, REALTOR  |  Mark Spain Real Estate  |  NC License #316046  |  919-802-2207  |  salmanhussain@markspain.com', W/2, H - 15, { align: 'center' });
-  doc.text('Chatham · Durham · Harnett · Johnston · Wake', W/2, H - 6, { align: 'center' });
+  y += CARD_H+8;
 
-  // ── SAVE ─────────────────────────────────────────────────────────────────
-  const fname = address.replace(/[^a-z0-9]/gi, '_').substring(0, 40);
+  // ── STAT BADGES ───────────────────────────────────────────────────────────
+  const BW = (W-2*M)/4;
+  sf(...DARK); doc.rect(0, y, W, BADGE_H, 'F');
+  sd(...[51,51,51]); doc.setLineWidth(0.8);
+  [1,2,3].forEach(di => { const dx=M+di*BW; doc.line(dx,y+8,dx,y+BADGE_H-8); });
+  let bx = M;
+  badges.forEach(([num,lbl]) => {
+    st(...WHITE); fnt('bold',17); doc.text(num, bx+BW/2, y+28, {align:'center'});
+    st(...MGRAY); fnt('normal',7.5); doc.text(lbl, bx+BW/2, y+46, {align:'center'});
+    bx += BW;
+  });
+  y += BADGE_H;
+
+  // ── FOOTER ────────────────────────────────────────────────────────────────
+  sf(...DARK); doc.rect(0, y, W, H-y, 'F');
+  st(...WHITE); fnt('normal',7);
+  doc.text(`Mark Spain Real Estate  \u2022  Salman Hussain, Realtor\u00ae  \u2022  NC RE License #316046  \u2022  919-802-2207  \u2022  salmanhussain@markspain.com`, W/2, y+(H-y)*0.55, {align:'center'});
+  st(...RED); fnt('bold',7);
+  doc.text('markspain.com', W-M, y+(H-y)*0.82, {align:'right'});
+
+  // ── SAVE ──────────────────────────────────────────────────────────────────
+  const fname = address.replace(/[^a-z0-9]/gi,'_').substring(0,40);
   doc.save(`Pricing_Strategy_${fname}.pdf`);
 }
 
