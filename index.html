@@ -336,6 +336,62 @@
     </div>
   </div>
 
+  <!-- Closed MLS Comps -->
+  <div class="card">
+    <div class="card-header">Closed MLS Comparables (optional)</div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        <div class="cma-source" id="box-comp1">
+          <div class="cma-source-name">Comp 1</div>
+          <div class="avm-fields" style="margin-top:6px;">
+            <div class="avm-field"><label>MLS #</label><input type="text" id="comp1_mls" placeholder="10132186" oninput="markFilledBlue('box-comp1')"></div>
+            <div class="avm-field"><label>Sold Price ($)</label><input type="number" id="comp1_price" placeholder="552000" oninput="updateCalc();markFilledBlue('box-comp1')"></div>
+          </div>
+        </div>
+        <div class="cma-source" id="box-comp2">
+          <div class="cma-source-name">Comp 2</div>
+          <div class="avm-fields" style="margin-top:6px;">
+            <div class="avm-field"><label>MLS #</label><input type="text" id="comp2_mls" placeholder="10152051" oninput="markFilledBlue('box-comp2')"></div>
+            <div class="avm-field"><label>Sold Price ($)</label><input type="number" id="comp2_price" placeholder="580000" oninput="updateCalc();markFilledBlue('box-comp2')"></div>
+          </div>
+        </div>
+        <div class="cma-source" id="box-comp3">
+          <div class="cma-source-name">Comp 3</div>
+          <div class="avm-fields" style="margin-top:6px;">
+            <div class="avm-field"><label>MLS #</label><input type="text" id="comp3_mls" placeholder="10119172" oninput="markFilledBlue('box-comp3')"></div>
+            <div class="avm-field"><label>Sold Price ($)</label><input type="number" id="comp3_price" placeholder="562000" oninput="updateCalc();markFilledBlue('box-comp3')"></div>
+          </div>
+        </div>
+      </div>
+      <div id="compsAvgNote" style="font-size:12px;color:var(--light);margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- Tax Record -->
+  <div class="card">
+    <div class="card-header">Tax Record (optional)</div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;">
+        <div class="cma-source">
+          <div class="cma-source-name">Assessed Value ($)</div>
+          <input type="number" id="tax_assessed" placeholder="285000">
+        </div>
+        <div class="cma-source">
+          <div class="cma-source-name">Tax Year</div>
+          <input type="number" id="tax_year" placeholder="2024">
+        </div>
+        <div class="cma-source">
+          <div class="cma-source-name">Annual Taxes ($)</div>
+          <input type="number" id="tax_annual" placeholder="2850">
+        </div>
+        <div class="cma-source">
+          <div class="cma-source-name">County</div>
+          <input type="text" id="tax_county" placeholder="Wake County">
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Recommended Price -->
   <div class="card">
     <div class="card-header">Pricing Recommendation</div>
@@ -435,12 +491,27 @@ function updateCalc() {
   if (vals.length === 0) {
     consensusEl.textContent = '—';
     rangeEl.textContent = 'Enter AVM values above';
-    return;
+  } else {
+    const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
+    const mn = vals.reduce((a,b)=>a<b?a:b), mx = vals.reduce((a,b)=>a>b?a:b);
+    consensusEl.textContent = `$${avg.toFixed(0)}k`;
+    rangeEl.textContent = `${vals.length} sources · Range $${mn}k – $${mx}k`;
   }
-  const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
-  const mn = vals.reduce(function(a,b){return a<b?a:b;}), mx = vals.reduce(function(a,b){return a>b?a:b;});
-  consensusEl.textContent = `$${avg.toFixed(0)}k`;
-  rangeEl.textContent = `${vals.length} sources · Range $${mn}k – $${mx}k`;
+
+  // Comps average
+  const compPrices = [
+    parseFloat(document.getElementById('comp1_price').value),
+    parseFloat(document.getElementById('comp2_price').value),
+    parseFloat(document.getElementById('comp3_price').value),
+  ].filter(v => !isNaN(v));
+  const noteEl = document.getElementById('compsAvgNote');
+  if (compPrices.length > 0) {
+    const avg = compPrices.reduce((a,b)=>a+b,0) / compPrices.length;
+    noteEl.textContent = `✓ Closed comps average: $${avg.toLocaleString(undefined,{maximumFractionDigits:0})}  (${compPrices.length} comp${compPrices.length>1?'s':''})`;
+    noteEl.style.color = 'var(--green)';
+  } else {
+    noteEl.textContent = '';
+  }
 }
 
 // ── Status helpers ─────────────────────────────────────────────────────────
@@ -603,15 +674,19 @@ Rules:
 function clearAll() {
   ['z_est','z_low','z_high','r_est','r_low','r_high',
    'h_est','h_low','h_high','rc_est','rc_low','rc_high',
-   'cma_snap','cma_easy','cma_rpr','rec_price'].forEach(id => {
+   'cma_snap','cma_easy','cma_rpr','rec_price',
+   'comp1_mls','comp1_price','comp2_mls','comp2_price','comp3_mls','comp3_price',
+   'tax_assessed','tax_year','tax_annual','tax_county'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
   document.getElementById('address').value = '';
   ['box-zillow','box-redfin','box-homes','box-realtor',
-   'box-cmasnap','box-cmaeasy','box-rpr'].forEach(id => {
+   'box-cmasnap','box-cmaeasy','box-rpr',
+   'box-comp1','box-comp2','box-comp3'].forEach(id => {
     document.getElementById(id)?.classList.remove('filled');
   });
+  document.getElementById('compsAvgNote').textContent = '';
   updateCalc();
   clearStatus();
   hideDebug();
@@ -621,9 +696,28 @@ function clearAll() {
 function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'letter' });
-  const W = 612, RED = [200, 16, 46], DARK = [26, 26, 26], GRAY = [245, 245, 245], MGRAY = [221, 221, 221];
+  const W = 612, H = 792;
+  const ML = 29, MR = 29, CW = W - ML - MR;
 
-  const address = document.getElementById('address').value.trim() || 'Property';
+  // Color helpers
+  const setFill   = (c) => doc.setFillColor(c[0], c[1], c[2]);
+  const setStroke = (c) => doc.setDrawColor(c[0], c[1], c[2]);
+  const setColor  = (c) => doc.setTextColor(c[0], c[1], c[2]);
+  const setFont   = (s, sz) => { doc.setFont('helvetica', s); if (sz) doc.setFontSize(sz); };
+
+  const RED   = [200, 16, 46];
+  const DARK  = [26, 26, 26];
+  const TGRAY = [85, 85, 85];
+  const MGRAY = [153, 153, 153];
+  const LGRAY = [240, 240, 240];
+  const RULE  = [200, 200, 200];
+  const WHITE = [255, 255, 255];
+  const LGREEN= [232, 245, 233];
+  const GREEN = [46, 125, 50];
+  const AMBER = [255, 248, 225];
+  const AMBDK = [123, 79, 0];
+
+  const address = document.getElementById('address').value.trim() || 'Subject Property';
   const z   = { est: v('z_est'),   low: v('z_low'),   high: v('z_high') };
   const r   = { est: v('r_est'),   low: v('r_low'),   high: v('r_high') };
   const h   = { est: v('h_est'),   low: v('h_low'),   high: v('h_high') };
@@ -631,164 +725,355 @@ function generatePDF() {
   const cma = { snap: v('cma_snap'), easy: v('cma_easy'), rpr: v('cma_rpr') };
   const rec = v('rec_price');
 
-  const fmt  = val => val != null ? `$${val}k` : 'N/A';
-  const fmtR = val => val != null ? `$${Number(val).toLocaleString()}` : '—';
+  // Comps
+  const comps = [
+    { mls: document.getElementById('comp1_mls').value.trim(), price: v('comp1_price') },
+    { mls: document.getElementById('comp2_mls').value.trim(), price: v('comp2_price') },
+    { mls: document.getElementById('comp3_mls').value.trim(), price: v('comp3_price') },
+  ].filter(c => c.price != null);
 
-  // AVM consensus
+  // Tax record
+  const tax = {
+    assessed: v('tax_assessed'),
+    year:     document.getElementById('tax_year').value.trim(),
+    annual:   v('tax_annual'),
+    county:   document.getElementById('tax_county').value.trim(),
+  };
+  const hasTax = tax.assessed || tax.annual || tax.county;
+
+  const fmtK  = val => val != null ? `$${val}k` : '—';
+  const fmtD  = val => val != null ? `$${Number(val).toLocaleString()}` : '—';
+
+  // ── Derive tier prices ────────────────────────────────────────────────────
   const avmVals = [z.est, r.est, h.est, rc.est].filter(x => x != null);
-  const consensus = avmVals.length ? (avmVals.reduce((a,b)=>a+b,0)/avmVals.length).toFixed(0) : null;
+  const avmAvg  = avmVals.length ? avmVals.reduce((a,b)=>a+b,0)/avmVals.length : null;
+  const cmaVals = [cma.snap, cma.easy, cma.rpr].filter(x => x != null);
+  const cmaAvg  = cmaVals.length ? cmaVals.reduce((a,b)=>a+b,0)/cmaVals.length : null;
+  const compPrices = comps.map(c => c.price);
+  const compAvg = compPrices.length ? compPrices.reduce((a,b)=>a+b,0)/compPrices.length : null;
+
+  // Priority: rec_price > comps avg > CMA/AVM midpoint
+  let sweetRaw = rec
+    ? rec / 1000
+    : compAvg
+      ? compAvg / 1000
+      : (cmaAvg && avmAvg ? (cmaAvg + avmAvg) / 2 : (cmaAvg || avmAvg));
+  let sweetK = sweetRaw ? Math.round(sweetRaw) : null;
+  const aggrK    = sweetK ? Math.round(sweetK * 0.964 / 5) * 5 : null;
+  const stretchK = sweetK ? Math.round(sweetK * 1.036 / 5) * 5 : null;
+
+  const fmtTier = k => k ? `$${(k * 1000).toLocaleString()}` : '—';
+  const fmtTierRange = (k, pct) => {
+    if (!k) return '—';
+    const lo = Math.round(k * (1 - pct) / 5) * 5;
+    const hi = Math.round(k * (1 + pct) / 5) * 5;
+    return `$${lo}k – $${hi}k`;
+  };
 
   let y = 0;
 
-  // ── Header ──
-  doc.setFillColor(200,16,46);
-  doc.rect(0, 0, W, 72, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(18);
-  doc.text('MARK SPAIN REAL ESTATE', 36, 30);
-  doc.setFontSize(9);
-  doc.setFont('helvetica','normal');
-  doc.text('Salman Hussain  |  919-802-2207  |  salmanhussain@markspain.com', 36, 48);
-  doc.setFont('helvetica','italic');
-  doc.text('Pricing Strategy Report', W - 36, 42, { align: 'right' });
+  // ── HEADER (dark bar) ─────────────────────────────────────────────────────
+  setFill(DARK); doc.rect(0, 0, W, 46, 'F');
+  setColor(WHITE); setFont('bold', 15);
+  doc.text('PRICING STRATEGY ANALYSIS', ML, 29);
+  setFont('normal', 8.5); setColor([170,170,170]);
+  doc.text('Mark Spain Real Estate', W - MR, 18, { align: 'right' });
+  doc.text('markspain.com', W - MR, 30, { align: 'right' });
 
-  // ── Property banner ──
-  doc.setFillColor(26,26,26);
-  doc.rect(0, 72, W, 36, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(13);
-  doc.text(address, W/2, 92, { align: 'center' });
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(9);
-  doc.text('Pricing Analysis  |  Mark Spain Real Estate', W/2, 104, { align: 'center' });
+  y = 58;
 
-  y = 124;
+  // ── ADDRESS ──────────────────────────────────────────────────────────────
+  setColor(DARK); setFont('bold', 13);
+  doc.text(address, ML, y);
+  y += 13;
+  setFont('normal', 8); setColor(TGRAY);
+  doc.text('Salman Hussain, REALTOR  |  NC License #316046  |  919-802-2207  |  salmanhussain@markspain.com', ML, y);
+  y += 8;
+  setStroke(RED); doc.setLineWidth(1.2);
+  doc.line(ML, y, W - MR, y);
+  y += 12;
 
-  // ── Section header helper ──
-  function sectionHeader(label, yy) {
-    doc.setFillColor(200,16,46);
-    doc.rect(36, yy - 4, W - 72, 18, 'F');
-    doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(9);
-    doc.text(label.toUpperCase(), 42, yy + 8);
-    return yy + 22;
-  }
+  // ── TWO-COLUMN TABLES ─────────────────────────────────────────────────────
+  const colW  = (CW - 10) / 2;
+  const col1x = ML;
+  const col2x = ML + colW + 10;
+  const rowH  = 14, hdrH = 16;
 
-  // ── Table helper ──
-  function drawTable(headers, rows, colWidths, startY) {
-    const rowH = 20, hdrH = 20;
-    const startX = 36;
-    // Header row
-    doc.setFillColor(200,16,46);
-    doc.rect(startX, startY, colWidths.reduce((a,b)=>a+b,0), hdrH, 'F');
-    doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(8);
-    let cx = startX;
-    headers.forEach((h, i) => {
-      doc.text(h, cx + 6, startY + 13);
-      cx += colWidths[i];
+  function smallTable(title, rows, tx, ty, tw) {
+    // header
+    setFill(DARK); doc.rect(tx, ty, tw, hdrH, 'F');
+    setColor(WHITE); setFont('bold', 7.5);
+    doc.text(title, tx + 5, ty + 11);
+    let ry = ty + hdrH;
+    rows.forEach((row, i) => {
+      const bg = i % 2 === 0 ? [255,255,255] : [247,247,247];
+      setFill(bg); doc.rect(tx, ry, tw, rowH, 'F');
+      setStroke(RULE); doc.setLineWidth(0.3);
+      doc.line(tx, ry + rowH, tx + tw, ry + rowH);
+      setColor(DARK); setFont('normal', 7.5);
+      doc.text(row[0], tx + 5, ry + 10);
+      if (row[1]) { setFont('bold', 7.5); doc.text(row[1], tx + tw - (row[2] ? 60 : 5), ry + 10, { align: 'right' }); }
+      if (row[2]) { setFont('normal', 7); setColor(MGRAY); doc.text(row[2], tx + tw - 4, ry + 10, { align: 'right' }); }
+      ry += rowH;
     });
-    // Data rows
-    rows.forEach((row, ri) => {
-      const ry = startY + hdrH + ri * rowH;
-      doc.setFillColor(ri % 2 === 0 ? 255 : 245, ri % 2 === 0 ? 255 : 245, ri % 2 === 0 ? 255 : 245);
-      doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'F');
-      doc.setDrawColor(221,221,221);
-      doc.setLineWidth(0.4);
-      doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'S');
-      doc.setTextColor(26,26,26);
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(8);
-      cx = startX;
-      row.forEach((cell, ci) => {
-        doc.text(String(cell ?? 'N/A'), ci === 0 ? cx + 6 : cx + colWidths[ci]/2, ry + 13, ci === 0 ? {} : { align: 'center' });
-        cx += colWidths[ci];
-      });
+    setStroke(RULE); doc.setLineWidth(0.5);
+    doc.rect(tx, ty, tw, hdrH + rows.length * rowH, 'S');
+    return ry;
+  }
+
+  const avmTableRows = [
+    ['Zillow (Zestimate)', fmtK(z.est), z.low!=null&&z.high!=null ? `${fmtK(z.low)}-${fmtK(z.high)}` : ''],
+    ['Redfin Estimate',    fmtK(r.est), r.low!=null&&r.high!=null ? `${fmtK(r.low)}-${fmtK(r.high)}` : ''],
+    ['Homes.com',          h.est ? fmtK(h.est) : '', h.low!=null&&h.high!=null ? `${fmtK(h.low)}-${fmtK(h.high)}` : ''],
+    ['Realtor.com',        fmtK(rc.est), ''],
+  ];
+  const avmBot = smallTable('AUTOMATED VALUE MODELS (AVMs)', avmTableRows, col1x, y, colW);
+
+  const cmaTableRows = [
+    ['CMAsnap',  fmtK(cma.snap), 'Comp-based'],
+    ['CMAeasy',  fmtK(cma.easy), 'Broad pool'],
+    ['RPR CMA',  fmtK(cma.rpr),  'MLS-driven'],
+  ];
+  const cmaBot = smallTable('CMA TOOL ESTIMATES', cmaTableRows, col1x, avmBot + 8, colW);
+
+  // ── RIGHT COLUMN: Closed Comps table OR data summary ─────────────────────
+  if (comps.length > 0) {
+    // Closed comps table
+    const compRows = comps.map(c => [c.mls || '—', fmtD(c.price), 'Closed']);
+    let compBot = smallTable('CLOSED MLS COMPARABLES', compRows, col2x, y, colW);
+    // Avg row
+    const avgRowH = 14;
+    setFill([255,240,240]); doc.rect(col2x, compBot, colW, avgRowH, 'F');
+    setStroke([200,16,46]); doc.setLineWidth(1); doc.line(col2x, compBot, col2x+colW, compBot);
+    setColor(DARK); setFont('bold', 7.5);
+    doc.text('Closed Comps Average', col2x + 5, compBot + 10);
+    setColor([200,16,46]); setFont('bold', 7.5);
+    doc.text(fmtD(compAvg), col2x + colW - 5, compBot + 10, { align: 'right' });
+    setStroke(RULE); doc.setLineWidth(0.5);
+    doc.rect(col2x, y, colW, compBot - y + avgRowH, 'S');
+  } else {
+    // No comps — show data summary
+    const rBoxH = avmBot - y;
+    setFill(LGRAY); doc.rect(col2x, y, colW, rBoxH, 'F');
+    setStroke(RULE); doc.setLineWidth(0.5); doc.rect(col2x, y, colW, rBoxH, 'S');
+    setFill(DARK); doc.rect(col2x, y, colW, 16, 'F');
+    setColor(WHITE); setFont('bold', 7.5);
+    doc.text('DATA SUMMARY', col2x + 5, y + 11);
+    const sumItems = [
+      ['AVM Avg', avmAvg ? `$${avmAvg.toFixed(0)}k` : '—', `${avmVals.length} of 4 sources`],
+      ['CMA Avg', cmaAvg ? `$${cmaAvg.toFixed(0)}k` : '—', `${cmaVals.length} of 3 tools`],
+      ['AVM Low', avmVals.length ? `$${Math.min(...avmVals).toFixed(0)}k` : '—', 'floor'],
+      ['AVM High', avmVals.length ? `$${Math.max(...avmVals).toFixed(0)}k` : '—', 'ceiling'],
+    ];
+    let sy = y + 26;
+    sumItems.forEach((item, i) => {
+      setFont('bold', 6.5); setColor(MGRAY); doc.text(item[0].toUpperCase(), col2x + 8, sy);
+      setFont('bold', 12); setColor(DARK); doc.text(item[1], col2x + 8, sy + 12);
+      setFont('normal', 6); setColor(MGRAY); doc.text(item[2], col2x + 8, sy + 20);
+      sy += 32;
+      if (i < sumItems.length - 1 && sy < y + rBoxH - 4) {
+        setStroke(RULE); doc.setLineWidth(0.2); doc.line(col2x+8, sy-6, col2x+colW-8, sy-6);
+      }
     });
-    return startY + hdrH + rows.length * rowH;
   }
 
-  // ── AVM Table ──
-  y = sectionHeader('Automated Valuation Models (AVM)', y);
-  const avmRows = [
-    ['Zillow (Zestimate)', fmt(z.est), fmt(z.low), fmt(z.high), z.low!=null&&z.high!=null ? `$${z.high-z.low}k` : 'N/A'],
-    ['Redfin Estimate',   fmt(r.est), fmt(r.low), fmt(r.high), r.low!=null&&r.high!=null ? `$${r.high-r.low}k` : 'N/A'],
-    ['Homes.com',         h.est!=null?fmt(h.est):'See range', fmt(h.low), fmt(h.high), h.low!=null&&h.high!=null ? `$${h.high-h.low}k` : 'N/A'],
-    ['Realtor.com',       fmt(rc.est), 'N/A', 'N/A', 'N/A'],
-  ];
-  y = drawTable(['Source','Estimate','Low','High','Range Width'], avmRows, [170,80,70,70,80], y) + 6;
-  doc.setTextColor(26,26,26);
-  doc.setFont('helvetica','italic');
-  doc.setFontSize(8);
-  if (consensus) doc.text(`AVM consensus: $${consensus}k  |  Sources: ${avmVals.length} of 4`, 36, y + 8);
-  y += 18;
+  y = Math.max(avmBot, cmaBot) + 12;
 
-  // ── CMA Table ──
-  y = sectionHeader('Comparative Market Analysis (CMA) Tools', y);
-  const cmaRows = [
-    ['CMAsnap',  fmt(cma.snap), 'Sales comp-based valuation'],
-    ['CMAeasy',  fmt(cma.easy), 'Broader comp pool'],
-    ['RPR (Realtors Property Resource)', fmt(cma.rpr), 'MLS-driven AVM'],
-  ];
-  y = drawTable(['Tool','Value','Notes'], cmaRows, [210,110,220], y) + 6;
-  const cmaVals = [cma.snap, cma.easy, cma.rpr].filter(x=>x!=null);
-  if (cmaVals.length) {
-    const cmaAvg = (cmaVals.reduce((a,b)=>a+b,0)/cmaVals.length).toFixed(0);
-    doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(26,26,26);
-    var cLow = cmaVals.reduce(function(a,b){return a<b?a:b;}); var cHigh = cmaVals.reduce(function(a,b){return a>b?a:b;}); doc.text("CMA average: $" + cmaAvg + "k  |  Low: $" + cLow + "k  |  High: $" + cHigh + "k", 36, y + 8);
-  }
-  y += 18;
+  // ── TIER BANNER ───────────────────────────────────────────────────────────
+  setFill(DARK); doc.rect(0, y, W, 22, 'F');
+  setColor(WHITE); setFont('bold', 9);
+  doc.text(`RECOMMENDED PRICING TIERS  —  ${address.toUpperCase()}`, W/2, y + 14, { align: 'center' });
+  y += 22;
 
-  // ── Recommendation Box ──
-  y = sectionHeader('Pricing Recommendation', y);
-  doc.setFillColor(255, 245, 245);
-  doc.setDrawColor(200,16,46);
-  doc.setLineWidth(1);
-  doc.roundedRect(36, y, W - 72, 56, 4, 4, 'FD');
-  doc.setTextColor(200,16,46);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(26);
-  doc.text(rec ? fmtR(rec) : '—', W/2, y + 28, { align: 'center' });
-  doc.setFontSize(10);
-  doc.text('Recommended List Price', W/2, y + 44, { align: 'center' });
-  if (consensus) {
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,100,100);
-    doc.text(`AVM consensus: $${consensus}k  |  Position relative to market data`, W/2, y + 54, { align: 'center' });
-  }
-  y += 70;
+  // ── THREE TIER CARDS ──────────────────────────────────────────────────────
+  const cardGap = 8, cardH = 80;
+  const cardW = (CW - cardGap * 2) / 3;
 
-  // ── Rationale bullets ──
-  const bullets = [
-    `Zillow at ${fmt(z.est)} anchors buyer perception — buyers check Zillow first.`,
-    `Redfin at ${fmt(r.est)} and Realtor.com at ${fmt(rc.est)} support pricing above Zillow range.`,
-    `RPR at ${fmt(cma.rpr)} signals appraiser conservatism — stay defensible at appraisal.`,
-    `CMAeasy at ${fmt(cma.easy)} represents upper ceiling; overpricing risks sitting on market.`,
-    rec ? `List at ${fmtR(rec)} to drive traffic and generate competitive offer activity.` : 'Set recommended price above based on seller goals and market conditions.',
+  const tiers = [
+    {
+      label: 'AGGRESSIVE',
+      sub:   'Quick sale / fast close',
+      price: fmtTier(aggrK),
+      range: fmtTierRange(aggrK, 0.01),
+      body:  'Priced below CMA average to drive immediate showings and offers. Best if timeline or motivation favors speed over top dollar.',
+      bg: LGRAY, tc: DARK, sc: TGRAY, border: [120,120,120], bw: 1.2, highlight: false,
+    },
+    {
+      label: 'SWEET SPOT',
+      sub:   'Recommended list price',
+      price: fmtTier(sweetK),
+      range: fmtTierRange(sweetK, 0.01),
+      body:  'Anchored by CMA tools and AVM data. Positions to generate strong early activity and competitive offers within 14 days.',
+      bg: LGREEN, tc: GREEN, sc: GREEN, border: GREEN, bw: 2, highlight: true,
+    },
+    {
+      label: 'TEST THE MARKET',
+      sub:   'Ceiling / stretch price',
+      price: fmtTier(stretchK),
+      range: fmtTierRange(stretchK, 0.01),
+      body:  'For strong condition or premium finishes. Monitor closely — reduce by day 21 if no strong activity to avoid stale listing.',
+      bg: AMBER, tc: AMBDK, sc: AMBDK, border: AMBDK, bw: 1.2, highlight: false,
+    },
   ];
-  doc.setTextColor(26,26,26);
-  doc.setFontSize(8);
-  doc.setFont('helvetica','normal');
-  bullets.forEach(b => {
-    doc.setFillColor(200,16,46);
-    doc.setFillColor(200,16,46); doc.circle(42, y + 2, 2.5, 'F');
-    doc.text(b, 50, y + 4, { maxWidth: W - 90 });
-    y += 14;
+
+  let cx = ML;
+  tiers.forEach(tier => {
+    // background
+    setFill(tier.bg); doc.rect(cx, y, cardW, cardH, 'F');
+    // border — ALL cards get visible border
+    setStroke(tier.border); doc.setLineWidth(tier.bw);
+    doc.rect(cx, y, cardW, cardH, 'S');
+
+    // tier label
+    setColor(tier.tc); setFont('bold', 8.5);
+    doc.text(tier.label, cx + cardW/2, y + 12, { align: 'center' });
+    // sub label
+    setFont('normal', 7); setColor(tier.sc);
+    doc.text(tier.sub, cx + cardW/2, y + 22, { align: 'center' });
+    // price
+    setColor(tier.tc); setFont('bold', tier.highlight ? 18 : 16);
+    doc.text(tier.price, cx + cardW/2, y + 42, { align: 'center' });
+    // range
+    setFont('normal', 7); setColor(tier.sc);
+    doc.text(tier.range, cx + cardW/2, y + 53, { align: 'center' });
+    // body text (wrapped)
+    setFont('normal', 6.5); setColor(TGRAY);
+    const lines = doc.splitTextToSize(tier.body, cardW - 12);
+    doc.text(lines, cx + cardW/2, y + 63, { align: 'center' });
+
+    // RECOMMENDED badge on sweet spot
+    if (tier.highlight) {
+      setFill(GREEN); doc.roundedRect(cx + cardW/2 - 34, y + cardH - 13, 68, 11, 2, 2, 'F');
+      setColor(WHITE); setFont('bold', 6.5);
+      doc.text('RECOMMENDED', cx + cardW/2, y + cardH - 5, { align: 'center' });
+    }
+
+    cx += cardW + cardGap;
   });
 
-  // ── Footer ──
-  doc.setFillColor(200,16,46);
-  doc.rect(0, 792 - 28, W, 28, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(7);
-  doc.text('Mark Spain Real Estate  |  Salman Hussain, REALTOR®  |  NC RE License #316046  |  919-802-2207', W/2, 792 - 14, { align: 'center' });
-  doc.text('This analysis is based on available data and professional judgment. Not a guarantee of sale price.', W/2, 792 - 6, { align: 'center' });
+  y += cardH + 10;
 
-  // ── Save ──
+  // ── AVM + CMA TABLES ─────────────────────────────────────────────────────
+  setStroke(RULE); doc.setLineWidth(0.5); doc.line(ML, y, W - MR, y);
+  y += 8;
+
+  // AVM full table
+  setColor(DARK); setFont('bold', 8);
+  doc.text('AUTOMATED VALUE MODELS', ML, y); y += 10;
+  const avmFullRows = [
+    ['Zillow (Zestimate)', fmtK(z.est), z.low!=null ? fmtK(z.low) : '—', z.high!=null ? fmtK(z.high) : '—'],
+    ['Redfin Estimate',    fmtK(r.est), r.low!=null ? fmtK(r.low) : '—', r.high!=null ? fmtK(r.high) : '—'],
+    ['Homes.com',          h.est ? fmtK(h.est) : '—', h.low!=null ? fmtK(h.low) : '—', h.high!=null ? fmtK(h.high) : '—'],
+    ['Realtor.com',        fmtK(rc.est), '—', '—'],
+  ];
+  const avmCols = [180, 90, 80, 80];
+  const avmHdrs = ['Source', 'Estimate', 'Low', 'High'];
+  // header row
+  setFill(DARK); doc.rect(ML, y, avmCols.reduce((a,b)=>a+b), 14, 'F');
+  setColor(WHITE); setFont('bold', 7.5); let cx2 = ML;
+  avmHdrs.forEach((h2,i) => { doc.text(h2, cx2+4, y+10); cx2+=avmCols[i]; });
+  y += 14;
+  avmFullRows.forEach((row, ri) => {
+    const bg = ri%2===0 ? [255,255,255] : [247,247,247];
+    setFill(bg); doc.rect(ML, y, avmCols.reduce((a,b)=>a+b), 13, 'F');
+    setStroke(RULE); doc.setLineWidth(0.3); doc.rect(ML, y, avmCols.reduce((a,b)=>a+b), 13, 'S');
+    setColor(DARK); setFont('normal', 7.5); cx2=ML;
+    row.forEach((cell,ci) => { doc.text(String(cell), ci===0?cx2+4:cx2+avmCols[ci]/2, y+9, ci===0?{}:{align:'center'}); cx2+=avmCols[ci]; });
+    y += 13;
+  });
+  if (avmAvg) {
+    setFont('italic', 7); setColor(TGRAY);
+    doc.text(`AVM consensus: $${avmAvg.toFixed(0)}k  |  ${avmVals.length} of 4 sources`, ML, y+8);
+    y += 14;
+  } else { y += 4; }
+
+  // CMA table
+  const cmaGap = 10;
+  setColor(DARK); setFont('bold', 8);
+  doc.text('CMA TOOL ESTIMATES', ML, y + 10); y += 20;
+  const cmaFullRows = [
+    ['CMAsnap',  fmtK(cma.snap), 'Sales comp-based valuation'],
+    ['CMAeasy',  fmtK(cma.easy), 'Broader comp pool'],
+    ['RPR CMA',  fmtK(cma.rpr),  'MLS-driven AVM'],
+  ];
+  const cmaCols = [150, 100, 280];
+  const cmaHdrs = ['Tool', 'Value', 'Notes'];
+  setFill(DARK); doc.rect(ML, y, cmaCols.reduce((a,b)=>a+b), 14, 'F');
+  setColor(WHITE); setFont('bold', 7.5); cx2=ML;
+  cmaHdrs.forEach((h2,i) => { doc.text(h2, cx2+4, y+10); cx2+=cmaCols[i]; });
+  y += 14;
+  cmaFullRows.forEach((row, ri) => {
+    const bg = ri%2===0 ? [255,255,255] : [247,247,247];
+    setFill(bg); doc.rect(ML, y, cmaCols.reduce((a,b)=>a+b), 13, 'F');
+    setStroke(RULE); doc.setLineWidth(0.3); doc.rect(ML, y, cmaCols.reduce((a,b)=>a+b), 13, 'S');
+    setColor(DARK); setFont('normal', 7.5); cx2=ML;
+    row.forEach((cell,ci) => { doc.text(String(cell), cx2+4, y+9); cx2+=cmaCols[ci]; });
+    y += 13;
+  });
+  if (cmaAvg) {
+    const cLo = Math.min(...cmaVals), cHi = Math.max(...cmaVals);
+    setFont('italic', 7); setColor(TGRAY);
+    doc.text(`CMA average: $${cmaAvg.toFixed(0)}k  |  Low: $${cLo}k  |  High: $${cHi}k`, ML, y+8);
+    y += 14;
+  } else { y += 4; }
+
+  // ── TAX RECORD ───────────────────────────────────────────────────────────
+  if (hasTax) {
+    y += 4;
+    setStroke(RULE); doc.setLineWidth(0.5); doc.line(ML, y, W-MR, y); y += 10;
+    setColor(DARK); setFont('bold', 8);
+    doc.text('TAX RECORD', ML, y); y += 10;
+    const taxCols = [160, 120, 130, 144];
+    const taxHdrs = ['County', 'Tax Year', 'Assessed Value', 'Annual Taxes'];
+    const taxVals = [
+      tax.county || '—',
+      tax.year || '—',
+      tax.assessed ? `$${Number(tax.assessed).toLocaleString()}` : '—',
+      tax.annual ? `$${Number(tax.annual).toLocaleString()}` : '—',
+    ];
+    setFill(DARK); doc.rect(ML, y, taxCols.reduce((a,b)=>a+b), 14, 'F');
+    setColor(WHITE); setFont('bold', 7.5); let cx3 = ML;
+    taxHdrs.forEach((h3,i) => { doc.text(h3, cx3+4, y+10); cx3+=taxCols[i]; });
+    y += 14;
+    setFill([255,255,255]); doc.rect(ML, y, taxCols.reduce((a,b)=>a+b), 13, 'F');
+    setStroke(RULE); doc.setLineWidth(0.3); doc.rect(ML, y, taxCols.reduce((a,b)=>a+b), 13, 'S');
+    setColor(DARK); setFont('normal', 7.5); cx3=ML;
+    taxVals.forEach((val,ci) => { doc.text(String(val), cx3+4, y+9); cx3+=taxCols[ci]; });
+    y += 16;
+  }
+
+  // ── PRICING RATIONALE ────────────────────────────────────────────────────
+  y += 4;
+  setStroke(RULE); doc.setLineWidth(0.5); doc.line(ML, y, W-MR, y); y += 10;
+  setColor(DARK); setFont('bold', 8);
+  doc.text('PRICING RATIONALE', ML, y); y += 12;
+
+  const bullets = [
+    sweetK ? `Sweet Spot at ${fmtTier(sweetK)} is ${compAvg ? `anchored by closed comps averaging ${fmtD(compAvg)}` : `aligned with the midpoint of CMA tools and AVM consensus`} — positioned to generate strong early activity within 14 days.` : 'Enter pricing data above to generate rationale.',
+    aggrK  ? `Aggressive at ${fmtTier(aggrK)} is priced for speed. Expect strong first-weekend traffic and likely multiple offers if priced correctly.` : '',
+    stretchK ? `Test the Market at ${fmtTier(stretchK)} requires exceptional condition or premium features to justify. A 21-day review trigger is strongly recommended.` : '',
+    compAvg ? `Closed comps average ${fmtD(compAvg)} across ${comps.length} MLS sale${comps.length>1?'s':''} — the strongest pricing signal in this analysis.` : '',
+    `Mark Spain model: Target under contract within 14 days. If no accepted offer by day 14 at the Sweet Spot, evaluate a $5K-$10K reduction before the 21-day stale listing window.`,
+    avmAvg ? `AVM consensus ($${avmAvg.toFixed(0)}k) reflects automated data — CMA tool values from actual comps carry more weight for list price decisions.` : '',
+  ].filter(Boolean);
+
+  bullets.forEach(b => {
+    setFill(RED); doc.circle(ML + 4, y + 2, 2, 'F');
+    setColor(DARK); setFont('normal', 7.5);
+    const lines = doc.splitTextToSize(b, CW - 14);
+    doc.text(lines, ML + 10, y + 4);
+    y += lines.length * 10 + 3;
+  });
+
+  // ── FOOTER ───────────────────────────────────────────────────────────────
+  setStroke(RED); doc.setLineWidth(1);
+  doc.line(0, H - 28, W, H - 28);
+  setFill(DARK); doc.rect(0, H - 27, W, 27, 'F');
+  setColor([170,170,170]); setFont('normal', 7);
+  doc.text('Salman Hussain, REALTOR  |  Mark Spain Real Estate  |  NC License #316046  |  919-802-2207  |  salmanhussain@markspain.com', W/2, H - 15, { align: 'center' });
+  doc.text('Chatham · Durham · Harnett · Johnston · Wake', W/2, H - 6, { align: 'center' });
+
+  // ── SAVE ─────────────────────────────────────────────────────────────────
   const fname = address.replace(/[^a-z0-9]/gi, '_').substring(0, 40);
   doc.save(`Pricing_Strategy_${fname}.pdf`);
 }
