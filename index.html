@@ -225,9 +225,8 @@
     <div class="title">MARK SPAIN REAL ESTATE</div>
     <div class="sub">CMA Pricing Tool</div>
   </div>
-  <div class="header-agent">
-    Salman Hussain, REALTOR&reg;<br>
-    NC RE #316046 &nbsp;|&nbsp; 919-802-2207
+  <div class="header-agent" id="headerAgent">
+    Mark Spain Real Estate
   </div>
 </div>
 
@@ -239,6 +238,35 @@
     <input type="password" id="apiKey" placeholder="AIzaSy..." autocomplete="off">
     <button class="btn-save" onclick="saveKey()">Save Key</button>
     <span class="key-status" id="keyStatus"></span>
+  </div>
+
+  <!-- Agent Profile -->
+  <div class="card" id="agentProfileCard">
+    <div class="card-header">Your Agent Profile <span style="font-weight:400;font-size:10px;opacity:0.8;">(saved once — your info appears on every PDF)</span></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-wrap:wrap;">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Full Name</label>
+          <input type="text" id="agentName" placeholder="e.g. Jane Smith" style="width:100%;border:1.5px solid #ddd;border-radius:5px;padding:8px 10px;font-size:14px;font-family:inherit;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">NC License #</label>
+          <input type="text" id="agentLicense" placeholder="e.g. 316046" style="width:100%;border:1.5px solid #ddd;border-radius:5px;padding:8px 10px;font-size:14px;font-family:inherit;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Phone</label>
+          <input type="text" id="agentPhone" placeholder="e.g. 919-555-1234" style="width:100%;border:1.5px solid #ddd;border-radius:5px;padding:8px 10px;font-size:14px;font-family:inherit;">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Email</label>
+          <input type="text" id="agentEmail" placeholder="e.g. jane@markspain.com" style="width:100%;border:1.5px solid #ddd;border-radius:5px;padding:8px 10px;font-size:14px;font-family:inherit;">
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
+        <button class="btn-save" onclick="saveProfile()">Save My Info</button>
+        <span id="profileStatus" style="font-size:12px;color:#27ae60;font-weight:600;"></span>
+      </div>
+    </div>
   </div>
 
   <!-- Address -->
@@ -360,38 +388,89 @@
 
 </div>
 
-<div class="footer">Mark Spain Real Estate &nbsp;|&nbsp; Salman Hussain &nbsp;|&nbsp; NC RE #316046 &nbsp;|&nbsp; 919-802-2207</div>
+<div class="footer" id="footerAgent">Mark Spain Real Estate</div>
 
 <script>
-// ── Key storage ────────────────────────────────────────────────────────────
-// Try localStorage, sessionStorage, and in-memory as fallbacks
+// ── Storage helpers ────────────────────────────────────────────────────────
+function storeSet(key, val) {
+  try { localStorage.setItem(key, val); } catch(e) {}
+  try { sessionStorage.setItem(key, val); } catch(e) {}
+}
+function storeGet(key) {
+  try { const v = localStorage.getItem(key); if (v) return v; } catch(e) {}
+  try { const v = sessionStorage.getItem(key); if (v) return v; } catch(e) {}
+  return null;
+}
+
+// ── API Key ─────────────────────────────────────────────────────────────────
 let _keyMemory = null;
 function saveKey() {
   const k = document.getElementById('apiKey').value.trim();
   if (!k) { alert('Please paste your API key first.'); return; }
   _keyMemory = k;
-  try { localStorage.setItem('msre_gemini_key', k); } catch(e) {}
-  try { sessionStorage.setItem('msre_gemini_key', k); } catch(e) {}
+  storeSet('msre_gemini_key', k);
   const el = document.getElementById('keyStatus');
   el.textContent = '✓ Key saved';
   el.style.color = '#27ae60';
 }
 function getKey() {
   if (_keyMemory) return _keyMemory;
-  try { const v = localStorage.getItem('msre_gemini_key'); if (v) return v; } catch(e) {}
-  try { const v = sessionStorage.getItem('msre_gemini_key'); if (v) return v; } catch(e) {}
+  const stored = storeGet('msre_gemini_key');
+  if (stored) return stored;
   return document.getElementById('apiKey').value.trim();
 }
+
+// ── Agent Profile ───────────────────────────────────────────────────────────
+function saveProfile() {
+  const name    = document.getElementById('agentName').value.trim();
+  const license = document.getElementById('agentLicense').value.trim();
+  const phone   = document.getElementById('agentPhone').value.trim();
+  const email   = document.getElementById('agentEmail').value.trim();
+  if (!name) { alert('Please enter your name.'); return; }
+  storeSet('msre_agent_name',    name);
+  storeSet('msre_agent_license', license);
+  storeSet('msre_agent_phone',   phone);
+  storeSet('msre_agent_email',   email);
+  updateAgentDisplay(name, license, phone, email);
+  document.getElementById('profileStatus').textContent = '✓ Profile saved';
+}
+function updateAgentDisplay(name, license, phone, email) {
+  const hdr = document.getElementById('headerAgent');
+  if (hdr) hdr.innerHTML = (name || 'Agent') + ', REALTOR&reg;<br>' + (license ? 'NC RE #' + license : '') + (phone ? ' &nbsp;|&nbsp; ' + phone : '');
+  const ftr = document.getElementById('footerAgent');
+  if (ftr) ftr.textContent = 'Mark Spain Real Estate  |  ' + (name||'') + '  |  NC RE #' + (license||'') + '  |  ' + (phone||'');
+}
+function getAgentInfo() {
+  return {
+    name:    storeGet('msre_agent_name')    || document.getElementById('agentName').value.trim()    || 'Agent',
+    license: storeGet('msre_agent_license') || document.getElementById('agentLicense').value.trim() || '',
+    phone:   storeGet('msre_agent_phone')   || document.getElementById('agentPhone').value.trim()   || '',
+    email:   storeGet('msre_agent_email')   || document.getElementById('agentEmail').value.trim()   || ''
+  };
+}
+
 window.addEventListener('load', () => {
-  let saved = null;
-  try { saved = localStorage.getItem('msre_gemini_key'); } catch(e) {}
-  if (!saved) { try { saved = sessionStorage.getItem('msre_gemini_key'); } catch(e) {} }
-  if (saved) {
-    _keyMemory = saved;
-    document.getElementById('apiKey').value = saved;
+  // Load API key
+  const savedKey = storeGet('msre_gemini_key');
+  if (savedKey) {
+    _keyMemory = savedKey;
+    document.getElementById('apiKey').value = savedKey;
     const el = document.getElementById('keyStatus');
     el.textContent = '✓ Key loaded';
     el.style.color = '#27ae60';
+  }
+  // Load agent profile
+  const name    = storeGet('msre_agent_name');
+  const license = storeGet('msre_agent_license');
+  const phone   = storeGet('msre_agent_phone');
+  const email   = storeGet('msre_agent_email');
+  if (name) {
+    document.getElementById('agentName').value    = name;
+    document.getElementById('agentLicense').value = license || '';
+    document.getElementById('agentPhone').value   = phone   || '';
+    document.getElementById('agentEmail').value   = email   || '';
+    document.getElementById('profileStatus').textContent = '✓ Profile loaded';
+    updateAgentDisplay(name, license, phone, email);
   }
 });
 
@@ -477,22 +556,19 @@ async function autoFill() {
   hideDebug();
 
   // ── THE KEY PROMPT: force strict JSON only ──────────────────────────────
-  const prompt = `You are a real estate data assistant. Look up current AVM (automated valuation model) estimates for this property: "${address}"
-
-Return ONLY a valid JSON object with NO other text, no markdown, no explanation, no code fences. Use this exact schema:
-
-{
-  "zillow":  { "estimate": <number or null>, "low": <number or null>, "high": <number or null> },
-  "redfin":  { "estimate": <number or null>, "low": <number or null>, "high": <number or null> },
-  "homes":   { "estimate": <number or null>, "low": <number or null>, "high": <number or null> },
-  "realtor": { "estimate": <number or null>, "low": <number or null>, "high": <number or null> }
-}
-
-Rules:
-- All values in THOUSANDS of dollars (e.g. 379.9 for $379,900)
-- If a source does not publish a range, set low and high to null
-- If a source has no data for this property, set all its fields to null
-- Return ONLY the JSON object, nothing else`;
+  const prompt = 'What are the current Zillow, Redfin, Homes.com, and Realtor.com AVM estimates for: ' + address + '\n\n' +
+    'Return ONLY a JSON object, no markdown, no explanation. Schema:\n' +
+    '{\n' +
+    '  "zillow":  { "estimate": 370, "low": 348, "high": 393 },\n' +
+    '  "redfin":  { "estimate": 389, "low": 371, "high": 449 },\n' +
+    '  "homes":   { "estimate": 397, "low": 376, "high": 417 },\n' +
+    '  "realtor": { "estimate": 405, "low": null, "high": null }\n' +
+    '}\n\n' +
+    'Rules:\n' +
+    '- Values are whole numbers in THOUSANDS. Example: $379,900 = 379.9. Example: $405,000 = 405. NEVER return values above 2000.\n' +
+    '- If a source has no range, set low and high to null\n' +
+    '- If unknown, use null\n' +
+    '- Return ONLY the JSON, nothing else';
 
   const models = [
     'gemini-2.5-flash-lite',
@@ -569,8 +645,8 @@ Rules:
     const el = document.getElementById(id);
     if (el && val !== null && val !== undefined) {
       let v = parseFloat(val);
-      if (v > 10000) v = v / 1000; // normalize if Gemini returns full dollars
-      el.value = v.toFixed(1);
+      if (v > 2000) v = v / 1000; // normalize if Gemini returns full dollars instead of thousands
+      el.value = parseFloat(v.toFixed(1));
     }
   }
 
@@ -621,281 +697,176 @@ function clearAll() {
 function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const W = 612, RED = [200, 16, 46], DARK = [26, 26, 26], GRAY = [245, 245, 245], MGRAY = [221, 221, 221];
 
-  // ── constants matching Python exactly ────────────────────────────────────
-  const W = 612, H = 792, M = 14.4; // 0.38in = 27.36pt but jsPDF origin top-left
-  // Colors as arrays [r,g,b]
-  const RED    = [200,16,46],   DARK  = [26,26,26],   TGRAY = [68,68,68];
-  const MGRAY  = [119,119,119], LGRAY = [242,242,242], RULE  = [221,221,221];
-  const WHITE  = [255,255,255], GREEN = [39,174,96],   BLUE  = [36,113,163];
-  const LTGRN  = [234,250,241], LTBLU = [234,244,251], LTRED = [253,237,236];
-
-  const sf = (r,g,b) => doc.setFillColor(r,g,b);
-  const st = (r,g,b) => doc.setTextColor(r,g,b);
-  const sd = (r,g,b) => doc.setDrawColor(r,g,b);
-  const fnt = (s,sz) => { doc.setFont('helvetica', s); if(sz) doc.setFontSize(sz); };
-
-  function wlines(txt, font, sz, maxW) {
-    if (!txt) return [];
-    doc.setFont('helvetica', font); doc.setFontSize(sz);
-    const words = txt.split(' '); let line = '', lines = [];
-    for (const w of words) {
-      const t = (line+' '+w).trim();
-      if (doc.getTextWidth(t) <= maxW) line = t;
-      else { if (line) lines.push(line); line = w; }
-    }
-    if (line) lines.push(line);
-    return lines;
-  }
-
-  // ── read inputs ───────────────────────────────────────────────────────────
-  const address = document.getElementById('address').value.trim() || 'Subject Property';
-  const z  = { est:v('z_est'),  lo:v('z_low'),  hi:v('z_high')  };
-  const r  = { est:v('r_est'),  lo:v('r_low'),  hi:v('r_high')  };
-  const h  = { est:v('h_est'),  lo:v('h_low'),  hi:v('h_high')  };
-  const rc = { est:v('rc_est'), lo:v('rc_low'), hi:v('rc_high') };
-  const cma = { snap:v('cma_snap'), easy:v('cma_easy'), rpr:v('cma_rpr') };
+  const address = document.getElementById('address').value.trim() || 'Property';
+  const agent = getAgentInfo();
+  const z   = { est: v('z_est'),   low: v('z_low'),   high: v('z_high') };
+  const r   = { est: v('r_est'),   low: v('r_low'),   high: v('r_high') };
+  const h   = { est: v('h_est'),   low: v('h_low'),   high: v('h_high') };
+  const rc  = { est: v('rc_est'),  low: v('rc_low'),  high: v('rc_high') };
+  const cma = { snap: v('cma_snap'), easy: v('cma_easy'), rpr: v('cma_rpr') };
   const rec = v('rec_price');
-  const taxAssessed = v('tax_assessed');
-  const taxCounty   = document.getElementById('tax_county')?.value.trim() || '';
 
-  const fmtK = val => val != null ? `$${val}k` : '';
-  const fmtKR = (lo,hi) => (lo!=null&&hi!=null) ? `$${lo}k \u2013 $${hi}k` : '';
-  const fmtD = val => val != null ? `$${Number(val*1000).toLocaleString()}` : '\u2014';
+  const fmt  = val => val != null ? `$${val}k` : 'N/A';
+  const fmtR = val => val != null ? `$${Number(val).toLocaleString()}` : '—';
 
-  // tier price calculations
-  const avmVals = [z.est,r.est,rc.est].filter(x=>x!=null);
-  const cmaVals = [cma.snap,cma.easy,cma.rpr].filter(x=>x!=null);
-  const avmAvg  = avmVals.length ? avmVals.reduce((a,b)=>a+b)/avmVals.length : null;
-  const cmaAvg  = cmaVals.length ? cmaVals.reduce((a,b)=>a+b)/cmaVals.length : null;
+  // AVM consensus
+  const avmVals = [z.est, r.est, h.est, rc.est].filter(x => x != null);
+  const consensus = avmVals.length ? (avmVals.reduce((a,b)=>a+b,0)/avmVals.length).toFixed(0) : null;
 
-  let sweetK = rec ? rec/1000 : (avmAvg && cmaAvg ? (avmAvg+cmaAvg)/2 : (cmaAvg||avmAvg));
-  sweetK = sweetK ? Math.round(sweetK) : null;
-  const aggrK    = sweetK ? Math.round(sweetK*0.964/5)*5 : null;
-  const stretchK = sweetK ? Math.round(sweetK*1.036/5)*5 : null;
-  const fmtTier  = k => k ? `$${(k*1000).toLocaleString()}` : '\u2014';
-  const fmtTRng  = k => { if(!k) return ''; const lo=Math.round(k*0.985/5)*5, hi=Math.round(k*1.015/5)*5; return `$${lo}k \u2013 $${hi}k`; };
-
-  // data rows: [source, value, range, boldWhy, bodyWhy]
-  const dataRows = [
-    ['Zillow Zestimate',  fmtK(z.est),  fmtKR(z.lo,z.hi),
-     'Consumer AVMs show solid agreement.',
-     `Zillow anchors buyer perception${z.est?` at $${z.est}k`:''}. Tight range reflects strong data confidence and sets realistic expectations for buyers.`],
-    ['Redfin Estimate',   fmtK(r.est),  fmtKR(r.lo,r.hi),
-     'Redfin sets the upper boundary.',
-     `${r.hi?`Upper bound of $${r.hi}k supports`:'Redfin'} pricing above the AVM median and adds weight to the Test the Market tier.`],
-    ['Homes.com',         fmtK(h.est),  fmtKR(h.lo,h.hi),
-     'Homes.com confirms the floor.',
-     `${h.lo?`Range $${h.lo}k\u2013$${h.hi}k confirms`:'Range'} the pricing floor and aligns with the lower AVM cluster.`],
-    ['Realtor.com',       fmtK(rc.est), '',
-     'Realtor.com is the middle anchor.',
-     `Sits in the middle of the AVM pack${rc.est?` at $${rc.est}k`:''}. The single estimate is reliable and buyer-visible.`],
-    ['Snap CMA',          fmtK(cma.snap), cma.snap ? `Quick Sale: $${Math.round(cma.snap*0.95)}k` : '',
-     'Snap CMA anchors the floor.',
-     `The quick-sale figure is your lowest credible number and a powerful negotiation floor for motivated-seller scenarios.`],
-    ['Easy CMA',          fmtK(cma.easy), '',
-     'Easy CMA is the outlier \u2014 in your favor.',
-     `Easy CMA reflects a broader comp pool${cma.easy?` at $${cma.easy}k`:''}. It justifies the Test the Market tier and supports the RPR ceiling.`],
-    ['RPR CMA',           fmtK(cma.rpr), cma.rpr ? 'Comp-supported ceiling' : '',
-     'RPR CMA is your appraisal anchor.',
-     `The most defensible MLS-driven figure${cma.rpr?` at $${cma.rpr}k`:''}. Directly supports the Sweet Spot and anchors appraisal safety.`],
-    [taxCounty ? taxCounty+' Tax' : 'County Tax Assessment',
-     taxAssessed ? `$${taxAssessed}k` : '',
-     'Below market \u2014 not a list target',
-     'Tax assessment is context, not a ceiling.',
-     `The county assessment reflects a lagging tax value. Every market tool places actual value meaningfully higher.`],
-  ];
-
-  // stat badges
-  const totalSources = dataRows.filter(r=>r[1]||r[2]).length;
-  const cmaLo = cmaVals.length ? Math.min(...cmaVals) : null;
-  const cmaHi = cmaVals.length ? Math.max(...cmaVals) : null;
-  const badges = [
-    [String(totalSources),                             'Valuation Sources'],
-    [cmaLo&&cmaHi ? `$${cmaLo}k\u2013$${cmaHi}k`:'', 'Professional Consensus'],
-    [sweetK ? `$${aggrK}k\u2013$${stretchK}k` : '',   'Recommended List Range'],
-    [avmAvg&&taxAssessed ? `$${Math.round((avmAvg-taxAssessed)*1000/1000)}k` : '', 'Market vs Tax Gap'],
-  ];
-  const proConsensus = `Easy CMA + Snap CMA + RPR CMA: ${cmaLo&&cmaHi?`$${cmaLo}k \u2013 $${cmaHi}k`:''}`;
-
-  // ── LAYOUT CONSTANTS (match Python exactly) ───────────────────────────────
-  const HDR   = 82;
-  const SPLIT = M + (W-2*M)*0.455;
-  const LCW   = SPLIT - M;
-  const RCW   = W - M - SPLIT;
-  const HDRH  = 19;
-  const ROW_H = 44;   // FIXED — never change
-  const CARD_H= 155;  // FIXED — never change
-  const BADGE_H = 62;
-  const BAND  = 26;
-  const CGAP  = 9;
-  const CW3   = (W-2*M-2*CGAP)/3;
-
-  // jsPDF y starts at top (0) and increases downward
   let y = 0;
 
-  // ── HEADER 82pt ───────────────────────────────────────────────────────────
-  sf(...WHITE); doc.rect(0,0,W,HDR,'F');
-  sf(...DARK);  doc.rect(W*0.54,0,W*0.46,HDR,'F');
-  // MARK SPAIN
-  sf(...RED); st(...RED); fnt('bold',26); doc.text('MARK SPAIN', M, 28);
-  st(...DARK); fnt('bold',11); doc.text('REAL ESTATE', M, 44);
-  st(...MGRAY); fnt('italic',8); doc.text('Guaranteed  \u2022  Certain  \u2022  Closed', M, 58);
-  // right block
-  const RX = W*0.54+12;
-  st(...WHITE); fnt('bold',9.5); doc.text('EXCLUSIVE SELLER PRESENTATION', RX, 20);
-  fnt('normal',8);
-  doc.text(`Salman Hussain, Realtor\u00ae  |  NC License #316046`, RX, 34);
-  doc.text(`919-802-2207  \u2022  salmanhussain@markspain.com`, RX, 47);
-  sd(...RULE); doc.setLineWidth(0.8); doc.line(0,HDR,W,HDR);
+  // ── Header ──
+  doc.setFillColor(200,16,46);
+  doc.rect(0, 0, W, 72, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.text('MARK SPAIN REAL ESTATE', 36, 30);
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  doc.text((agent.email ? agent.name + '  |  ' + agent.phone + '  |  ' + agent.email : agent.name + '  |  ' + agent.phone), 36, 48);
+  doc.setFont('helvetica','italic');
+  doc.text('Pricing Strategy Report', W - 36, 42, { align: 'right' });
 
-  y = HDR + 12;
+  // ── Property banner ──
+  doc.setFillColor(26,26,26);
+  doc.rect(0, 72, W, 36, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.text(address, W/2, 92, { align: 'center' });
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.text('Pricing Analysis  |  Mark Spain Real Estate', W/2, 104, { align: 'center' });
 
-  // ── TITLE ROW ─────────────────────────────────────────────────────────────
-  st(...DARK); fnt('bold',13); doc.text('THE STRATEGIC PRICING.', M, y);
-  fnt('bold',9); st(...RED);
-  const aw = doc.getTextWidth(address);
-  const ax = W-M-aw-12;
-  sf(...RED); doc.circle(ax, y-3, 3.5, 'F');
-  doc.text(address, ax+9, y);
-  y += 14;
+  y = 124;
 
-  // intro
-  fnt('italic',8); st(...TGRAY);
-  const intro = 'Thank you for trusting me to guide your pricing decision. The data below draws from multiple independent valuation sources, including the county tax assessment, and is designed to give you a clear, confident number \u2014 not a guess. Here is exactly what the market is telling us.';
-  for (const ln of wlines(intro,'italic',8,W-2*M)) { doc.text(ln,M,y); y+=11; }
-  y += 6;
+  // ── Section header helper ──
+  function sectionHeader(label, yy) {
+    doc.setFillColor(200,16,46);
+    doc.rect(36, yy - 4, W - 72, 18, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.text(label.toUpperCase(), 42, yy + 8);
+    return yy + 22;
+  }
 
-  // ── DATA TABLE ────────────────────────────────────────────────────────────
-  // column headers
-  sf(...DARK);
-  doc.rect(M,     y, LCW, HDRH, 'F');
-  doc.rect(SPLIT, y, RCW, HDRH, 'F');
-  st(...WHITE); fnt('bold',8.5);
-  doc.text('WHAT THE DATA SAYS', M+7,    y+HDRH-6);
-  doc.text('WHY IT MATTERS',     SPLIT+7, y+HDRH-6);
-  const tblTop = y;
-  y += HDRH;
+  // ── Table helper ──
+  function drawTable(headers, rows, colWidths, startY) {
+    const rowH = 20, hdrH = 20;
+    const startX = 36;
+    // Header row
+    doc.setFillColor(200,16,46);
+    doc.rect(startX, startY, colWidths.reduce((a,b)=>a+b,0), hdrH, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    let cx = startX;
+    headers.forEach((h, i) => {
+      doc.text(h, cx + 6, startY + 13);
+      cx += colWidths[i];
+    });
+    // Data rows
+    rows.forEach((row, ri) => {
+      const ry = startY + hdrH + ri * rowH;
+      doc.setFillColor(ri % 2 === 0 ? 255 : 245, ri % 2 === 0 ? 255 : 245, ri % 2 === 0 ? 255 : 245);
+      doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'F');
+      doc.setDrawColor(221,221,221);
+      doc.setLineWidth(0.4);
+      doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'S');
+      doc.setTextColor(26,26,26);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8);
+      cx = startX;
+      row.forEach((cell, ci) => {
+        doc.text(String(cell ?? 'N/A'), ci === 0 ? cx + 6 : cx + colWidths[ci]/2, ry + 13, ci === 0 ? {} : { align: 'center' });
+        cx += colWidths[ci];
+      });
+    });
+    return startY + hdrH + rows.length * rowH;
+  }
 
-  dataRows.forEach(([src,val,rng,boldWhy,bodyWhy],i) => {
-    const bg = i%2===0 ? WHITE : LGRAY;
-    sf(...bg);
-    doc.rect(M,     y, LCW, ROW_H, 'F');
-    doc.rect(SPLIT, y, RCW, ROW_H, 'F');
-    sd(...RULE); doc.setLineWidth(0.3);
-    doc.line(M,     y+ROW_H, M+LCW,     y+ROW_H);
-    doc.line(SPLIT, y+ROW_H, SPLIT+RCW, y+ROW_H);
-
-    // left: source name then big red price
-    st(...DARK); fnt('bold',8);   doc.text(src, M+7, y+13);
-    st(...RED);  fnt('bold',14);  doc.text(val, M+7, y+30);
-    if (rng) {
-      const vw = doc.getTextWidth(val);
-      st(...MGRAY); fnt('normal',7); doc.text(rng, M+7+vw+5, y+30);
-    }
-
-    // right: red dot + bold headline + body
-    sf(...RED); doc.circle(SPLIT+3.5, y+12, 2.8, 'F');
-    st(...DARK); fnt('bold',8);   doc.text(boldWhy, SPLIT+8, y+13);
-    st(...TGRAY); fnt('normal',7.5);
-    let by = y+25;
-    for (const ln of wlines(bodyWhy,'normal',7.5,RCW-14)) { doc.text(ln, SPLIT+8, by); by+=10.5; }
-
-    y += ROW_H;
-  });
-
-  // table borders
-  sd(...[187,187,187]); doc.setLineWidth(0.6);
-  doc.rect(M,     tblTop, LCW, y-tblTop, 'S');
-  doc.rect(SPLIT, tblTop, RCW, y-tblTop, 'S');
-
-  // ── PRO CONSENSUS BAR ─────────────────────────────────────────────────────
-  y += 3;
-  sf(...DARK); doc.rect(M, y, W-2*M, 19, 'F');
-  st(...RED);   fnt('bold',7.5); doc.text('PROFESSIONAL', M+7, y+13);
-  st(...WHITE); fnt('normal',7.5);
-  doc.text(proConsensus, M+7+doc.getTextWidth('PROFESSIONAL')+3, y+13);
-  y += 19;
-
-  // ── TIER LABEL ────────────────────────────────────────────────────────────
-  y += 9;
-  st(...DARK); fnt('bold',10); doc.text('RECOMMENDED PRICING TIERS', M, y);
-  y += 8;
-
-  // ── THREE CARDS — FIXED CARD_H=155 ───────────────────────────────────────
-  const tiers = [
-    { label:'AGGRESSIVE',  sub:'Fast sale / quick exit',
-      price:fmtTier(aggrK),   range:fmtTRng(aggrK),
-      body:'Priced at the quick-sale level. Drives urgency, maximizes traffic, and invites multiple offers quickly.',
-      hcol:GREEN, bgcol:LTGRN },
-    { label:'SWEET SPOT',  sub:'Maximum market alignment',
-      price:fmtTier(sweetK),  range:fmtTRng(sweetK),
-      body:`Sits between AVM avg${avmAvg?` ($${Math.round(avmAvg)}k)`:''}  and CMA avg${cmaAvg?` ($${Math.round(cmaAvg)}k)`:''}. Best balance of buyer traffic, appraisal safety, and net proceeds.`,
-      hcol:BLUE, bgcol:LTBLU },
-    { label:'TEST MARKET', sub:'Stretch to top of market',
-      price:fmtTier(stretchK),range:fmtTRng(stretchK),
-      body:`Supported by Easy CMA${cma.easy?` ($${cma.easy}k)`:''}  and RPR${cma.rpr?` ($${cma.rpr}k)`:''}. Requires strong staging and presentation. Review at day 21.`,
-      hcol:RED, bgcol:LTRED },
+  // ── AVM Table ──
+  y = sectionHeader('Automated Valuation Models (AVM)', y);
+  const avmRows = [
+    ['Zillow (Zestimate)', fmt(z.est), fmt(z.low), fmt(z.high), z.low!=null&&z.high!=null ? `$${z.high-z.low}k` : 'N/A'],
+    ['Redfin Estimate',   fmt(r.est), fmt(r.low), fmt(r.high), r.low!=null&&r.high!=null ? `$${r.high-r.low}k` : 'N/A'],
+    ['Homes.com',         h.est!=null?fmt(h.est):'See range', fmt(h.low), fmt(h.high), h.low!=null&&h.high!=null ? `$${h.high-h.low}k` : 'N/A'],
+    ['Realtor.com',       fmt(rc.est), 'N/A', 'N/A', 'N/A'],
   ];
+  y = drawTable(['Source','Estimate','Low','High','Range Width'], avmRows, [170,80,70,70,80], y) + 6;
+  doc.setTextColor(26,26,26);
+  doc.setFont('helvetica','italic');
+  doc.setFontSize(8);
+  if (consensus) doc.text(`AVM consensus: $${consensus}k  |  Sources: ${avmVals.length} of 4`, 36, y + 8);
+  y += 18;
 
-  let cx = M;
-  tiers.forEach(({label,sub,price,range,body,hcol,bgcol}) => {
-    // shadow
-    sf(...[204,204,204]); doc.rect(cx+3, y+3, CW3, CARD_H, 'F');
-    // body fill
-    sf(...bgcol); doc.rect(cx, y, CW3, CARD_H, 'F');
-    // header band
-    sf(...hcol); doc.rect(cx, y, CW3, BAND, 'F');
-    // border
-    sd(...hcol); doc.setLineWidth(1.8); doc.rect(cx, y, CW3, CARD_H, 'S');
-    // header text
-    st(...WHITE); fnt('bold',11);
-    doc.text(label, cx+CW3/2, y+BAND-8, {align:'center'});
-    // italic sub
-    st(...hcol); fnt('italic',8.5);
-    doc.text(sub, cx+CW3/2, y+BAND+13, {align:'center'});
-    // big price
-    st(...hcol); fnt('bold',28);
-    doc.text(price, cx+CW3/2, y+BAND+46, {align:'center'});
-    // range
-    st(...TGRAY); fnt('normal',8.5);
-    doc.text(range, cx+CW3/2, y+BAND+60, {align:'center'});
-    // divider
-    sd(...RULE); doc.setLineWidth(0.5);
-    doc.line(cx+14, y+BAND+67, cx+CW3-14, y+BAND+67);
-    // body text
-    st(...TGRAY); fnt('normal',8);
-    let ty = y+BAND+80;
-    for (const ln of wlines(body,'normal',8,CW3-22)) {
-      doc.text(ln, cx+CW3/2, ty, {align:'center'}); ty+=13;
-    }
-    cx += CW3+CGAP;
+  // ── CMA Table ──
+  y = sectionHeader('Comparative Market Analysis (CMA) Tools', y);
+  const cmaRows = [
+    ['CMAsnap',  fmt(cma.snap), 'Sales comp-based valuation'],
+    ['CMAeasy',  fmt(cma.easy), 'Broader comp pool'],
+    ['RPR (Realtors Property Resource)', fmt(cma.rpr), 'MLS-driven AVM'],
+  ];
+  y = drawTable(['Tool','Value','Notes'], cmaRows, [210,110,220], y) + 6;
+  const cmaVals = [cma.snap, cma.easy, cma.rpr].filter(x=>x!=null);
+  if (cmaVals.length) {
+    const cmaAvg = (cmaVals.reduce((a,b)=>a+b,0)/cmaVals.length).toFixed(0);
+    doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(26,26,26);
+    var cLow = cmaVals.reduce(function(a,b){return a<b?a:b;}); var cHigh = cmaVals.reduce(function(a,b){return a>b?a:b;}); doc.text("CMA average: $" + cmaAvg + "k  |  Low: $" + cLow + "k  |  High: $" + cHigh + "k", 36, y + 8);
+  }
+  y += 18;
+
+  // ── Recommendation Box ──
+  y = sectionHeader('Pricing Recommendation', y);
+  doc.setFillColor(255, 245, 245);
+  doc.setDrawColor(200,16,46);
+  doc.setLineWidth(1);
+  doc.roundedRect(36, y, W - 72, 56, 4, 4, 'FD');
+  doc.setTextColor(200,16,46);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(26);
+  doc.text(rec ? fmtR(rec) : '—', W/2, y + 28, { align: 'center' });
+  doc.setFontSize(10);
+  doc.text('Recommended List Price', W/2, y + 44, { align: 'center' });
+  if (consensus) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,100,100);
+    doc.text(`AVM consensus: $${consensus}k  |  Position relative to market data`, W/2, y + 54, { align: 'center' });
+  }
+  y += 70;
+
+  // ── Rationale bullets ──
+  const bullets = [
+    `Zillow at ${fmt(z.est)} anchors buyer perception — buyers check Zillow first.`,
+    `Redfin at ${fmt(r.est)} and Realtor.com at ${fmt(rc.est)} support pricing above Zillow range.`,
+    `RPR at ${fmt(cma.rpr)} signals appraiser conservatism — stay defensible at appraisal.`,
+    `CMAeasy at ${fmt(cma.easy)} represents upper ceiling; overpricing risks sitting on market.`,
+    rec ? `List at ${fmtR(rec)} to drive traffic and generate competitive offer activity.` : 'Set recommended price above based on seller goals and market conditions.',
+  ];
+  doc.setTextColor(26,26,26);
+  doc.setFontSize(8);
+  doc.setFont('helvetica','normal');
+  bullets.forEach(b => {
+    doc.setFillColor(200,16,46);
+    doc.setFillColor(200,16,46); doc.circle(42, y + 2, 2.5, 'F');
+    doc.text(b, 50, y + 4, { maxWidth: W - 90 });
+    y += 14;
   });
 
-  y += CARD_H+8;
+  // ── Footer ──
+  doc.setFillColor(200,16,46);
+  doc.rect(0, 792 - 28, W, 28, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7);
+  doc.text('Mark Spain Real Estate  |  Salman Hussain, REALTOR®  |  NC RE License #316046  |  919-802-2207', W/2, 792 - 14, { align: 'center' });
+  doc.text('This analysis is based on available data and professional judgment. Not a guarantee of sale price.', W/2, 792 - 6, { align: 'center' });
 
-  // ── STAT BADGES ───────────────────────────────────────────────────────────
-  const BW = (W-2*M)/4;
-  sf(...DARK); doc.rect(0, y, W, BADGE_H, 'F');
-  sd(...[51,51,51]); doc.setLineWidth(0.8);
-  [1,2,3].forEach(di => { const dx=M+di*BW; doc.line(dx,y+8,dx,y+BADGE_H-8); });
-  let bx = M;
-  badges.forEach(([num,lbl]) => {
-    st(...WHITE); fnt('bold',17); doc.text(num, bx+BW/2, y+28, {align:'center'});
-    st(...MGRAY); fnt('normal',7.5); doc.text(lbl, bx+BW/2, y+46, {align:'center'});
-    bx += BW;
-  });
-  y += BADGE_H;
-
-  // ── FOOTER ────────────────────────────────────────────────────────────────
-  sf(...DARK); doc.rect(0, y, W, H-y, 'F');
-  st(...WHITE); fnt('normal',7);
-  doc.text(`Mark Spain Real Estate  \u2022  Salman Hussain, Realtor\u00ae  \u2022  NC RE License #316046  \u2022  919-802-2207  \u2022  salmanhussain@markspain.com`, W/2, y+(H-y)*0.55, {align:'center'});
-  st(...RED); fnt('bold',7);
-  doc.text('markspain.com', W-M, y+(H-y)*0.82, {align:'right'});
-
-  // ── SAVE ──────────────────────────────────────────────────────────────────
-  const fname = address.replace(/[^a-z0-9]/gi,'_').substring(0,40);
+  // ── Save ──
+  const fname = address.replace(/[^a-z0-9]/gi, '_').substring(0, 40);
   doc.save(`Pricing_Strategy_${fname}.pdf`);
 }
 
