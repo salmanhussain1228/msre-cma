@@ -225,8 +225,9 @@
     <div class="title">MARK SPAIN REAL ESTATE</div>
     <div class="sub">CMA Pricing Tool</div>
   </div>
-  <div class="header-agent" id="headerAgent">
-    Mark Spain Real Estate
+  <div class="header-agent">
+    Salman Hussain, REALTOR&reg;<br>
+    NC RE #316046 &nbsp;|&nbsp; 919-802-2207
   </div>
 </div>
 
@@ -238,35 +239,6 @@
     <input type="password" id="apiKey" placeholder="AIzaSy..." autocomplete="off">
     <button class="btn-save" onclick="saveKey()">Save Key</button>
     <span class="key-status" id="keyStatus"></span>
-  </div>
-
-  <!-- Agent Profile -->
-  <div class="card" id="agentProfileCard">
-    <div class="card-header">Your Agent Profile <span style="font-weight:400;font-size:10px;opacity:0.8;">(saved once — your info appears on every PDF)</span></div>
-    <div class="card-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-wrap:wrap;">
-        <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Full Name</label>
-          <input type="text" id="agentName" placeholder="e.g. Jane Smith" style="width:100%;border:1.5px solid #ddd;border-radius:5px;padding:8px 10px;font-size:14px;font-family:inherit;">
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">NC License #</label>
-          <input type="text" id="agentLicense" placeholder="e.g. 316046" style="width:100%;border:1.5px solid #ddd;border-radius:5px;padding:8px 10px;font-size:14px;font-family:inherit;">
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Phone</label>
-          <input type="text" id="agentPhone" placeholder="e.g. 919-555-1234" style="width:100%;border:1.5px solid #ddd;border-radius:5px;padding:8px 10px;font-size:14px;font-family:inherit;">
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Email</label>
-          <input type="text" id="agentEmail" placeholder="e.g. jane@markspain.com" style="width:100%;border:1.5px solid #ddd;border-radius:5px;padding:8px 10px;font-size:14px;font-family:inherit;">
-        </div>
-      </div>
-      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
-        <button class="btn-save" onclick="saveProfile()">Save My Info</button>
-        <span id="profileStatus" style="font-size:12px;color:#27ae60;font-weight:600;"></span>
-      </div>
-    </div>
   </div>
 
   <!-- Address -->
@@ -388,89 +360,38 @@
 
 </div>
 
-<div class="footer" id="footerAgent">Mark Spain Real Estate</div>
+<div class="footer">Mark Spain Real Estate &nbsp;|&nbsp; Salman Hussain &nbsp;|&nbsp; NC RE #316046 &nbsp;|&nbsp; 919-802-2207</div>
 
 <script>
-// ── Storage helpers ────────────────────────────────────────────────────────
-function storeSet(key, val) {
-  try { localStorage.setItem(key, val); } catch(e) {}
-  try { sessionStorage.setItem(key, val); } catch(e) {}
-}
-function storeGet(key) {
-  try { const v = localStorage.getItem(key); if (v) return v; } catch(e) {}
-  try { const v = sessionStorage.getItem(key); if (v) return v; } catch(e) {}
-  return null;
-}
-
-// ── API Key ─────────────────────────────────────────────────────────────────
+// ── Key storage ────────────────────────────────────────────────────────────
+// Try localStorage, sessionStorage, and in-memory as fallbacks
 let _keyMemory = null;
 function saveKey() {
   const k = document.getElementById('apiKey').value.trim();
   if (!k) { alert('Please paste your API key first.'); return; }
   _keyMemory = k;
-  storeSet('msre_gemini_key', k);
+  try { localStorage.setItem('msre_gemini_key', k); } catch(e) {}
+  try { sessionStorage.setItem('msre_gemini_key', k); } catch(e) {}
   const el = document.getElementById('keyStatus');
   el.textContent = '✓ Key saved';
   el.style.color = '#27ae60';
 }
 function getKey() {
   if (_keyMemory) return _keyMemory;
-  const stored = storeGet('msre_gemini_key');
-  if (stored) return stored;
+  try { const v = localStorage.getItem('msre_gemini_key'); if (v) return v; } catch(e) {}
+  try { const v = sessionStorage.getItem('msre_gemini_key'); if (v) return v; } catch(e) {}
   return document.getElementById('apiKey').value.trim();
 }
-
-// ── Agent Profile ───────────────────────────────────────────────────────────
-function saveProfile() {
-  const name    = document.getElementById('agentName').value.trim();
-  const license = document.getElementById('agentLicense').value.trim();
-  const phone   = document.getElementById('agentPhone').value.trim();
-  const email   = document.getElementById('agentEmail').value.trim();
-  if (!name) { alert('Please enter your name.'); return; }
-  storeSet('msre_agent_name',    name);
-  storeSet('msre_agent_license', license);
-  storeSet('msre_agent_phone',   phone);
-  storeSet('msre_agent_email',   email);
-  updateAgentDisplay(name, license, phone, email);
-  document.getElementById('profileStatus').textContent = '✓ Profile saved';
-}
-function updateAgentDisplay(name, license, phone, email) {
-  const hdr = document.getElementById('headerAgent');
-  if (hdr) hdr.innerHTML = (name || 'Agent') + ', REALTOR&reg;<br>' + (license ? 'NC RE #' + license : '') + (phone ? ' &nbsp;|&nbsp; ' + phone : '');
-  const ftr = document.getElementById('footerAgent');
-  if (ftr) ftr.textContent = 'Mark Spain Real Estate  |  ' + (name||'') + '  |  NC RE #' + (license||'') + '  |  ' + (phone||'');
-}
-function getAgentInfo() {
-  return {
-    name:    storeGet('msre_agent_name')    || document.getElementById('agentName').value.trim()    || 'Agent',
-    license: storeGet('msre_agent_license') || document.getElementById('agentLicense').value.trim() || '',
-    phone:   storeGet('msre_agent_phone')   || document.getElementById('agentPhone').value.trim()   || '',
-    email:   storeGet('msre_agent_email')   || document.getElementById('agentEmail').value.trim()   || ''
-  };
-}
-
 window.addEventListener('load', () => {
-  // Load API key
-  const savedKey = storeGet('msre_gemini_key');
-  if (savedKey) {
-    _keyMemory = savedKey;
-    document.getElementById('apiKey').value = savedKey;
+  let saved = null;
+  try { saved = localStorage.getItem('msre_gemini_key'); } catch(e) {}
+  if (!saved) { try { saved = sessionStorage.getItem('msre_gemini_key'); } catch(e) {} }
+  if (saved) {
+    _keyMemory = saved;
+    document.getElementById('apiKey').value = saved;
     const el = document.getElementById('keyStatus');
     el.textContent = '✓ Key loaded';
     el.style.color = '#27ae60';
-  }
-  // Load agent profile
-  const name    = storeGet('msre_agent_name');
-  const license = storeGet('msre_agent_license');
-  const phone   = storeGet('msre_agent_phone');
-  const email   = storeGet('msre_agent_email');
-  if (name) {
-    document.getElementById('agentName').value    = name;
-    document.getElementById('agentLicense').value = license || '';
-    document.getElementById('agentPhone').value   = phone   || '';
-    document.getElementById('agentEmail').value   = email   || '';
-    document.getElementById('profileStatus').textContent = '✓ Profile loaded';
-    updateAgentDisplay(name, license, phone, email);
   }
 });
 
@@ -700,7 +621,6 @@ function generatePDF() {
   const W = 612, RED = [200, 16, 46], DARK = [26, 26, 26], GRAY = [245, 245, 245], MGRAY = [221, 221, 221];
 
   const address = document.getElementById('address').value.trim() || 'Property';
-  const agent = getAgentInfo();
   const z   = { est: v('z_est'),   low: v('z_low'),   high: v('z_high') };
   const r   = { est: v('r_est'),   low: v('r_low'),   high: v('r_high') };
   const h   = { est: v('h_est'),   low: v('h_low'),   high: v('h_high') };
@@ -726,7 +646,7 @@ function generatePDF() {
   doc.text('MARK SPAIN REAL ESTATE', 36, 30);
   doc.setFontSize(9);
   doc.setFont('helvetica','normal');
-  doc.text((agent.email ? agent.name + '  |  ' + agent.phone + '  |  ' + agent.email : agent.name + '  |  ' + agent.phone), 36, 48);
+  doc.text('Salman Hussain  |  919-802-2207  |  salmanhussain@markspain.com', 36, 48);
   doc.setFont('helvetica','italic');
   doc.text('Pricing Strategy Report', W - 36, 42, { align: 'right' });
 
