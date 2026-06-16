@@ -455,34 +455,34 @@ function generatePDF() {
   // ── HEADER ────────────────────────────────────────────────────────────
   // Dark top bar
   doc.setFillColor(...DARK);
-  doc.rect(0, 0, PW, 82, 'F');
+  doc.rect(0, 0, PW, 86, 'F');
   // Red accent line
   doc.setFillColor(...RED);
-  doc.rect(0, 82, PW, 4, 'F');
+  doc.rect(0, 86, PW, 5, 'F');
 
   // Title
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   doc.setTextColor(...[170,170,170]);
-  doc.text('EXCLUSIVE SELLER PRESENTATION', M, 20);
+  doc.text('EXCLUSIVE SELLER PRESENTATION', M, 22);
 
   doc.setFontSize(17);
   doc.setTextColor(...WHITE);
-  doc.text('THE STRATEGIC PRICING.', M, 44);
+  doc.text('THE STRATEGIC PRICING.', M, 50);
 
   doc.setFontSize(8.5);
   doc.setTextColor(...[170,170,170]);
   doc.setFont('helvetica', 'normal');
-  doc.text(`${agent}  |  Mark Spain Real Estate  |  ${phone}  •  ${email}`, M, 62);
+  doc.text(`${agent}  |  Mark Spain Real Estate  |  ${phone}  •  ${email}`, M, 70);
 
   // MARK SPAIN logo top right
-  doc.addImage(MSRE_LOGO, 'PNG', PW - M - 90, 6, 90, 66);
+  doc.addImage(MSRE_LOGO, 'PNG', PW - M - 90, 4, 90, 78);
 
-  let y = 96;
+  let y = 102;
 
   // ── PROPERTY + INTRO ──────────────────────────────────────────────────
   doc.setFillColor(...LGRAY);
-  doc.rect(M, y, PW - M*2, 44, 'F');
+  doc.rect(M, y, PW - M*2, 52, 'F');
   doc.setDrawColor(...RED);
   doc.setLineWidth(2);
   doc.line(M, y, M, y + 44);
@@ -491,16 +491,16 @@ function generatePDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(...DARK);
-  doc.text(addr.toUpperCase() + '  •  Subject Property', M + 10, y + 14);
+  doc.text(addr.toUpperCase() + '  •  Subject Property', M + 10, y + 16);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(...MGRAY);
-  doc.text(`Dear ${client},`, M + 10, y + 26);
+  doc.text(`Dear ${client},`, M + 10, y + 30);
   doc.setFontSize(7.5);
-  doc.text('Thank you for trusting me to guide your pricing decision. The data below draws from independent valuation sources and is designed to give you a clear, confident number — not a guess.', M + 10, y + 37, { maxWidth: PW - M*2 - 20 });
+  doc.text('Thank you for trusting me to guide your pricing decision. The data below draws from independent valuation sources and is designed to give you a clear, confident number — not a guess.', M + 10, y + 42, { maxWidth: PW - M*2 - 20 });
 
-  y += 56;
+  y += 91;
 
   // ── TWO COLUMN: AVM TABLE | WHY IT MATTERS ────────────────────────────
   const colW = (PW - M*2 - 12) / 2;
@@ -514,7 +514,7 @@ function generatePDF() {
   doc.text('WHAT THE DATA SAYS', M + 8, y + 10.5);
 
   let ly = y + 16;
-  const avmRowH = 22;
+  const avmRowH = 26;
 
   avms.forEach((a, i) => {
     const bg = i % 2 === 0 ? [255,255,255] : [247,247,247];
@@ -554,7 +554,7 @@ function generatePDF() {
   doc.setFontSize(7);
   doc.setTextColor(...WHITE);
   doc.text('PROFESSIONAL CMA TOOLS', M + 6, ly + 9);
-  ly += 14;
+  ly += 45;
 
   cmas.forEach((c, i) => {
     const bg = i % 2 === 0 ? [255,255,255] : [247,247,247];
@@ -568,7 +568,7 @@ function generatePDF() {
     doc.setFontSize(9);
     doc.setTextColor(...RED);
     doc.text(fmtK(c.val), M + colW - 6, ly + 12, { align: 'right' });
-    ly += 18;
+    ly += 22;
   });
 
   // RIGHT: WHY IT MATTERS
@@ -584,7 +584,7 @@ function generatePDF() {
   let ry = y + 16;
   reasons.forEach((r, i) => {
     const bg = i % 2 === 0 ? [255,255,255] : [247,247,247];
-    const rh = 36;
+    const rh = 44;
     doc.setFillColor(...bg);
     doc.rect(rx, ry, colW, rh, 'F');
     doc.setDrawColor(...RED);
@@ -603,7 +603,7 @@ function generatePDF() {
     ry += rh;
   });
 
-  y = Math.max(ly, ry) + 14;
+  y = Math.max(ly, ry) + 43;
 
   // ── PROFESSIONAL CONSENSUS BAR ────────────────────────────────────────
   if (cmaCluster) {
@@ -618,7 +618,7 @@ function generatePDF() {
     doc.setTextColor(...MGRAY);
     const toolNames = cmas.map(c => c.tool).join(' + ');
     doc.text(`${toolNames}:  ${cmaCluster} tightest cluster`, M + 8, y + 17);
-    y += 30;
+    y += 59;
   }
 
   // ── RECOMMENDED PRICING TIERS ─────────────────────────────────────────
@@ -626,10 +626,10 @@ function generatePDF() {
   doc.setFontSize(8.5);
   doc.setTextColor(...DARK);
   doc.text(`RECOMMENDED PRICING TIERS — ${addr.toUpperCase()}`, M, y + 13);
-  y += 20;
+  y += 14;
 
   const cardW  = (PW - M*2 - 24) / 3;
-  const cardH  = 110;
+  const cardH  = 140;
   const tiers  = [
     {
       label: 'AGGRESSIVE',
@@ -706,7 +706,7 @@ function generatePDF() {
     doc.text(lbl, tx + cardW/2, y + 80, { align: 'center', maxWidth: cardW - 16 });
   });
 
-  y += cardH + 16;
+  y += cardH + 14;
 
   // ── STATS BADGES ──────────────────────────────────────────────────────
   const badges = [
@@ -717,21 +717,21 @@ function generatePDF() {
 
   const bw = (PW - M*2 - 24) / 3;
   doc.setFillColor(...DARK);
-  doc.rect(M, y, PW - M*2, 52, 'F');
+  doc.rect(M, y, PW - M*2, 58, 'F');
 
   badges.forEach((b, i) => {
     const bx = M + i * (bw + 12);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(13);
     doc.setTextColor(...RED);
-    doc.text(b.val, bx + bw/2, y + 22, { align: 'center' });
+    doc.text(b.val, bx + bw/2, y + 24, { align: 'center' });
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(...[180,180,180]);
-    doc.text(b.lbl, bx + bw/2, y + 36, { align: 'center' });
+    doc.text(b.lbl, bx + bw/2, y + 42, { align: 'center' });
   });
 
-  y += 64;
+  y += 70;
 
   // ── FOOTER ────────────────────────────────────────────────────────────
   doc.setFillColor(...RED);
