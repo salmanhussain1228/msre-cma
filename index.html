@@ -558,7 +558,7 @@ function generatePDF() {
   doc.setFontSize(7);
   doc.setTextColor(...WHITE);
   doc.text('PROFESSIONAL CMA TOOLS', M + 6, ly + 9);
-  ly += 45;
+  ly += 30;
 
   cmas.forEach((c, i) => {
     const bg = i % 2 === 0 ? [255,255,255] : [247,247,247];
@@ -631,7 +631,7 @@ function generatePDF() {
     ry += rh;
   });
 
-  y = Math.max(ly, ry) + 43;
+  y = Math.max(ly, ry) + 30;
 
   // ── PROFESSIONAL CONSENSUS BAR ────────────────────────────────────────
   if (cmaCluster) {
@@ -646,7 +646,7 @@ function generatePDF() {
     doc.setTextColor(...MGRAY);
     const toolNames = cmas.map(c => c.tool).join(' + ');
     doc.text(`${toolNames}:  ${cmaCluster} tightest cluster`, M + 8, y + 17);
-    y += 59;
+    y += 30;
   }
 
   // ── RECOMMENDED PRICING TIERS ─────────────────────────────────────────
