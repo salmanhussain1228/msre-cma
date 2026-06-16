@@ -1,798 +1,803 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MSRE CMA Pricing Tool</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --red: #C8102E;
-    --dark: #1a1a1a;
-    --mid: #444;
-    --light: #888;
-    --border: #ddd;
-    --bg: #f7f7f7;
-    --white: #fff;
-    --green: #27ae60;
-    --blue: #2980b9;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSRE CMA Pricing Strategy Tool</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a1a; }
 
-  /* ── Header ── */
-  .header {
-    background: var(--red);
-    color: white;
-    padding: 16px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .header-brand { display: flex; flex-direction: column; }
-  .header-brand .title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
-  .header-brand .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
-  .header-agent { font-size: 12px; opacity: 0.9; text-align: right; line-height: 1.6; }
+    header {
+      background: #1a1a1a;
+      color: white;
+      padding: 18px 32px;
+      border-bottom: 4px solid #C8102E;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 1px; }
+    header .brand { font-size: 0.85rem; color: #aaa; margin-top: 3px; }
+    .logo-text { text-align: right; }
+    .logo-text .ms { color: #C8102E; font-weight: 800; font-size: 1.1rem; }
+    .logo-text .re { color: #aaa; font-size: 0.75rem; }
 
-  /* ── Layout ── */
-  .container { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
+    .container { max-width: 960px; margin: 30px auto; padding: 0 20px 60px; }
 
-  /* ── API Key Bar ── */
-  .api-bar {
-    background: white;
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--dark);
-    border-radius: 6px;
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .api-bar label { font-size: 13px; font-weight: 600; white-space: nowrap; }
-  .api-bar input {
-    flex: 1; min-width: 200px;
-    border: 1px solid var(--border); border-radius: 4px;
-    padding: 7px 10px; font-size: 13px; font-family: monospace;
-  }
-  .api-bar input:focus { outline: none; border-color: var(--red); }
-  .btn-save {
-    background: var(--dark); color: white; border: none;
-    padding: 7px 16px; border-radius: 4px; font-size: 13px;
-    font-weight: 600; cursor: pointer; white-space: nowrap;
-  }
-  .btn-save:hover { background: #333; }
-  .key-status { font-size: 12px; color: var(--green); font-weight: 600; }
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #C8102E;
+      margin-bottom: 18px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #f0f0f0;
+    }
 
-  /* ── Card ── */
-  .card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 20px;
-    overflow: hidden;
-  }
-  .card-header {
-    background: var(--dark);
-    color: white;
-    padding: 10px 18px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .card-body { padding: 18px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 
-  /* ── Address Row ── */
-  .address-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
-  .address-row .field-group { flex: 1; min-width: 240px; }
-  .address-row label { display: block; font-size: 12px; font-weight: 700; color: var(--mid); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .address-row input {
-    width: 100%; border: 1.5px solid var(--border); border-radius: 5px;
-    padding: 9px 12px; font-size: 15px; font-family: 'Source Sans 3', sans-serif;
-  }
-  .address-row input:focus { outline: none; border-color: var(--red); }
+    label { display: block; font-size: 0.78rem; font-weight: 600; color: #555; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      border: 1.5px solid #ddd;
+      border-radius: 5px;
+      padding: 9px 12px;
+      font-size: 0.92rem;
+      color: #1a1a1a;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus { outline: none; border-color: #C8102E; }
+    textarea { resize: vertical; min-height: 70px; }
 
-  .btn-autofill {
-    background: var(--red); color: white; border: none;
-    padding: 9px 20px; border-radius: 5px; font-size: 14px;
-    font-weight: 700; cursor: pointer; white-space: nowrap;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .btn-autofill:hover { background: #a50d26; }
-  .btn-autofill:disabled { background: #ccc; cursor: not-allowed; }
+    .avm-row { display: grid; grid-template-columns: 140px 110px 110px 110px; gap: 10px; align-items: end; margin-bottom: 10px; }
+    .avm-row label { font-size: 0.75rem; }
+    .source-label { font-weight: 700; font-size: 0.88rem; padding: 9px 0; color: #333; }
 
-  /* ── AVM Grid ── */
-  .avm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
-  .avm-source { border: 1.5px solid var(--border); border-radius: 6px; padding: 12px; position: relative; }
-  .avm-source.filled { border-color: var(--green); background: #f0fff4; }
-  .avm-source-name {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.5px; color: var(--mid); margin-bottom: 8px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .avm-source-name .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
-  .avm-source.filled .dot { background: var(--green); }
-  .avm-fields { display: flex; flex-direction: column; gap: 6px; }
-  .avm-field label { font-size: 10px; color: var(--light); text-transform: uppercase; letter-spacing: 0.3px; }
-  .avm-field input {
-    width: 100%; border: 1px solid var(--border); border-radius: 4px;
-    padding: 5px 8px; font-size: 13px; font-weight: 600;
-    font-family: 'Source Sans 3', sans-serif;
-  }
-  .avm-field input:focus { outline: none; border-color: var(--red); }
-  .avm-field input::placeholder { color: #ccc; font-weight: 400; }
-  .no-range { font-size: 11px; color: var(--light); font-style: italic; margin-top: 4px; }
+    .excluded-toggle { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .excluded-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: #C8102E; }
+    .excluded-toggle label { font-size: 0.8rem; color: #888; text-transform: none; letter-spacing: 0; margin: 0; }
 
-  /* ── CMA Grid ── */
-  .cma-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .cma-source { border: 1.5px solid var(--border); border-radius: 6px; padding: 12px; }
-  .cma-source.filled { border-color: #2980b9; background: #f0f8ff; }
-  .cma-source-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--mid); margin-bottom: 6px; }
-  .cma-source input {
-    width: 100%; border: 1px solid var(--border); border-radius: 4px;
-    padding: 6px 8px; font-size: 14px; font-weight: 700;
-    font-family: 'Source Sans 3', sans-serif;
-  }
-  .cma-source input:focus { outline: none; border-color: var(--blue); }
-  .cma-source input::placeholder { color: #ccc; font-weight: 400; }
+    .open-links { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+    .open-btn {
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 7px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .open-btn:hover { background: #C8102E; }
 
-  /* ── Recommended Price ── */
-  .rec-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .rec-price-field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px; }
-  .rec-price-field label { font-size: 12px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.5px; }
-  .rec-price-input {
-    border: 2px solid var(--red); border-radius: 6px;
-    padding: 10px 14px; font-size: 22px; font-weight: 700;
-    font-family: 'Playfair Display', serif; color: var(--red);
-    width: 100%;
-  }
-  .rec-price-input:focus { outline: none; }
-  .consensus-box {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 6px; padding: 10px 14px; flex: 1; min-width: 200px;
-    font-size: 13px; line-height: 1.6;
-  }
-  .consensus-box .label { font-size: 11px; font-weight: 700; color: var(--light); text-transform: uppercase; letter-spacing: 0.5px; }
-  .consensus-val { font-size: 18px; font-weight: 700; color: var(--dark); }
+    .btn-generate {
+      width: 100%;
+      background: #C8102E;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+    .btn-generate:hover { background: #a50d25; }
 
-  /* ── Action Buttons ── */
-  .action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
-  .btn-primary {
-    background: var(--red); color: white; border: none;
-    padding: 11px 28px; border-radius: 5px; font-size: 15px;
-    font-weight: 700; cursor: pointer; flex: 1;
-  }
-  .btn-primary:hover { background: #a50d26; }
-  .btn-secondary {
-    background: white; color: var(--dark);
-    border: 1.5px solid var(--border);
-    padding: 11px 20px; border-radius: 5px; font-size: 14px;
-    font-weight: 600; cursor: pointer;
-  }
-  .btn-secondary:hover { background: var(--bg); }
+    .api-key-row { display: flex; gap: 10px; align-items: end; }
+    .api-key-row input { flex: 1; }
+    .btn-save-key {
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 9px 18px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-save-key:hover { background: #C8102E; }
 
-  /* ── Status Banner ── */
-  .status-banner {
-    padding: 10px 14px; border-radius: 5px; font-size: 13px;
-    font-weight: 600; margin-top: 10px; display: none;
-  }
-  .status-banner.info { background: #e8f4fd; color: #1a6fa0; border: 1px solid #b3d9f5; display: block; }
-  .status-banner.success { background: #eafaf1; color: #1e8449; border: 1px solid #a9dfbf; display: block; }
-  .status-banner.error { background: #fdedec; color: #a93226; border: 1px solid #f5b7b1; display: block; }
+    .btn-autofill {
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 9px 18px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-autofill:hover { background: #4285f4; }
 
-  /* ── Raw JSON Debug ── */
-  .debug-box {
-    background: #1a1a1a; color: #7ec8e3; font-family: monospace;
-    font-size: 11px; padding: 12px; border-radius: 5px;
-    white-space: pre-wrap; max-height: 180px; overflow-y: auto;
-    margin-top: 10px; display: none;
-  }
+    #status-msg { font-size: 0.82rem; color: #888; margin-top: 8px; min-height: 20px; }
 
-  /* ── Open Sites ── */
-  .sites-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn-site {
-    background: white; border: 1.5px solid var(--border);
-    padding: 6px 14px; border-radius: 4px; font-size: 12px;
-    font-weight: 600; cursor: pointer; color: var(--mid);
-    text-decoration: none; display: inline-block;
-  }
-  .btn-site:hover { border-color: var(--red); color: var(--red); }
-
-  /* ── Spinner ── */
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner {
-    width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4);
-    border-top-color: white; border-radius: 50%;
-    animation: spin 0.7s linear infinite; display: inline-block;
-  }
-
-  /* ── Footer ── */
-  .footer { text-align: center; font-size: 11px; color: var(--light); padding: 20px; }
-
-  @media (max-width: 500px) {
-    .cma-grid { grid-template-columns: 1fr 1fr; }
-    .avm-grid { grid-template-columns: 1fr 1fr; }
-  }
-</style>
+    .section-note { font-size: 0.78rem; color: #999; margin-top: -10px; margin-bottom: 14px; font-style: italic; }
+  </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-brand">
-    <div class="title">MARK SPAIN REAL ESTATE</div>
-    <div class="sub">CMA Pricing Tool</div>
+<header>
+  <div>
+    <div class="brand">Exclusive Seller Presentation</div>
+    <h1>CMA PRICING STRATEGY GENERATOR</h1>
   </div>
-  <div class="header-agent">
-    Salman Hussain, REALTOR&reg;<br>
-    NC RE #316046 &nbsp;|&nbsp; 919-802-2207
+  <div class="logo-img-wrap">
+    <img src="data:image/png;base64,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" alt="Mark Spain Real Estate" style="height:56px;width:auto;">
   </div>
-</div>
+</header>
 
 <div class="container">
 
-  <!-- API Key -->
-  <div class="api-bar">
-    <label>🔑 Gemini API Key</label>
-    <input type="password" id="apiKey" placeholder="AIzaSy..." autocomplete="off">
-    <button class="btn-save" onclick="saveKey()">Save Key</button>
-    <span class="key-status" id="keyStatus"></span>
-  </div>
-
-  <!-- Address -->
+  <!-- AGENT INFO -->
   <div class="card">
-    <div class="card-header">Property Address</div>
-    <div class="card-body">
-      <div class="address-row">
-        <div class="field-group">
-          <label>Street Address</label>
-          <input type="text" id="address" placeholder="e.g. 546 Brodie Rose Landing Way, Cary NC">
-        </div>
-        <button class="btn-autofill" id="autofillBtn" onclick="autoFill()">
-          <span id="autofillIcon">✨</span> Auto-Fill via Gemini
-        </button>
-      </div>
-      <div id="statusBanner" class="status-banner"></div>
-      <div id="debugBox" class="debug-box"></div>
+    <h2>Agent Information</h2>
+    <div class="grid-3">
+      <div><label>Agent Name</label><input type="text" id="agentName" placeholder="Salman Hussain"></div>
+      <div><label>Phone</label><input type="text" id="agentPhone" placeholder="919-802-2207"></div>
+      <div><label>Email</label><input type="text" id="agentEmail" placeholder="salmanhussain@markspain.com"></div>
     </div>
   </div>
 
-  <!-- AVM Sources -->
+  <!-- PROPERTY INFO -->
   <div class="card">
-    <div class="card-header">Automated Valuation Models (AVM)</div>
-    <div class="card-body">
-      <div style="margin-bottom:12px;">
-        <div class="sites-row">
-          <span style="font-size:12px;font-weight:700;color:var(--mid);align-self:center;">Open:</span>
-          <a class="btn-site" href="#" onclick="openSite('zillow')">Zillow</a>
-          <a class="btn-site" href="#" onclick="openSite('redfin')">Redfin</a>
-          <a class="btn-site" href="#" onclick="openSite('homes')">Homes.com</a>
-          <a class="btn-site" href="#" onclick="openSite('realtor')">Realtor.com</a>
-        </div>
-      </div>
-      <div class="avm-grid">
-
-        <div class="avm-source" id="box-zillow">
-          <div class="avm-source-name"><div class="dot"></div>Zillow</div>
-          <div class="avm-fields">
-            <div class="avm-field"><label>Estimate ($k)</label><input type="number" id="z_est" placeholder="370" oninput="updateCalc();markFilled('box-zillow')"></div>
-            <div class="avm-field"><label>Low ($k)</label><input type="number" id="z_low" placeholder="348" oninput="updateCalc()"></div>
-            <div class="avm-field"><label>High ($k)</label><input type="number" id="z_high" placeholder="393" oninput="updateCalc()"></div>
-          </div>
-        </div>
-
-        <div class="avm-source" id="box-redfin">
-          <div class="avm-source-name"><div class="dot"></div>Redfin</div>
-          <div class="avm-fields">
-            <div class="avm-field"><label>Estimate ($k)</label><input type="number" id="r_est" placeholder="389" oninput="updateCalc();markFilled('box-redfin')"></div>
-            <div class="avm-field"><label>Low ($k)</label><input type="number" id="r_low" placeholder="371" oninput="updateCalc()"></div>
-            <div class="avm-field"><label>High ($k)</label><input type="number" id="r_high" placeholder="449" oninput="updateCalc()"></div>
-          </div>
-        </div>
-
-        <div class="avm-source" id="box-homes">
-          <div class="avm-source-name"><div class="dot"></div>Homes.com</div>
-          <div class="avm-fields">
-            <div class="avm-field"><label>Estimate ($k)</label><input type="number" id="h_est" placeholder="(opt)" oninput="updateCalc();markFilled('box-homes')"></div>
-            <div class="avm-field"><label>Low ($k)</label><input type="number" id="h_low" placeholder="376" oninput="updateCalc()"></div>
-            <div class="avm-field"><label>High ($k)</label><input type="number" id="h_high" placeholder="417" oninput="updateCalc()"></div>
-          </div>
-        </div>
-
-        <div class="avm-source" id="box-realtor">
-          <div class="avm-source-name"><div class="dot"></div>Realtor.com</div>
-          <div class="avm-fields">
-            <div class="avm-field"><label>Estimate ($k)</label><input type="number" id="rc_est" placeholder="405" oninput="updateCalc();markFilled('box-realtor')"></div>
-            <div class="avm-field"><label>Low ($k)</label><input type="number" id="rc_low" placeholder="(opt)" oninput="updateCalc()"></div>
-            <div class="avm-field"><label>High ($k)</label><input type="number" id="rc_high" placeholder="(opt)" oninput="updateCalc()"></div>
-            <div class="no-range">Range not always available</div>
-          </div>
-        </div>
-
+    <h2>Property Details</h2>
+    <div class="grid-2">
+      <div><label>Property Address</label><input type="text" id="propAddress" placeholder="1 Lakeside Drive, Henderson, NC"></div>
+      <div><label>Client Name (optional)</label><input type="text" id="clientName" placeholder="Dear Valued Client"></div>
+    </div>
+    <div style="margin-top: 16px;">
+      <label>Open AVM Sites for This Address</label>
+      <div class="open-links" id="openLinks">
+        <button class="open-btn" onclick="openSite('zillow')">Zillow</button>
+        <button class="open-btn" onclick="openSite('redfin')">Redfin</button>
+        <button class="open-btn" onclick="openSite('homes')">Homes.com</button>
+        <button class="open-btn" onclick="openSite('realtor')">Realtor.com</button>
       </div>
     </div>
   </div>
 
-  <!-- CMA Tools -->
+  <!-- GEMINI AI AUTOFILL -->
   <div class="card">
-    <div class="card-header">CMA Tool Values</div>
-    <div class="card-body">
-      <div class="cma-grid">
-        <div class="cma-source" id="box-cmasnap">
-          <div class="cma-source-name">CMAsnap</div>
-          <input type="number" id="cma_snap" placeholder="381" oninput="updateCalc();markFilledBlue('box-cmasnap')">
-        </div>
-        <div class="cma-source" id="box-cmaeasy">
-          <div class="cma-source-name">CMAeasy</div>
-          <input type="number" id="cma_easy" placeholder="415" oninput="updateCalc();markFilledBlue('box-cmaeasy')">
-        </div>
-        <div class="cma-source" id="box-rpr">
-          <div class="cma-source-name">RPR</div>
-          <input type="number" id="cma_rpr" placeholder="342" oninput="updateCalc();markFilledBlue('box-rpr')">
-        </div>
+    <h2>Gemini AI Auto-Fill (Optional)</h2>
+    <p class="section-note">Enter your Gemini API key to auto-estimate AVM values. Free key at aistudio.google.com — use your @markspain.com login.</p>
+    <div class="api-key-row">
+      <div><label>Gemini API Key</label><input type="password" id="geminiKey" placeholder="AIza..."></div>
+      <button class="btn-save-key" onclick="saveKey()">Save Key</button>
+    </div>
+    <button class="btn-autofill" onclick="runGemini()">Auto-Fill AVM Estimates</button>
+    <div id="status-msg">Enter address above first, then click Auto-Fill. Values are AI estimates — verify manually.</div>
+  </div>
+
+  <!-- AVM DATA -->
+  <div class="card">
+    <h2>AVM Sources</h2>
+    <div class="avm-row">
+      <div><label>Source</label></div>
+      <div><label>Estimate ($K)</label></div>
+      <div><label>Low ($K)</label></div>
+      <div><label>High ($K)</label></div>
+    </div>
+
+    <!-- Zillow -->
+    <div class="avm-row">
+      <div class="source-label">Zillow</div>
+      <div><input type="number" id="z_est" placeholder="692"></div>
+      <div><input type="number" id="z_low" placeholder="595"></div>
+      <div><input type="number" id="z_high" placeholder="695"></div>
+    </div>
+    <!-- Redfin -->
+    <div class="avm-row">
+      <div class="source-label">Redfin</div>
+      <div><input type="number" id="r_est" placeholder="618"></div>
+      <div><input type="number" id="r_low" placeholder="588"></div>
+      <div><input type="number" id="r_high" placeholder="695"></div>
+    </div>
+    <!-- Homes.com -->
+    <div class="avm-row">
+      <div class="source-label">Homes.com</div>
+      <div><input type="number" id="h_est" placeholder=""></div>
+      <div><input type="number" id="h_low" placeholder="396"></div>
+      <div><input type="number" id="h_high" placeholder="695"></div>
+    </div>
+    <div class="excluded-toggle">
+      <input type="checkbox" id="homesExcluded">
+      <label for="homesExcluded">Exclude Homes.com (wide range / noise)</label>
+    </div>
+    <!-- Realtor.com -->
+    <div class="avm-row" style="margin-top:10px;">
+      <div class="source-label">Realtor.com</div>
+      <div><input type="number" id="rltr_est" placeholder=""></div>
+      <div><input type="number" id="rltr_low" placeholder=""></div>
+      <div><input type="number" id="rltr_high" placeholder=""></div>
+    </div>
+  </div>
+
+  <!-- CMA TOOLS -->
+  <div class="card">
+    <h2>CMA Tool Results</h2>
+    <div class="grid-3">
+      <div><label>CMAsnap ($K)</label><input type="number" id="cmasnap" placeholder="633"></div>
+      <div><label>CMAeasy ($K)</label><input type="number" id="cmaeasy" placeholder=""></div>
+      <div><label>RPR RVM ($K)</label><input type="number" id="rprrvm" placeholder="691"></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px;">
+      <div><label>RPR CMA ($K)</label><input type="number" id="rprcma" placeholder="699"></div>
+      <div><label>Other Tool ($K)</label><input type="number" id="cmaother" placeholder=""></div>
+    </div>
+  </div>
+
+  <!-- PRICING TIERS -->
+  <div class="card">
+    <h2>Pricing Tiers</h2>
+    <p class="section-note">Leave blank to auto-calculate from AVM/CMA data, or enter manually.</p>
+    <div class="grid-3">
+      <div>
+        <label>Aggressive — Low ($K)</label>
+        <input type="number" id="agg_low" placeholder="auto">
+        <label style="margin-top:8px;">Aggressive — High ($K)</label>
+        <input type="number" id="agg_high" placeholder="auto">
+      </div>
+      <div>
+        <label>Sweet Spot — Low ($K)</label>
+        <input type="number" id="sweet_low" placeholder="auto">
+        <label style="margin-top:8px;">Sweet Spot — High ($K)</label>
+        <input type="number" id="sweet_high" placeholder="auto">
+      </div>
+      <div>
+        <label>Stretch — Low ($K)</label>
+        <input type="number" id="stretch_low" placeholder="auto">
+        <label style="margin-top:8px;">Stretch — High ($K)</label>
+        <input type="number" id="stretch_high" placeholder="auto">
       </div>
     </div>
   </div>
 
-  <!-- Recommended Price -->
+  <!-- NARRATIVE / RATIONALE -->
   <div class="card">
-    <div class="card-header">Pricing Recommendation</div>
-    <div class="card-body">
-      <div class="rec-row">
-        <div class="rec-price-field">
-          <label>Recommended List Price ($)</label>
-          <input type="number" class="rec-price-input" id="rec_price" placeholder="379900" oninput="updateCalc()">
-        </div>
-        <div class="consensus-box" id="consensusBox">
-          <div class="label">AVM Consensus</div>
-          <div class="consensus-val" id="consensusVal">—</div>
-          <div style="font-size:12px;color:var(--light);margin-top:2px;" id="rangeNote">Enter AVM values above</div>
-        </div>
-      </div>
-      <div class="action-row" style="margin-top:16px;">
-        <button class="btn-primary" onclick="generatePDF()">⬇ Download Pricing Strategy PDF</button>
-        <button class="btn-secondary" onclick="clearAll()">Clear All</button>
-      </div>
-    </div>
+    <h2>Rationale (Optional)</h2>
+    <p class="section-note">Leave blank to auto-generate from the data, or write your own.</p>
+    <textarea id="rationale" placeholder="Professional tools agree. Easy CMA, RPR RVM, and RPR CMA cluster between $633K–$699K — the tightest, most reliable signal in the data..."></textarea>
   </div>
+
+  <button class="btn-generate" onclick="generatePDF()">⬇ Generate Pricing Strategy PDF</button>
 
 </div>
 
-<div class="footer">Mark Spain Real Estate &nbsp;|&nbsp; Salman Hussain &nbsp;|&nbsp; NC RE #316046 &nbsp;|&nbsp; 919-802-2207</div>
-
 <script>
-// ── Key storage ────────────────────────────────────────────────────────────
-// Try localStorage, sessionStorage, and in-memory as fallbacks
-let _keyMemory = null;
-function saveKey() {
-  const k = document.getElementById('apiKey').value.trim();
-  if (!k) { alert('Please paste your API key first.'); return; }
-  _keyMemory = k;
-  try { localStorage.setItem('msre_gemini_key', k); } catch(e) {}
-  try { sessionStorage.setItem('msre_gemini_key', k); } catch(e) {}
-  const el = document.getElementById('keyStatus');
-  el.textContent = '✓ Key saved';
-  el.style.color = '#27ae60';
-}
-function getKey() {
-  if (_keyMemory) return _keyMemory;
-  try { const v = localStorage.getItem('msre_gemini_key'); if (v) return v; } catch(e) {}
-  try { const v = sessionStorage.getItem('msre_gemini_key'); if (v) return v; } catch(e) {}
-  return document.getElementById('apiKey').value.trim();
-}
-window.addEventListener('load', () => {
-  let saved = null;
-  try { saved = localStorage.getItem('msre_gemini_key'); } catch(e) {}
-  if (!saved) { try { saved = sessionStorage.getItem('msre_gemini_key'); } catch(e) {} }
-  if (saved) {
-    _keyMemory = saved;
-    document.getElementById('apiKey').value = saved;
-    const el = document.getElementById('keyStatus');
-    el.textContent = '✓ Key loaded';
-    el.style.color = '#27ae60';
+// ── SAFARI STORAGE FALLBACK ────────────────────────────────────────────────
+let _memStore = {};
+function lsSet(k, v) {
+  try { localStorage.setItem(k, v); } catch(e) {
+    try { sessionStorage.setItem(k, v); } catch(e2) { _memStore[k] = v; }
   }
-});
+}
+function lsGet(k) {
+  try { return localStorage.getItem(k); } catch(e) {
+    try { return sessionStorage.getItem(k); } catch(e2) { return _memStore[k] || null; }
+  }
+}
 
-// ── Open sites ─────────────────────────────────────────────────────────────
-function openSite(source) {
-  const addr = document.getElementById('address').value.trim();
+// ── RESTORE SAVED AGENT INFO ───────────────────────────────────────────────
+window.onload = function() {
+  ['agentName','agentPhone','agentEmail'].forEach(id => {
+    const v = lsGet('msre_' + id);
+    if (v) document.getElementById(id).value = v;
+  });
+  const k = lsGet('msre_gemini_key');
+  if (k) document.getElementById('geminiKey').value = k;
+  ['agentName','agentPhone','agentEmail'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => lsSet('msre_' + id, document.getElementById(id).value));
+  });
+};
+
+// ── OPEN AVM SITES ─────────────────────────────────────────────────────────
+function openSite(which) {
+  const addr = document.getElementById('propAddress').value.trim();
+  if (!addr) { alert('Enter the property address first.'); return; }
   const enc = encodeURIComponent(addr);
   const urls = {
-    zillow:  `https://www.zillow.com/homes/${enc}_rb/`,
-    redfin:  `https://www.redfin.com/search#location=${enc}`,
-    homes:   `https://www.homes.com/search/?q=${enc}`,
-    realtor: `https://www.realtor.com/realestateandhomes-search/${enc}`
+    zillow: `https://www.zillow.com/homes/${enc}_rb/`,
+    redfin: `https://www.redfin.com/stingray/do/location-autocomplete?location=${enc}`,
+    homes:  `https://www.homes.com/properties/?q=${enc}`,
+    realtor:`https://www.realtor.com/realestateandhomes-search/${enc}`
   };
-  window.open(urls[source], '_blank');
+  const a = document.createElement('a');
+  a.href = urls[which]; a.target = '_blank'; a.rel = 'noopener';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
-// ── Visual helpers ─────────────────────────────────────────────────────────
-function markFilled(id) {
-  const el = document.getElementById(id);
-  const hasVal = el.querySelector('input[type="number"]').value;
-  el.classList.toggle('filled', !!hasVal);
-}
-function markFilledBlue(id) {
-  const el = document.getElementById(id);
-  const hasVal = el.querySelector('input').value;
-  el.classList.toggle('filled', !!hasVal);
+// ── SAVE GEMINI KEY ────────────────────────────────────────────────────────
+function saveKey() {
+  const k = document.getElementById('geminiKey').value.trim();
+  if (!k) { alert('Enter your Gemini API key first.'); return; }
+  lsSet('msre_gemini_key', k);
+  document.getElementById('status-msg').textContent = 'API key saved.';
 }
 
-// ── Consensus calc ─────────────────────────────────────────────────────────
-function updateCalc() {
-  const vals = [
-    parseFloat(document.getElementById('z_est').value),
-    parseFloat(document.getElementById('r_est').value),
-    parseFloat(document.getElementById('h_est').value),
-    parseFloat(document.getElementById('rc_est').value)
-  ].filter(v => !isNaN(v));
+// ── GEMINI AUTO-FILL ───────────────────────────────────────────────────────
+async function runGemini() {
+  const key = document.getElementById('geminiKey').value.trim() || lsGet('msre_gemini_key');
+  const addr = document.getElementById('propAddress').value.trim();
+  if (!key) { alert('Enter your Gemini API key first.'); return; }
+  if (!addr) { alert('Enter the property address first.'); return; }
 
-  const consensusEl = document.getElementById('consensusVal');
-  const rangeEl = document.getElementById('rangeNote');
+  const msg = document.getElementById('status-msg');
+  msg.textContent = 'Fetching AI estimates...';
 
-  if (vals.length === 0) {
-    consensusEl.textContent = '—';
-    rangeEl.textContent = 'Enter AVM values above';
-    return;
-  }
-  const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
-  const mn = vals.reduce(function(a,b){return a<b?a:b;}), mx = vals.reduce(function(a,b){return a>b?a:b;});
-  consensusEl.textContent = `$${avg.toFixed(0)}k`;
-  rangeEl.textContent = `${vals.length} sources · Range $${mn}k – $${mx}k`;
-}
+  const prompt = `You are a real estate data assistant. For the property at "${addr}", provide estimated AVM values from Zillow, Redfin, Homes.com, and Realtor.com. Return ONLY a JSON object with no markdown, no preamble. Format exactly:
+{"zillow_est":000,"zillow_low":000,"zillow_high":000,"redfin_est":000,"redfin_low":000,"redfin_high":000,"homes_est":000,"homes_low":000,"homes_high":000,"realtor_est":000,"realtor_low":000,"realtor_high":000}
+All values in thousands (integer). If unknown, use 0.`;
 
-// ── Status helpers ─────────────────────────────────────────────────────────
-function setStatus(msg, type) {
-  const el = document.getElementById('statusBanner');
-  el.textContent = msg;
-  el.className = 'status-banner ' + type;
-}
-function clearStatus() {
-  const el = document.getElementById('statusBanner');
-  el.className = 'status-banner';
-}
-function showDebug(text) {
-  const el = document.getElementById('debugBox');
-  el.textContent = text;
-  el.style.display = 'block';
-}
-function hideDebug() {
-  document.getElementById('debugBox').style.display = 'none';
-}
-
-// ── AUTO-FILL via Gemini (JSON mode) ──────────────────────────────────────
-async function autoFill() {
-  const address = document.getElementById('address').value.trim();
-  if (!address) { setStatus('Please enter a property address first.', 'error'); return; }
-
-  const key = getKey();
-  if (!key) { setStatus('Please enter and save your Gemini API key first.', 'error'); return; }
-
-  const btn = document.getElementById('autofillBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> Fetching...';
-  setStatus('Asking Gemini for AVM data...', 'info');
-  hideDebug();
-
-  // ── THE KEY PROMPT: force strict JSON only ──────────────────────────────
-  const prompt = 'What are the current Zillow, Redfin, Homes.com, and Realtor.com AVM estimates for: ' + address + '\n\n' +
-    'Return ONLY a JSON object, no markdown, no explanation. Schema:\n' +
-    '{\n' +
-    '  "zillow":  { "estimate": 370, "low": 348, "high": 393 },\n' +
-    '  "redfin":  { "estimate": 389, "low": 371, "high": 449 },\n' +
-    '  "homes":   { "estimate": 397, "low": 376, "high": 417 },\n' +
-    '  "realtor": { "estimate": 405, "low": null, "high": null }\n' +
-    '}\n\n' +
-    'Rules:\n' +
-    '- Values are whole numbers in THOUSANDS. Example: $379,900 = 379.9. Example: $405,000 = 405. NEVER return values above 2000.\n' +
-    '- If a source has no range, set low and high to null\n' +
-    '- If unknown, use null\n' +
-    '- Return ONLY the JSON, nothing else';
-
-  const models = [
-    'gemini-2.5-flash-lite',
-    'gemini-2.5-flash',
-    'gemini-3.5-flash'
-  ];
-
-  let rawText = null;
-  let lastError = null;
-  let allErrors = [];
-
-  for (const model of models) {
-    try {
-      setStatus('Trying ' + model + '...', 'info');
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0 }
-          })
-        }
-      );
-
-      if (res.status === 429) {
-        const msg = model + ': rate limited';
-        allErrors.push(msg); lastError = msg;
-        await new Promise(r => setTimeout(r, 2000));
-        continue;
-      }
-      if (!res.ok) {
-        const e = await res.json();
-        const msg = model + ': ' + (e?.error?.message || res.status);
-        allErrors.push(msg); lastError = msg; continue;
-      }
-
-      const data = await res.json();
-      rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-      if (rawText) {
-        showDebug('SUCCESS with: ' + model + '\n\nRAW RESPONSE:\n' + rawText);
-        break;
-      }
-    } catch(e) {
-      const msg = model + ': ' + e.message;
-      allErrors.push(msg); lastError = msg;
-    }
-  }
-  if (!rawText && allErrors.length) showDebug('ALL ATTEMPTS FAILED:\n' + allErrors.join('\n'));
-
-  btn.disabled = false;
-  btn.innerHTML = '✨ Auto-Fill via Gemini';
-
-  if (!rawText) {
-    setStatus(`Gemini error: ${lastError || 'No response'}`, 'error');
-    return;
-  }
-
-  // ── Parse the JSON ──────────────────────────────────────────────────────
-  let parsed;
   try {
-    // Strip any accidental markdown fences just in case
-    const clean = rawText.replace(/```json|```/gi, '').trim();
-    parsed = JSON.parse(clean);
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    const data = await res.json();
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const d = JSON.parse(clean);
+
+    const map = {
+      zillow_est:'z_est', zillow_low:'z_low', zillow_high:'z_high',
+      redfin_est:'r_est', redfin_low:'r_low', redfin_high:'r_high',
+      homes_est:'h_est', homes_low:'h_low', homes_high:'h_high',
+      realtor_est:'rltr_est', realtor_low:'rltr_low', realtor_high:'rltr_high'
+    };
+    Object.entries(map).forEach(([k,id]) => {
+      if (d[k] && d[k] > 0) document.getElementById(id).value = d[k];
+    });
+    msg.textContent = 'AI estimates filled — please verify manually before generating PDF.';
   } catch(e) {
-    setStatus('Gemini returned non-JSON. See debug output below.', 'error');
-    showDebug('RAW RESPONSE:\n' + rawText + '\n\nPARSE ERROR: ' + e.message);
-    return;
+    msg.textContent = 'Auto-fill failed: ' + e.message + '. Enter values manually.';
   }
-
-  // ── Fill the form fields ────────────────────────────────────────────────
-  function fill(id, val) {
-    const el = document.getElementById(id);
-    if (el && val !== null && val !== undefined) {
-      let v = parseFloat(val);
-      if (v > 2000) v = v / 1000; // normalize if Gemini returns full dollars instead of thousands
-      el.value = parseFloat(v.toFixed(1));
-    }
-  }
-
-  const z = parsed.zillow  || {};
-  const r = parsed.redfin  || {};
-  const h = parsed.homes   || {};
-  const rc = parsed.realtor || {};
-
-  fill('z_est',  z.estimate);  fill('z_low',  z.low);  fill('z_high',  z.high);
-  fill('r_est',  r.estimate);  fill('r_low',  r.low);  fill('r_high',  r.high);
-  fill('h_est',  h.estimate);  fill('h_low',  h.low);  fill('h_high',  h.high);
-  fill('rc_est', rc.estimate); fill('rc_low', rc.low); fill('rc_high', rc.high);
-
-  // Update visual filled states
-  ['zillow','redfin','homes','realtor'].forEach(s => {
-    const box = document.getElementById('box-' + s);
-    const firstInput = box.querySelector('input[type="number"]');
-    if (firstInput && firstInput.value) box.classList.add('filled');
-  });
-
-  updateCalc();
-
-  // Count how many sources got data
-  const filled = [z,r,h,rc].filter(s => s.estimate !== null && s.estimate !== undefined).length;
-  setStatus(`✓ Auto-filled ${filled} of 4 AVM sources from Gemini. Verify against the live sites before downloading PDF.`, 'success');
-  showDebug('JSON FROM GEMINI:\n' + JSON.stringify(parsed, null, 2));
 }
 
-// ── Clear All ──────────────────────────────────────────────────────────────
-function clearAll() {
-  ['z_est','z_low','z_high','r_est','r_low','r_high',
-   'h_est','h_low','h_high','rc_est','rc_low','rc_high',
-   'cma_snap','cma_easy','cma_rpr','rec_price'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  document.getElementById('address').value = '';
-  ['box-zillow','box-redfin','box-homes','box-realtor',
-   'box-cmasnap','box-cmaeasy','box-rpr'].forEach(id => {
-    document.getElementById(id)?.classList.remove('filled');
-  });
-  updateCalc();
-  clearStatus();
-  hideDebug();
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function fmtK(n) { return n ? `$${Math.round(n)}K` : '—'; }
+function fmtRange(lo, hi) {
+  if (lo && hi) return `$${Math.round(lo)}K – $${Math.round(hi)}K`;
+  if (lo) return `$${Math.round(lo)}K+`;
+  if (hi) return `Up to $${Math.round(hi)}K`;
+  return '—';
 }
 
-// ── Generate PDF via jsPDF ─────────────────────────────────────────────────
+
+  const MSRE_LOGO = "data:image/png;base64,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";
+
+  // ── GENERATE PDF ───────────────────────────────────────────────────────────
 function generatePDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
-  const W = 612, RED = [200, 16, 46], DARK = [26, 26, 26], GRAY = [245, 245, 245], MGRAY = [221, 221, 221];
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
 
-  const address = document.getElementById('address').value.trim() || 'Property';
-  const z   = { est: v('z_est'),   low: v('z_low'),   high: v('z_high') };
-  const r   = { est: v('r_est'),   low: v('r_low'),   high: v('r_high') };
-  const h   = { est: v('h_est'),   low: v('h_low'),   high: v('h_high') };
-  const rc  = { est: v('rc_est'),  low: v('rc_low'),  high: v('rc_high') };
-  const cma = { snap: v('cma_snap'), easy: v('cma_easy'), rpr: v('cma_rpr') };
-  const rec = v('rec_price');
+  const PW = 612, PH = 792;
+  const M = 27.36; // 0.38in margins
 
-  const fmt  = val => val != null ? `$${val}k` : 'N/A';
-  const fmtR = val => val != null ? `$${Number(val).toLocaleString()}` : '—';
+  // Colors
+  const DARK   = [26, 26, 26];
+  const RED    = [200, 16, 46];
+  const WHITE  = [255, 255, 255];
+  const LGRAY  = [247, 247, 247];
+  const MGRAY  = [85, 85, 85];
+  const BORDER = [221, 221, 221];
+  const GREEN  = [22, 120, 62];
+  const BLUE   = [0, 82, 155];
+  const GOLD   = [184, 150, 46];
 
-  // AVM consensus
-  const avmVals = [z.est, r.est, h.est, rc.est].filter(x => x != null);
-  const consensus = avmVals.length ? (avmVals.reduce((a,b)=>a+b,0)/avmVals.length).toFixed(0) : null;
+  // ── COLLECT DATA ──────────────────────────────────────────────────────
+  const addr     = document.getElementById('propAddress').value.trim() || 'Subject Property';
+  const agent    = document.getElementById('agentName').value.trim()   || 'Salman Hussain';
+  const phone    = document.getElementById('agentPhone').value.trim()  || '919-802-2207';
+  const email    = document.getElementById('agentEmail').value.trim()  || 'salmanhussain@markspain.com';
+  const client   = document.getElementById('clientName').value.trim()  || 'Valued Client';
+  const homesExc = document.getElementById('homesExcluded').checked;
 
-  let y = 0;
-
-  // ── Header ──
-  doc.setFillColor(200,16,46);
-  doc.rect(0, 0, W, 72, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(18);
-  doc.text('MARK SPAIN REAL ESTATE', 36, 30);
-  doc.setFontSize(9);
-  doc.setFont('helvetica','normal');
-  doc.text('Salman Hussain  |  919-802-2207  |  salmanhussain@markspain.com', 36, 48);
-  doc.setFont('helvetica','italic');
-  doc.text('Pricing Strategy Report', W - 36, 42, { align: 'right' });
-
-  // ── Property banner ──
-  doc.setFillColor(26,26,26);
-  doc.rect(0, 72, W, 36, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(13);
-  doc.text(address, W/2, 92, { align: 'center' });
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(9);
-  doc.text('Pricing Analysis  |  Mark Spain Real Estate', W/2, 104, { align: 'center' });
-
-  y = 124;
-
-  // ── Section header helper ──
-  function sectionHeader(label, yy) {
-    doc.setFillColor(200,16,46);
-    doc.rect(36, yy - 4, W - 72, 18, 'F');
-    doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(9);
-    doc.text(label.toUpperCase(), 42, yy + 8);
-    return yy + 22;
-  }
-
-  // ── Table helper ──
-  function drawTable(headers, rows, colWidths, startY) {
-    const rowH = 20, hdrH = 20;
-    const startX = 36;
-    // Header row
-    doc.setFillColor(200,16,46);
-    doc.rect(startX, startY, colWidths.reduce((a,b)=>a+b,0), hdrH, 'F');
-    doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(8);
-    let cx = startX;
-    headers.forEach((h, i) => {
-      doc.text(h, cx + 6, startY + 13);
-      cx += colWidths[i];
-    });
-    // Data rows
-    rows.forEach((row, ri) => {
-      const ry = startY + hdrH + ri * rowH;
-      doc.setFillColor(ri % 2 === 0 ? 255 : 245, ri % 2 === 0 ? 255 : 245, ri % 2 === 0 ? 255 : 245);
-      doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'F');
-      doc.setDrawColor(221,221,221);
-      doc.setLineWidth(0.4);
-      doc.rect(startX, ry, colWidths.reduce((a,b)=>a+b,0), rowH, 'S');
-      doc.setTextColor(26,26,26);
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(8);
-      cx = startX;
-      row.forEach((cell, ci) => {
-        doc.text(String(cell ?? 'N/A'), ci === 0 ? cx + 6 : cx + colWidths[ci]/2, ry + 13, ci === 0 ? {} : { align: 'center' });
-        cx += colWidths[ci];
-      });
-    });
-    return startY + hdrH + rows.length * rowH;
-  }
-
-  // ── AVM Table ──
-  y = sectionHeader('Automated Valuation Models (AVM)', y);
-  const avmRows = [
-    ['Zillow (Zestimate)', fmt(z.est), fmt(z.low), fmt(z.high), z.low!=null&&z.high!=null ? `$${z.high-z.low}k` : 'N/A'],
-    ['Redfin Estimate',   fmt(r.est), fmt(r.low), fmt(r.high), r.low!=null&&r.high!=null ? `$${r.high-r.low}k` : 'N/A'],
-    ['Homes.com',         h.est!=null?fmt(h.est):'See range', fmt(h.low), fmt(h.high), h.low!=null&&h.high!=null ? `$${h.high-h.low}k` : 'N/A'],
-    ['Realtor.com',       fmt(rc.est), 'N/A', 'N/A', 'N/A'],
+  const avms = [
+    { src: 'Zillow (Zestimate)', est: v('z_est'), low: v('z_low'), high: v('z_high'), excluded: false },
+    { src: 'Redfin Estimate',    est: v('r_est'), low: v('r_low'), high: v('r_high'), excluded: false },
+    { src: 'Homes.com',          est: v('h_est'), low: v('h_low'), high: v('h_high'), excluded: homesExc },
+    { src: 'Realtor.com',        est: v('rltr_est'), low: v('rltr_low'), high: v('rltr_high'), excluded: false }
   ];
-  y = drawTable(['Source','Estimate','Low','High','Range Width'], avmRows, [170,80,70,70,80], y) + 6;
-  doc.setTextColor(26,26,26);
-  doc.setFont('helvetica','italic');
-  doc.setFontSize(8);
-  if (consensus) doc.text(`AVM consensus: $${consensus}k  |  Sources: ${avmVals.length} of 4`, 36, y + 8);
-  y += 18;
 
-  // ── CMA Table ──
-  y = sectionHeader('Comparative Market Analysis (CMA) Tools', y);
-  const cmaRows = [
-    ['CMAsnap',  fmt(cma.snap), 'Sales comp-based valuation'],
-    ['CMAeasy',  fmt(cma.easy), 'Broader comp pool'],
-    ['RPR (Realtors Property Resource)', fmt(cma.rpr), 'MLS-driven AVM'],
-  ];
-  y = drawTable(['Tool','Value','Notes'], cmaRows, [210,110,220], y) + 6;
-  const cmaVals = [cma.snap, cma.easy, cma.rpr].filter(x=>x!=null);
-  if (cmaVals.length) {
-    const cmaAvg = (cmaVals.reduce((a,b)=>a+b,0)/cmaVals.length).toFixed(0);
-    doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(26,26,26);
-    var cLow = cmaVals.reduce(function(a,b){return a<b?a:b;}); var cHigh = cmaVals.reduce(function(a,b){return a>b?a:b;}); doc.text("CMA average: $" + cmaAvg + "k  |  Low: $" + cLow + "k  |  High: $" + cHigh + "k", 36, y + 8);
+  const cmas = [
+    { tool: 'CMAsnap',  val: v('cmasnap') },
+    { tool: 'CMAeasy',  val: v('cmaeasy') },
+    { tool: 'RPR RVM',  val: v('rprrvm') },
+    { tool: 'RPR CMA',  val: v('rprcma') },
+    { tool: 'Other',    val: v('cmaother') }
+  ].filter(c => c.val > 0);
+
+  // Auto-calc tiers
+  const activeAVM = avms.filter(a => !a.excluded && (a.est || a.low || a.high));
+  const allVals   = activeAVM.flatMap(a => [a.est, a.low, a.high].filter(x => x > 0));
+  const cmaVals   = cmas.map(c => c.val);
+  const allCombined = [...allVals, ...cmaVals].filter(x => x > 0).sort((a,b) => a-b);
+
+  let sweetLo = v('sweet_low'), sweetHi = v('sweet_high');
+  let aggLo   = v('agg_low'),   aggHi   = v('agg_high');
+  let strLo   = v('stretch_low'), strHi = v('stretch_high');
+
+  if (!sweetLo && allCombined.length >= 2) {
+    const med = allCombined[Math.floor(allCombined.length / 2)];
+    sweetLo = Math.round(med * 0.98 / 5) * 5;
+    sweetHi = Math.round(med * 1.02 / 5) * 5;
+    aggLo   = Math.round(med * 0.95 / 5) * 5;
+    aggHi   = Math.round(med * 0.97 / 5) * 5;
+    strLo   = Math.round(med * 1.03 / 5) * 5;
+    strHi   = Math.round(med * 1.06 / 5) * 5;
   }
-  y += 18;
 
-  // ── Recommendation Box ──
-  y = sectionHeader('Pricing Recommendation', y);
-  doc.setFillColor(255, 245, 245);
-  doc.setDrawColor(200,16,46);
-  doc.setLineWidth(1);
-  doc.roundedRect(36, y, W - 72, 56, 4, 4, 'FD');
-  doc.setTextColor(200,16,46);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(26);
-  doc.text(rec ? fmtR(rec) : '—', W/2, y + 28, { align: 'center' });
+  // Active AVM count
+  const activeCount = avms.filter(a => !a.excluded).length;
+  const cmaCluster  = cmaVals.length >= 2 ? `$${Math.min(...cmaVals)}K–$${Math.max(...cmaVals)}K` : '';
+
+  // ── HEADER ────────────────────────────────────────────────────────────
+  // Dark top bar
+  doc.setFillColor(...DARK);
+  doc.rect(0, 0, PW, 82, 'F');
+  // Red accent line
+  doc.setFillColor(...RED);
+  doc.rect(0, 82, PW, 4, 'F');
+
+  // Title
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...[170,170,170]);
+  doc.text('EXCLUSIVE SELLER PRESENTATION', M, 20);
+
+  doc.setFontSize(17);
+  doc.setTextColor(...WHITE);
+  doc.text('THE STRATEGIC PRICING.', M, 44);
+
+  doc.setFontSize(8.5);
+  doc.setTextColor(...[170,170,170]);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${agent}  |  Mark Spain Real Estate  |  ${phone}  •  ${email}`, M, 62);
+
+  // MARK SPAIN logo top right
+  doc.addImage(MSRE_LOGO, 'PNG', PW - M - 90, 6, 90, 66);
+
+  let y = 96;
+
+  // ── PROPERTY + INTRO ──────────────────────────────────────────────────
+  doc.setFillColor(...LGRAY);
+  doc.rect(M, y, PW - M*2, 44, 'F');
+  doc.setDrawColor(...RED);
+  doc.setLineWidth(2);
+  doc.line(M, y, M, y + 44);
+  doc.setLineWidth(0.5);
+
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.text('Recommended List Price', W/2, y + 44, { align: 'center' });
-  if (consensus) {
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,100,100);
-    doc.text(`AVM consensus: $${consensus}k  |  Position relative to market data`, W/2, y + 54, { align: 'center' });
-  }
-  y += 70;
+  doc.setTextColor(...DARK);
+  doc.text(addr.toUpperCase() + '  •  Subject Property', M + 10, y + 14);
 
-  // ── Rationale bullets ──
-  const bullets = [
-    `Zillow at ${fmt(z.est)} anchors buyer perception — buyers check Zillow first.`,
-    `Redfin at ${fmt(r.est)} and Realtor.com at ${fmt(rc.est)} support pricing above Zillow range.`,
-    `RPR at ${fmt(cma.rpr)} signals appraiser conservatism — stay defensible at appraisal.`,
-    `CMAeasy at ${fmt(cma.easy)} represents upper ceiling; overpricing risks sitting on market.`,
-    rec ? `List at ${fmtR(rec)} to drive traffic and generate competitive offer activity.` : 'Set recommended price above based on seller goals and market conditions.',
-  ];
-  doc.setTextColor(26,26,26);
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
-  doc.setFont('helvetica','normal');
-  bullets.forEach(b => {
-    doc.setFillColor(200,16,46);
-    doc.setFillColor(200,16,46); doc.circle(42, y + 2, 2.5, 'F');
-    doc.text(b, 50, y + 4, { maxWidth: W - 90 });
-    y += 14;
+  doc.setTextColor(...MGRAY);
+  doc.text(`Dear ${client},`, M + 10, y + 26);
+  doc.setFontSize(7.5);
+  doc.text('Thank you for trusting me to guide your pricing decision. The data below draws from independent valuation sources and is designed to give you a clear, confident number — not a guess.', M + 10, y + 37, { maxWidth: PW - M*2 - 20 });
+
+  y += 56;
+
+  // ── TWO COLUMN: AVM TABLE | WHY IT MATTERS ────────────────────────────
+  const colW = (PW - M*2 - 12) / 2;
+
+  // LEFT: WHAT THE DATA SAYS
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...WHITE);
+  doc.setFillColor(...DARK);
+  doc.rect(M, y, colW, 16, 'F');
+  doc.text('WHAT THE DATA SAYS', M + 8, y + 10.5);
+
+  let ly = y + 16;
+  const avmRowH = 22;
+
+  avms.forEach((a, i) => {
+    const bg = i % 2 === 0 ? [255,255,255] : [247,247,247];
+    doc.setFillColor(...bg);
+    doc.rect(M, ly, colW, avmRowH, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...(a.excluded ? [180,180,180] : DARK));
+    doc.text(a.src, M + 6, ly + 8);
+
+    if (a.excluded) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(7);
+      doc.setTextColor(180, 180, 180);
+      doc.text(`(range ${fmtRange(a.low, a.high)})`, M + 6, ly + 16);
+      doc.text('wide — excluded', M + colW - 6, ly + 12, { align: 'right' });
+    } else {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(...MGRAY);
+      if (a.low || a.high) doc.text(`(range ${fmtRange(a.low, a.high)})`, M + 6, ly + 16);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(...RED);
+      doc.text(a.est ? fmtK(a.est) : '—', M + colW - 6, ly + 13, { align: 'right' });
+    }
+
+    ly += avmRowH;
   });
 
-  // ── Footer ──
-  doc.setFillColor(200,16,46);
-  doc.rect(0, 792 - 28, W, 28, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','normal');
+  // CMA section in left col
+  doc.setFillColor(...DARK);
+  doc.rect(M, ly, colW, 14, 'F');
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(7);
-  doc.text('Mark Spain Real Estate  |  Salman Hussain, REALTOR®  |  NC RE License #316046  |  919-802-2207', W/2, 792 - 14, { align: 'center' });
-  doc.text('This analysis is based on available data and professional judgment. Not a guarantee of sale price.', W/2, 792 - 6, { align: 'center' });
+  doc.setTextColor(...WHITE);
+  doc.text('PROFESSIONAL CMA TOOLS', M + 6, ly + 9);
+  ly += 14;
 
-  // ── Save ──
-  const fname = address.replace(/[^a-z0-9]/gi, '_').substring(0, 40);
-  doc.save(`Pricing_Strategy_${fname}.pdf`);
+  cmas.forEach((c, i) => {
+    const bg = i % 2 === 0 ? [255,255,255] : [247,247,247];
+    doc.setFillColor(...bg);
+    doc.rect(M, ly, colW, 18, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...DARK);
+    doc.text(c.tool, M + 6, ly + 11);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...RED);
+    doc.text(fmtK(c.val), M + colW - 6, ly + 12, { align: 'right' });
+    ly += 18;
+  });
+
+  // RIGHT: WHY IT MATTERS
+  const rx = M + colW + 12;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...WHITE);
+  doc.setFillColor(...DARK);
+  doc.rect(rx, y, colW, 16, 'F');
+  doc.text('WHY IT MATTERS', rx + 8, y + 10.5);
+
+  const reasons = buildReasons(avms, cmas, cmaCluster, homesExc);
+  let ry = y + 16;
+  reasons.forEach((r, i) => {
+    const bg = i % 2 === 0 ? [255,255,255] : [247,247,247];
+    const rh = 36;
+    doc.setFillColor(...bg);
+    doc.rect(rx, ry, colW, rh, 'F');
+    doc.setDrawColor(...RED);
+    doc.setLineWidth(2);
+    doc.line(rx, ry, rx, ry + rh);
+    doc.setLineWidth(0.5);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...DARK);
+    doc.text(r.title, rx + 8, ry + 10);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...MGRAY);
+    doc.text(r.body, rx + 8, ry + 20, { maxWidth: colW - 16 });
+    ry += rh;
+  });
+
+  y = Math.max(ly, ry) + 14;
+
+  // ── PROFESSIONAL CONSENSUS BAR ────────────────────────────────────────
+  if (cmaCluster) {
+    doc.setFillColor(...LGRAY);
+    doc.rect(M, y, PW - M*2, 22, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...DARK);
+    doc.text('PROFESSIONAL TOOL CONSENSUS', M + 8, y + 9);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...MGRAY);
+    const toolNames = cmas.map(c => c.tool).join(' + ');
+    doc.text(`${toolNames}:  ${cmaCluster} tightest cluster`, M + 8, y + 17);
+    y += 30;
+  }
+
+  // ── RECOMMENDED PRICING TIERS ─────────────────────────────────────────
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  doc.text(`RECOMMENDED PRICING TIERS — ${addr.toUpperCase()}`, M, y + 13);
+  y += 20;
+
+  const cardW  = (PW - M*2 - 24) / 3;
+  const cardH  = 110;
+  const tiers  = [
+    {
+      label: 'AGGRESSIVE',
+      sub:   'Fast sale / quick exit',
+      range: sweetLo && aggLo ? `${fmtK(aggLo)} – ${fmtK(aggHi)}` : '',
+      color: GREEN,
+      border: GREEN
+    },
+    {
+      label: 'SWEET SPOT',
+      sub:   'Maximum market alignment',
+      range: sweetLo ? `${fmtK(sweetLo)} – ${fmtK(sweetHi)}` : '',
+      color: BLUE,
+      border: BLUE
+    },
+    {
+      label: 'STRETCH',
+      sub:   'Test the top of market',
+      range: strLo ? `${fmtK(strLo)} – ${fmtK(strHi)}` : '',
+      color: [160, 40, 40],
+      border: [160, 40, 40]
+    }
+  ];
+
+  // Override with manual entries if provided
+  if (v('agg_low'))    tiers[0].range = `${fmtK(v('agg_low'))} – ${fmtK(v('agg_high'))}`;
+  if (v('sweet_low'))  tiers[1].range = `${fmtK(v('sweet_low'))} – ${fmtK(v('sweet_high'))}`;
+  if (v('stretch_low')) tiers[2].range = `${fmtK(v('stretch_low'))} – ${fmtK(v('stretch_high'))}`;
+
+  tiers.forEach((t, i) => {
+    const tx = M + i * (cardW + 12);
+
+    // Filled color header band
+    doc.setFillColor(...t.color);
+    doc.rect(tx, y, cardW, 28, 'F');
+
+    // Card body with colored border
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(...t.border);
+    doc.setLineWidth(2.5);
+    doc.rect(tx, y + 28, cardW, cardH - 28, 'FD');
+    doc.setLineWidth(0.5);
+
+    // Also border top
+    doc.setDrawColor(...t.border);
+    doc.setLineWidth(2.5);
+    doc.rect(tx, y, cardW, cardH, 'D');
+    doc.setLineWidth(0.5);
+
+    // Header text
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...WHITE);
+    doc.text(t.label, tx + cardW/2, y + 13, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.text(t.sub, tx + cardW/2, y + 23, { align: 'center' });
+
+    // Price range
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13.5);
+    doc.setTextColor(...t.color);
+    doc.text(t.range || '—', tx + cardW/2, y + 58, { align: 'center' });
+
+    // Divider
+    doc.setDrawColor(...BORDER);
+    doc.line(tx + 10, y + 68, tx + cardW - 10, y + 68);
+
+    // Label below
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...MGRAY);
+    const lbl = i === 0 ? 'Draws immediate traffic' : i === 1 ? 'Aligns with consensus data' : 'Requires premium condition';
+    doc.text(lbl, tx + cardW/2, y + 80, { align: 'center', maxWidth: cardW - 16 });
+  });
+
+  y += cardH + 16;
+
+  // ── STATS BADGES ──────────────────────────────────────────────────────
+  const badges = [
+    { val: String(activeCount), lbl: 'Valuation Sources' },
+    { val: cmaCluster || '—', lbl: 'Professional Consensus' },
+    { val: tiers[1].range || '—', lbl: 'Recommended List Price' }
+  ];
+
+  const bw = (PW - M*2 - 24) / 3;
+  doc.setFillColor(...DARK);
+  doc.rect(M, y, PW - M*2, 52, 'F');
+
+  badges.forEach((b, i) => {
+    const bx = M + i * (bw + 12);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(...RED);
+    doc.text(b.val, bx + bw/2, y + 22, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...[180,180,180]);
+    doc.text(b.lbl, bx + bw/2, y + 36, { align: 'center' });
+  });
+
+  y += 64;
+
+  // ── FOOTER ────────────────────────────────────────────────────────────
+  doc.setFillColor(...RED);
+  doc.rect(0, PH - 28, PW, 28, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(...WHITE);
+  doc.text(`Mark Spain Real Estate  •  ${agent}, Realtor®  •  NC RE License #316046  •  ${phone}  •  ${email}`, PW/2, PH - 12, { align: 'center' });
+
+  // Save
+  const safeName = addr.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_');
+  doc.save(`Pricing_Strategy_${safeName}.pdf`);
 }
 
-function v(id) {
-  const val = document.getElementById(id)?.value;
-  return val ? parseFloat(val) : null;
+// ── BUILD WHY IT MATTERS REASONS ──────────────────────────────────────────
+function buildReasons(avms, cmas, cmaCluster, homesExc) {
+  const reasons = [];
+  const userRationale = document.getElementById('rationale').value.trim();
+
+  if (userRationale) {
+    // Split user rationale into chunks
+    const sentences = userRationale.match(/[^.!?]+[.!?]*/g) || [userRationale];
+    for (let i = 0; i < Math.min(sentences.length, 5); i += 2) {
+      reasons.push({ title: '', body: (sentences[i] + (sentences[i+1] || '')).trim() });
+    }
+    return reasons.slice(0, 5);
+  }
+
+  // Auto-generate
+  if (cmaCluster) {
+    const toolNames = cmas.map(c => c.tool).join(', ');
+    reasons.push({
+      title: 'Professional tools agree.',
+      body: `${toolNames} cluster at ${cmaCluster} — the tightest, most reliable signal in the data.`
+    });
+  }
+
+  const zillow = avms.find(a => a.src.includes('Zillow'));
+  if (zillow && zillow.est) {
+    reasons.push({
+      title: 'Zillow validates the top.',
+      body: `At ${zillow.est}K, Zillow aligns with professional consensus, giving buyers online confidence that a higher list price is justified.`
+    });
+  }
+
+  const redfin = avms.find(a => a.src.includes('Redfin'));
+  if (redfin && redfin.est) {
+    reasons.push({
+      title: 'Redfin is the floor, not the ceiling.',
+      body: `Its ${redfin.est}K estimate likely reflects weaker comps. Use it as a downside anchor in negotiation — not your list price target.`
+    });
+  }
+
+  if (homesExc) {
+    reasons.push({
+      title: 'Homes.com range is noise.',
+      body: 'A spread nearly $300K wide provides no actionable guidance. We exclude it from the strategy entirely.'
+    });
+  }
+
+  reasons.push({
+    title: 'You control buyer perception.',
+    body: 'Pricing at the Sweet Spot places you at the heart of every credible estimate, maximizing showings and minimizing days on market.'
+  });
+
+  return reasons.slice(0, 5);
 }
 </script>
 </body>
