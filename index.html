@@ -243,6 +243,10 @@
       <div><label>RPR CMA ($K)</label><input type="number" id="rprcma" placeholder="699"></div>
       <div><label>Other Tool ($K)</label><input type="number" id="cmaother" placeholder=""></div>
     </div>
+    <div class="grid-2" style="margin-top:12px;">
+      <div><label>County Tax/Assessed Value ($K)</label><input type="number" id="taxval" placeholder="e.g. 345"></div>
+      <div><label>Tax Year</label><input type="text" id="taxyear" placeholder="e.g. 2024"></div>
+    </div>
   </div>
 
   <!-- PRICING TIERS -->
@@ -571,6 +575,30 @@ function generatePDF() {
     ly += 22;
   });
 
+  // TAX VALUE ROW below CMA tools
+  const taxVal  = v('taxval');
+  const taxYear = document.getElementById('taxyear').value.trim();
+  if (taxVal > 0) {
+    doc.setFillColor(200, 16, 46);
+    doc.rect(M, ly, colW, 14, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(255,255,255);
+    doc.text('COUNTY TAX / ASSESSED VALUE', M + 6, ly + 9);
+    ly += 14;
+    doc.setFillColor(255,255,255);
+    doc.rect(M, ly, colW, 20, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...DARK);
+    doc.text(taxYear ? `Tax Value (${taxYear})` : 'Tax / Assessed Value', M + 6, ly + 13);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...RED);
+    doc.text(fmtK(taxVal), M + colW - 6, ly + 13, { align: 'right' });
+    ly += 20;
+  }
+
   // RIGHT: WHY IT MATTERS
   const rx = M + colW + 12;
   doc.setFont('helvetica', 'bold');
@@ -696,14 +724,19 @@ function generatePDF() {
 
     // Divider
     doc.setDrawColor(...BORDER);
-    doc.line(tx + 10, y + 68, tx + cardW - 10, y + 68);
+    doc.line(tx + 10, y + 72, tx + cardW - 10, y + 72);
 
     // Label below
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(...MGRAY);
-    const lbl = i === 0 ? 'Draws immediate traffic' : i === 1 ? 'Aligns with consensus data' : 'Requires premium condition';
-    doc.text(lbl, tx + cardW/2, y + 80, { align: 'center', maxWidth: cardW - 16 });
+    const stories = [
+      'Price below consensus to attract multiple offers fast and create urgency in the first weekend.',
+      'Positioned at the heart of all six data sources — maximizing showings while protecting your net proceeds.',
+      'Reserved for move-in-ready homes with premium finishes, lot, or features that justify beating the market.'
+    ];
+    const lbl = stories[i];
+    doc.text(lbl, tx + cardW/2, y + 88, { align: 'center', maxWidth: cardW - 12 });
   });
 
   y += cardH + 14;
