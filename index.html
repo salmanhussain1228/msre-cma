@@ -151,9 +151,12 @@
   <div class="card">
     <h2>Agent Information</h2>
     <div class="grid-3">
-      <div><label>Agent Name</label><input type="text" id="agentName" placeholder="Salman Hussain"></div>
-      <div><label>Phone</label><input type="text" id="agentPhone" placeholder="919-802-2207"></div>
-      <div><label>Email</label><input type="text" id="agentEmail" placeholder="salmanhussain@markspain.com"></div>
+      <div><label>Agent Name</label><input type="text" id="agentName" placeholder="Your Full Name"></div>
+      <div><label>Phone</label><input type="text" id="agentPhone" placeholder="Your Phone Number"></div>
+      <div><label>Email</label><input type="text" id="agentEmail" placeholder="Your Email Address"></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px;">
+      <div><label>NC RE License #</label><input type="text" id="agentLicense" placeholder="Your License #"></div>
     </div>
   </div>
 
@@ -302,13 +305,13 @@ function lsGet(k) {
 
 // ── RESTORE SAVED AGENT INFO ───────────────────────────────────────────────
 window.onload = function() {
-  ['agentName','agentPhone','agentEmail'].forEach(id => {
+  ['agentName','agentPhone','agentEmail','agentLicense'].forEach(id => {
     const v = lsGet('msre_' + id);
     if (v) document.getElementById(id).value = v;
   });
   const k = lsGet('msre_gemini_key');
   if (k) document.getElementById('geminiKey').value = k;
-  ['agentName','agentPhone','agentEmail'].forEach(id => {
+  ['agentName','agentPhone','agentEmail','agentLicense'].forEach(id => {
     document.getElementById(id).addEventListener('change', () => lsSet('msre_' + id, document.getElementById(id).value));
   });
 };
@@ -411,9 +414,10 @@ function generatePDF() {
 
   // ── COLLECT DATA ──────────────────────────────────────────────────────
   const addr     = document.getElementById('propAddress').value.trim() || 'Subject Property';
-  const agent    = document.getElementById('agentName').value.trim()   || 'Salman Hussain';
-  const phone    = document.getElementById('agentPhone').value.trim()  || '919-802-2207';
-  const email    = document.getElementById('agentEmail').value.trim()  || 'salmanhussain@markspain.com';
+  const agent    = document.getElementById('agentName').value.trim()   || '';
+  const license  = document.getElementById('agentLicense').value.trim() || '';
+  const phone    = document.getElementById('agentPhone').value.trim()  || '';
+  const email    = document.getElementById('agentEmail').value.trim()  || '';
   const client   = document.getElementById('clientName').value.trim()  || 'Valued Client';
   const homesExc = document.getElementById('homesExcluded').checked;
 
@@ -631,7 +635,7 @@ function generatePDF() {
     ry += rh;
   });
 
-  y = Math.max(ly, ry) + 30;
+  y = Math.max(ly, ry) + 12;
 
   // ── PROFESSIONAL CONSENSUS BAR ────────────────────────────────────────
   if (cmaCluster) {
@@ -646,7 +650,7 @@ function generatePDF() {
     doc.setTextColor(...MGRAY);
     const toolNames = cmas.map(c => c.tool).join(' + ');
     doc.text(`${toolNames}:  ${cmaCluster} tightest cluster`, M + 8, y + 17);
-    y += 30;
+    y += 10;
   }
 
   // ── RECOMMENDED PRICING TIERS ─────────────────────────────────────────
@@ -654,7 +658,7 @@ function generatePDF() {
   doc.setFontSize(8.5);
   doc.setTextColor(...DARK);
   doc.text(`RECOMMENDED PRICING TIERS — ${addr.toUpperCase()}`, M, y + 13);
-  y += 14;
+  y += 22;
 
   const cardW  = (PW - M*2 - 24) / 3;
   const cardH  = 140;
@@ -772,7 +776,7 @@ function generatePDF() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(...WHITE);
-  doc.text(`Mark Spain Real Estate  •  ${agent}, Realtor®  •  NC RE License #316046  •  ${phone}  •  ${email}`, PW/2, PH - 12, { align: 'center' });
+  doc.text(`Mark Spain Real Estate  •  ${agent}, Realtor®  •  NC RE License #${license}  •  ${phone}  •  ${email}`, PW/2, PH - 12, { align: 'center' });
 
   // Save
   const safeName = addr.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_');
