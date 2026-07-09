@@ -1,4 +1,4 @@
-highlight LineNr ctermfg=black<!DOCTYPE html>
+ghlight LineNr ctermgg=blhighlight LineNr ctermfg=black<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -348,7 +348,7 @@ Strict JSON format pattern:
 {"zillow_est":0,"zillow_low":0,"zillow_high":0,"redfin_est":0,"redfin_low":0,"redfin_high":0,"homes_est":0,"homes_low":0,"homes_high":0,"realtor_est":0,"realtor_low":0,"realtor_high":0,"tax_val":0,"tax_year":"2026"}`;
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${key}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
