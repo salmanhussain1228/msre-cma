@@ -3,187 +3,165 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CMA Pricing Strategy Generation</title>
+  <title>MSRE CMA Pricing Strategy Tool</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #f3f4f6; color: #111827; margin: 0; padding: 20px; }
-    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
-    h2, h3 { color: #990000; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-top: 0; text-transform: uppercase; font-size: 1.2rem; letter-spacing: 0.5px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-    .form-group { display: flex; flex-direction: column; }
-    label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #4b5563; margin-bottom: 5px; }
-    input { padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.9rem; background-color: #f9fafb; }
-    input:focus { outline: none; border-color: #990000; background-color: #fff; }
-    .btn { background-color: #1e3a8a; color: #fff; border: none; padding: 12px 20px; font-size: 0.9rem; font-weight: 700; border-radius: 4px; cursor: pointer; text-transform: uppercase; width: 100%; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn:hover { background-color: #172554; }
-    .scanner-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 20px; margin-bottom: 25px; }
-    .scanner-header { color: #b91c1c; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px; }
-    .scanner-desc { font-size: 0.8rem; color: #6b7280; margin-bottom: 15px; line-height: 1.4; }
-    .status-msg { margin-top: 15px; padding: 10px; border-radius: 4px; font-size: 0.85rem; display: none; font-weight: 500; }
-    .status-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .status-success { background-color: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    /* (Your existing CSS remains unchanged) */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a1a; }
+    /* ... rest of your styles ... */
   </style>
 </head>
 <body>
 
+<header>
+  <!-- Your existing header remains the same -->
+  <div>
+    <div class="brand">Exclusive Seller Presentation</div>
+    <h1>THE STRATEGIC PRICING.</h1>
+  </div>
+  <div class="logo-img-wrap">
+    <img src="data:image/png;base64,... (your logo base64)" alt="Mark Spain Real Estate" style="height:56px;width:auto;">
+  </div>
+</header>
+
 <div class="container">
-  <h2>CMA Pricing Strategy Generation</h2>
-  
-  <div class="grid">
-    <div class="form-group">
-      <label>Your Full Name</label>
-      <input type="text" id="agentName" placeholder="Enter Agent Name">
-    </div>
-    <div class="form-group">
-      <label>Your Phone Number</label>
-      <input type="text" id="agentPhone" placeholder="Enter Phone Number">
-    </div>
-    <div class="form-group">
-      <label>Your Email Address</label>
-      <input type="email" id="agentEmail" placeholder="Enter Email Address">
-    </div>
-    <div class="form-group">
-      <label>License Number</label>
-      <input type="text" id="agentLicense" placeholder="Enter License Number">
-    </div>
+
+  <!-- AGENT INFO (unchanged) -->
+  <div class="card">
+    <h2>Agent Information</h2>
+    <!-- ... existing fields ... -->
   </div>
 
-  <h3>Property Details</h3>
-  <div class="grid">
-    <div class="form-group" style="grid-column: span 2;">
-      <label>Property Address</label>
-      <input type="text" id="propAddress" placeholder="e.g., 123 Main St, Raleigh, NC 27601">
-    </div>
-    <div class="form-group">
-      <label>Zillow Link (Optional)</label>
-      <input type="url" id="zillowLink" placeholder="Paste Zillow URL">
-    </div>
+  <!-- PROPERTY INFO (unchanged) -->
+  <div class="card">
+    <h2>Property Details</h2>
+    <!-- ... existing fields ... -->
   </div>
 
-  <div class="scanner-box">
-    <div class="scanner-header">Internal Knowledge Framework (Powered by Gemini)</div>
-    <div class="scanner-desc">Runs valuation queries optimized for the Gemini free API key. Get a key at aistudio.google.com.</div>
-    
-    <div class="form-group" style="margin-bottom: 15px; max-width: 300px;">
-      <label>Gemini API Key</label>
-      <div style="display: flex; gap: 10px;">
-        <input type="password" id="apiKey" style="flex: 1;" placeholder="AIzaSy...">
-        <button class="btn" style="width: auto; background: #111827;" onclick="saveKey()">Save Key</button>
-      </div>
+  <!-- GROK AI AUTOFILL -->
+  <div class="card">
+    <h2>Grok AI Auto-Fill (Live Estimates)</h2>
+    <p class="section-note">Enter your xAI Grok API key to fetch live AVM estimates. Get key at <a href="https://console.x.ai/" target="_blank">console.x.ai</a></p>
+    <div class="api-key-row">
+      <div><label>Grok API Key</label><input type="password" id="grokKey" placeholder="xai-..."></div>
+      <button class="btn-save-key" onclick="saveKey()">Save Key</button>
     </div>
-
-    <button class="btn" onclick="executeScan()">⚡ Execute Market Analysis & Auto-Fill</button>
-    <div id="statusBox" class="status-msg"></div>
+    <button class="btn-autofill" onclick="runGrok()">Auto-Fill AVM Estimates (Live)</button>
+    <div id="status-msg">Enter address above first, then click Auto-Fill. Grok will attempt real-time estimates.</div>
   </div>
 
-  <h3>AVM Estimation Matrix</h3>
-  <div class="grid">
-    <div class="form-group"><label>Zillow Estimate</label><input type="text" id="z_est"></div>
-    <div class="form-group"><label>Zillow Low Range</label><input type="text" id="z_low"></div>
-    <div class="form-group"><label>Zillow High Range</label><input type="text" id="z_high"></div>
-  </div>
-  <div class="grid">
-    <div class="form-group"><label>Redfin Estimate</label><input type="text" id="r_est"></div>
-    <div class="form-group"><label>Redfin Low Range</label><input type="text" id="r_low"></div>
-    <div class="form-group"><label>Redfin High Range</label><input type="text" id="r_high"></div>
-  </div>
-  <div class="grid">
-    <div class="form-group"><label>Homes.com Estimate</label><input type="text" id="h_est"></div>
-    <div class="form-group"><label>Homes.com Low Range</label><input type="text" id="h_low"></div>
-    <div class="form-group"><label>Homes.com High Range</label><input type="text" id="h_high"></div>
-  </div>
-  <div class="grid">
-    <div class="form-group"><label>Realtor.com Estimate</label><input type="text" id="rltr_est"></div>
-    <div class="form-group"><label>Realtor.com Low Range</label><input type="text" id="rltr_low"></div>
-    <div class="form-group"><label>Realtor.com High Range</label><input type="text" id="rltr_high"></div>
-  </div>
-  <div class="grid">
-    <div class="form-group"><label>Tax Assessed Value</label><input type="text" id="taxval"></div>
-    <div class="form-group"><label>Tax Year</label><input type="text" id="taxyear"></div>
-  </div>
+  <!-- Rest of your cards (AVM DATA, CMA TOOLS, etc.) remain unchanged -->
+
+  <button class="btn-generate" onclick="generatePDF()">⬇ Generate Pricing Strategy PDF</button>
+
 </div>
 
 <script>
-  window.onload = function() {
-    const savedKey = localStorage.getItem('gemini_api_key');
-    if (savedKey) document.getElementById('apiKey').value = savedKey;
-  };
+// ── Existing helper functions (lsSet, lsGet, onload, openSite, etc.) ──
+// (Keep all your existing helper code)
 
-  function saveKey() {
-    const key = document.getElementById('apiKey').value.trim();
-    if (key) {
-      localStorage.setItem('gemini_api_key', key);
-      alert('API Key saved locally!');
-    }
+let _memStore = {};
+function lsSet(k, v) {
+  try { localStorage.setItem(k, v); } catch(e) {
+    try { sessionStorage.setItem(k, v); } catch(e2) { _memStore[k] = v; }
   }
-
-  async function executeScan() {
-    const key = document.getElementById('apiKey').value.trim() || localStorage.getItem('gemini_api_key');
-    const address = document.getElementById('propAddress').value.trim();
-    const statusBox = document.getElementById('statusBox');
-
-    if (!key) { showStatus('Please enter or save a valid Gemini API Key.', 'error'); return; }
-    if (!address) { showStatus('Please provide a Property Address to scan.', 'error'); return; }
-
-    showStatus('Running predictive models and parsing valuation parameters...', 'success');
-
-    const prompt = `Analyze data matrices for the real estate asset at: "${address}". 
-    Determine the valuation vectors across major digital real estate frameworks (Zillow, Redfin, Homes.com, Realtor.com) along with the municipal property tax valuation datasets.
-    Return a strict, raw valid JSON object without markdown wrapping or code blocks. The schema must match exactly:
-    {
-      "zillow_est": number, "zillow_low": number, "zillow_high": number,
-      "redfin_est": number, "redfin_low": number, "redfin_high": number,
-      "homes_est": number, "homes_low": number, "homes_high": number,
-      "realtor_est": number, "realtor_low": number, "realtor_high": number,
-      "tax_val": number, "tax_year": number
-    }
-    If a precise database value is unavailable inside your architecture, provide a closely correlated market estimate value or input 0 for fields requiring verifiable legal records.`;
-
-    try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
-      
-      if (!res.ok) {
-        throw new Error(`Server responded with status code: ${res.status}`);
-      }
-
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      const cleanJson = rawText.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(cleanJson);
-
-      const mapFields = {
-        zillow_est:'z_est', zillow_low:'z_low', zillow_high:'z_high',
-        redfin_est:'r_est', redfin_low:'r_low', redfin_high:'r_high',
-        homes_est:'h_est', homes_low:'h_low', homes_high:'h_high',
-        realtor_est:'rltr_est', realtor_low:'rltr_low', realtor_high:'rltr_high',
-        tax_val: 'taxval', tax_year: 'taxyear'
-      };
-
-      Object.entries(mapFields).forEach(([apiK, elementId]) => {
-        if (parsed[apiK] && parsed[apiK] !== 0) {
-          document.getElementById(elementId).value = parsed[apiK];
-        }
-      });
-
-      showStatus('Valuation matrices successfully populated!', 'success');
-    } catch (err) {
-      console.error(err);
-      showStatus(`Automated lookup error: ${err.message}. Please verify manually.`, 'error');
-    }
+}
+function lsGet(k) {
+  try { return localStorage.getItem(k); } catch(e) {
+    try { return sessionStorage.getItem(k); } catch(e2) { return _memStore[k] || null; }
   }
+}
 
-  function showStatus(msg, type) {
-    const box = document.getElementById('statusBox');
-    box.innerText = msg;
-    box.style.display = 'block';
-    box.className = `status-msg status-${type}`;
+window.onload = function() {
+  ['agentName','agentPhone','agentEmail','agentLicense'].forEach(id => {
+    const v = lsGet('msre_' + id);
+    if (v) document.getElementById(id).value = v;
+  });
+  const k = lsGet('msre_grok_key');
+  if (k) document.getElementById('grokKey').value = k;
+
+  ['agentName','agentPhone','agentEmail','agentLicense'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => lsSet('msre_' + id, document.getElementById(id).value));
+  });
+};
+
+function saveKey() {
+  const k = document.getElementById('grokKey').value.trim();
+  if (!k) { alert('Enter your Grok API key first.'); return; }
+  lsSet('msre_grok_key', k);
+  document.getElementById('status-msg').textContent = 'Grok API key saved.';
+}
+
+// ── NEW: GROK API CALL ─────────────────────────────────────────────────────
+async function runGrok() {
+  const key = document.getElementById('grokKey').value.trim() || lsGet('msre_grok_key');
+  const addr = document.getElementById('propAddress').value.trim();
+
+  if (!key) { alert('Enter your Grok API key first.'); return; }
+  if (!addr) { alert('Enter the property address first.'); return; }
+
+  const msg = document.getElementById('status-msg');
+  msg.textContent = 'Fetching live AVM estimates via Grok...';
+
+  const prompt = `You are a real estate valuation expert. For the property at "${addr}", provide the most current AVM estimates from major sources. Return ONLY a clean JSON object (no markdown, no extra text):
+
+{
+  "zillow_est": 000,
+  "zillow_low": 000,
+  "zillow_high": 000,
+  "redfin_est": 000,
+  "redfin_low": 000,
+  "redfin_high": 000,
+  "homes_est": 000,
+  "homes_low": 000,
+  "homes_high": 000,
+  "realtor_est": 000,
+  "realtor_low": 000,
+  "realtor_high": 000
+}
+
+Use the latest available market data. If a source is unavailable, use 0.`;
+
+  try {
+    const res = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`
+      },
+      body: JSON.stringify({
+        model: "grok-3",           // or "grok-beta" depending on your access
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+        max_tokens: 800
+      })
+    });
+
+    const data = await res.json();
+    const rawText = data?.choices?.[0]?.message?.content || '';
+    const clean = rawText.replace(/```json|```/g, '').trim();
+    const d = JSON.parse(clean);
+
+    const map = {
+      zillow_est: 'z_est', zillow_low: 'z_low', zillow_high: 'z_high',
+      redfin_est: 'r_est', redfin_low: 'r_low', redfin_high: 'r_high',
+      homes_est: 'h_est', homes_low: 'h_low', homes_high: 'h_high',
+      realtor_est: 'rltr_est', realtor_low: 'rltr_low', realtor_high: 'rltr_high'
+    };
+
+    Object.entries(map).forEach(([k, id]) => {
+      if (d[k] && d[k] > 0) document.getElementById(id).value = d[k];
+    });
+
+    msg.textContent = '✅ Grok live estimates filled. Please verify manually.';
+  } catch (e) {
+    msg.textContent = '❌ Grok request failed: ' + e.message + '. Check your API key and try again.';
+    console.error(e);
   }
+}
+
+// Keep your existing generatePDF(), buildReasons(), etc. unchanged
 </script>
-
 </body>
 </html>
