@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d1117">
+<title>Call Assist</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2129; --line:#2a313b;
+    --text:#e6e8eb; --dim:#8b949e;
+    --amber:#f0b429; --amber-soft:rgba(240,180,41,.12);
+    --green:#3fb950; --red:#f85149; --blue:#58a6ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+
+  /* ── HEADER ─────────────────────────────── */
+  header{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 14px;border-bottom:1px solid var(--line);
+    background:var(--panel);flex-shrink:0;flex-wrap:wrap;
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--dim);flex-shrink:0}
+  .dot.live{background:var(--red);animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  h1{font-size:15px;font-weight:600;letter-spacing:.02em;flex:1;min-width:90px}
+
+  #scen{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex-shrink:0}
+  #scen button{
+    background:none;border:none;color:var(--dim);font-size:12px;font-weight:600;
+    padding:7px 10px;cursor:pointer;border-right:1px solid var(--line);
+  }
+  #scen button:last-child{border-right:none}
+  #scen button.on{background:var(--amber-soft);color:var(--amber)}
+
+  #gear{background:none;border:1px solid var(--line);border-radius:8px;color:var(--dim);
+    font-size:15px;padding:5px 10px;cursor:pointer;flex-shrink:0}
+
+  /* ── SETUP NOTE ─────────────────────────── */
+  #setup{
+    background:var(--panel2);border-bottom:1px solid var(--line);
+    padding:10px 14px;font-size:12.5px;line-height:1.55;color:var(--dim);
+    display:none;
+  }
+  #setup.show{display:block}
+  #setup b{color:var(--text)}
+  #setup .close{float:right;color:var(--amber);cursor:pointer;font-weight:600;margin-left:10px}
+
+  /* ── MODE + CONTEXT ROW ─────────────────── */
+  #moderow{
+    display:flex;gap:8px;padding:10px 14px;flex-shrink:0;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);background:var(--panel);
+  }
+  select,input[type=text],input[type=password],input[type=number]{
+    background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    color:var(--text);font-size:13px;padding:8px 10px;font-family:inherit;
+  }
+  #mode{flex-shrink:0}
+  #ctx{flex:1;min-width:150px}
+
+  /* ── MAIN AREA ──────────────────────────── */
+  #main{flex:1;display:flex;overflow:hidden;min-height:0}
+  #feedwrap{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+  #feed{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+  #feed:empty::before{
+    content:"Pointers will appear here after each pause in conversation.";
+    color:var(--dim);font-size:13px;text-align:center;margin-top:40px;
+  }
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
+    border-radius:10px;padding:12px 14px;animation:slidein .25s ease;
+  }
+  .card.newest{border-left-color:var(--green);background:var(--panel2)}
+  @keyframes slidein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  .card .when{font-size:10.5px;color:var(--dim);margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase}
+  .card ul{list-style:none}
+  .card li{font-size:16px;line-height:1.45;font-weight:500;padding:3px 0 3px 16px;position:relative}
+  .card li::before{content:"›";position:absolute;left:0;color:var(--amber);font-weight:700}
+
+  /* transcript panel (laptop) */
+  #tpanel{
+    display:none;width:38%;max-width:460px;border-left:1px solid var(--line);
+    background:var(--panel);flex-direction:column;overflow:hidden;
+  }
+  #tpanel h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+    padding:10px 14px;border-bottom:1px solid var(--line)}
+  #tlog{flex:1;overflow-y:auto;padding:10px 14px;font-size:13px;line-height:1.6;color:var(--dim)}
+  #tlog .seg{margin-bottom:8px}
+  #tlog .interim{color:var(--blue);font-style:italic}
+
+  /* ── TICKER (mobile transcript) ─────────── */
+  #ticker{
+    flex-shrink:0;border-top:1px solid var(--line);background:var(--panel);
+    padding:8px 14px;font-size:12.5px;color:var(--dim);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:34px;
+  }
+  #ticker .interim{color:var(--blue)}
+
+  /* ── FOOTER CONTROLS ────────────────────── */
+  footer{
+    display:flex;gap:10px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+    background:var(--panel);border-top:1px solid var(--line);flex-shrink:0;
+  }
+  .btn{
+    flex:1;border:none;border-radius:12px;font-size:15px;font-weight:600;
+    padding:14px;cursor:pointer;font-family:inherit;
+  }
+  #startbtn{background:var(--green);color:#04110a}
+  #startbtn.live{background:var(--red);color:#fff}
+  #nowbtn{background:var(--panel2);border:1px solid var(--line);color:var(--amber);flex:0 0 auto;padding:14px 18px}
+
+  /* ── SETTINGS PANEL ─────────────────────── */
+  #settings{
+    position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;display:none;
+    align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;
+  }
+  #settings.show{display:flex}
+  #settings .box{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    width:100%;max-width:440px;padding:20px;
+  }
+  #settings h2{font-size:16px;margin-bottom:16px}
+  #settings label{display:block;font-size:12px;color:var(--dim);margin:12px 0 5px;letter-spacing:.04em}
+  #settings input,#settings select{width:100%}
+  #settings .note{font-size:11.5px;color:var(--dim);margin-top:14px;line-height:1.5;
+    background:var(--amber-soft);border-radius:8px;padding:10px;border:1px solid rgba(240,180,41,.25)}
+  #settings .row{display:flex;gap:10px;margin-top:18px}
+  #settings .row button{flex:1;padding:11px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  #savebtn{background:var(--green);color:#04110a}
+  #cancelbtn{background:var(--panel2);color:var(--dim);border:1px solid var(--line)!important}
+
+  /* ── LAPTOP LAYOUT ──────────────────────── */
+  @media(min-width:900px){
+    #tpanel{display:flex}
+    #ticker{display:none}
+    .card li{font-size:18px}
+    #kbdhint{display:block!important}
+  }
+  #kbdhint{display:none;font-size:11px;color:var(--dim);padding:6px 14px;letter-spacing:.06em;
+    border-bottom:1px solid var(--line);background:var(--panel)}
+  #kbdhint b{color:var(--amber);font-weight:600}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot" id="dot"></div>
+  <h1>Call Assist</h1>
+  <div id="scen">
+    <button data-s="phone">Phone</button>
+    <button data-s="laptop">Laptop</button>
+    <button data-s="person">In person</button>
+  </div>
+  <button id="gear" onclick="openSettings()">&#9881;</button>
+</header>
+
+<div id="kbdhint"><b>P</b> pointers now &nbsp;&middot;&nbsp; <b>S</b> start/stop</div>
+
+<div id="setup"><span class="close" onclick="hideSetup()">Got it</span><span id="setuptext"></span></div>
+
+<div id="moderow">
+  <select id="mode">
+    <option value="work">Work meeting</option>
+    <option value="realestate">Real estate client</option>
+    <option value="interview">Interview</option>
+    <option value="general">General</option>
+  </select>
+  <input type="text" id="ctx" placeholder="Optional context for this call, e.g. 1:1 with Nimish about first onboarding">
+</div>
+
+<div id="main">
+  <div id="feedwrap">
+    <div id="feed"></div>
+  </div>
+  <div id="tpanel">
+    <h2>Live transcript</h2>
+    <div id="tlog"></div>
+  </div>
+</div>
+
+<div id="ticker">Not listening.</div>
+
+<footer>
+  <button class="btn" id="startbtn" onclick="toggleListen()">Start listening</button>
+  <button class="btn" id="nowbtn" onclick="firePointers(true)">Pointers now</button>
+</footer>
+
+<!-- SETTINGS -->
+<div id="settings">
+  <div class="box">
+    <h2>Settings</h2>
+    <label>Groq API key</label>
+    <input type="password" id="s-key" placeholder="gsk_...">
+    <label>Model</label>
+    <select id="s-model">
+      <option value="openai/gpt-oss-20b">openai/gpt-oss-20b (fast, recommended)</option>
+      <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile (deeper)</option>
+    </select>
+    <label>Silence trigger (ms)</label>
+    <input type="number" id="s-silence" min="800" max="5000" step="100">
+    <div class="note">llama-3.1-8b-instant was retired by Groq on August 16, 2026. This build defaults to openai/gpt-oss-20b with low reasoning effort for speed.</div>
+    <div class="row">
+      <button id="cancelbtn" onclick="closeSettings()">Cancel</button>
+      <button id="savebtn" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────
+const LS = {
+  key:'ca_groq_key', model:'ca_model', silence:'ca_silence',
+  scen:'ca_scenario', mode:'ca_mode', seen:'ca_setup_seen'
+};
+let apiKey   = localStorage.getItem(LS.key)   || '';
+let model    = localStorage.getItem(LS.model) || 'openai/gpt-oss-20b';
+let scenario = localStorage.getItem(LS.scen)  || 'phone';
+let userSilence = parseInt(localStorage.getItem(LS.silence)) || 0; // 0 = use scenario default
+
+let listening = false;
+let rec = null;
+let wakeLock = null;
+let silenceTimer = null;
+let transcript = [];      // finalized segments
+let pendingSinceLastCall = ''; // new speech since last API call
+let interim = '';
+let busy = false;
+
+const SCEN_DEFAULTS = { phone:1800, laptop:1800, person:2200 };
+
+const SETUP_TEXT = {
+  phone: '<b>Phone call:</b> put the call on speakerphone and lay the phone flat on the desk. The mic picks up both sides. Keep the screen face up, pointers appear at the top after each pause.',
+  laptop: '<b>Laptop meeting (Teams):</b> Mac Output to <b>Multi-Output Device</b> (Interview Mix), Chrome mic to <b>BlackHole 2ch</b>, Teams Speaker to <b>Multi-Output Device</b>, Teams Microphone to <b>MacBook Air Microphone</b>. Run this page in Chrome. Shortcuts: <b>P</b> for pointers now, <b>S</b> to start or stop.',
+  person: '<b>In person:</b> phone face up on the table, or use the laptop mic. Silence trigger is longer here since room conversation overlaps. Glance naturally, never read from it mid-sentence.'
+};
+
+const MODE_CONTEXT = {
+  work: 'The user is Salman, a Kubernetes Application Onboarding Specialist at Truist bank. He onboards application teams onto Kubernetes/OpenShift: intake, assessment (stateful vs stateless, RBAC, network policies, resource quotas, health probes, secrets, CI/CD), containerization, platform setup, deploy, handoff. Banking context: change management, CAB, segregation of duties, admission control. He is new in the role and reports to Nimish. He has deep RHEL, Satellite, Ceph, OpenShift and Quay registry experience from 13 years at IBM, plus 5 years teaching Linux at Wake Tech.',
+  realestate: 'The user is Salman, a licensed REALTOR with Mark Spain Real Estate in the Triangle area of North Carolina (Wake, Durham, Johnston, Harnett, Chatham counties). Mark Spain offers four selling options: Cash Offer Program, Hybrid Cash Sale, Buy Before You Sell, Traditional Listing. Keep all suggestions compliant: no promises of outcomes, price or timeline guarantees, and no legal or lending advice.',
+  interview: 'The user is Salman, interviewing for infrastructure/platform roles. Background: 13 years at IBM as Senior Linux Systems Engineer (Red Hat Satellite architect for ~30,000 VMs, Quay registries for OpenShift, 600-node performance cloud, 1.2PB CephFS), HP before that, adjunct Linux professor at Wake Tech 2015-2020. RHCE certified. Currently at Truist.',
+  general: 'The user is Salman. Give practical conversation pointers.'
+};
+
+// ── SCENARIO UI ───────────────────────────────────────
+function setScenario(s, showNote){
+  scenario = s;
+  localStorage.setItem(LS.scen, s);
+  document.querySelectorAll('#scen button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.s === s);
+  });
+  if(showNote){
+    document.getElementById('setuptext').innerHTML = SETUP_TEXT[s];
+    document.getElementById('setup').classList.add('show');
+  }
+}
+function hideSetup(){ document.getElementById('setup').classList.remove('show'); }
+document.querySelectorAll('#scen button').forEach(b=>{
+  b.onclick = ()=> setScenario(b.dataset.s, true);
+});
+
+// ── MODE PERSIST ──────────────────────────────────────
+const modeSel = document.getElementById('mode');
+modeSel.value = localStorage.getItem(LS.mode) || 'work';
+modeSel.onchange = ()=> localStorage.setItem(LS.mode, modeSel.value);
+
+// ── SETTINGS ──────────────────────────────────────────
+function openSettings(){
+  document.getElementById('s-key').value = apiKey;
+  document.getElementById('s-model').value = model;
+  document.getElementById('s-silence').value = userSilence || SCEN_DEFAULTS[scenario];
+  document.getElementById('settings').classList.add('show');
+}
+function closeSettings(){ document.getElementById('settings').classList.remove('show'); }
+function saveSettings(){
+  apiKey = document.getElementById('s-key').value.trim();
+  model  = document.getElementById('s-model').value;
+  const sil = parseInt(document.getElementById('s-silence').value);
+  userSilence = (sil && sil !== SCEN_DEFAULTS[scenario]) ? sil : 0;
+  localStorage.setItem(LS.key, apiKey);
+  localStorage.setItem(LS.model, model);
+  if(userSilence) localStorage.setItem(LS.silence, userSilence);
+  else localStorage.removeItem(LS.silence);
+  closeSettings();
+}
+function silenceMs(){ return userSilence || SCEN_DEFAULTS[scenario]; }
+
+// ── SPEECH RECOGNITION ────────────────────────────────
+function makeRec(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ alert('Speech recognition is not supported in this browser. Use Chrome or Safari.'); return null; }
+  const r = new SR();
+  r.continuous = true;
+  r.interimResults = true;
+  r.lang = 'en-US';
+
+  r.onresult = (e)=>{
+    interim = '';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t = e.results[i][0].transcript;
+      if(e.results[i].isFinal){
+        transcript.push(t.trim());
+        pendingSinceLastCall += ' ' + t.trim();
+        if(transcript.length > 200) transcript.shift();
+      } else {
+        interim += t;
+      }
+    }
+    renderTranscript();
+    armSilenceTimer();
+  };
+
+  r.onend = ()=>{
+    if(listening){ try{ r.start(); }catch(_){} } // auto-restart, mobile quirk
+    else setLive(false);
+  };
+  r.onerror = (e)=>{
+    if(e.error === 'not-allowed'){
+      listening = false; setLive(false);
+      tickerMsg('Microphone permission denied. Allow mic access and try again.');
+    }
+  };
+  return r;
+}
+
+function armSilenceTimer(){
+  clearTimeout(silenceTimer);
+  silenceTimer = setTimeout(()=>{
+    if(pendingSinceLastCall.trim().length > 12) firePointers(false);
+  }, silenceMs());
+}
+
+function toggleListen(){
+  if(listening){
+    listening = false;
+    if(rec) try{ rec.stop(); }catch(_){}
+    clearTimeout(silenceTimer);
+    releaseWake();
+    setLive(false);
+  } else {
+    if(!apiKey){ openSettings(); return; }
+    if(!rec) rec = makeRec();
+    if(!rec) return;
+    try{ rec.start(); }catch(_){}
+    listening = true;
+    requestWake();
+    setLive(true);
+  }
+}
+
+function setLive(on){
+  document.getElementById('dot').classList.toggle('live', on);
+  const b = document.getElementById('startbtn');
+  b.classList.toggle('live', on);
+  b.textContent = on ? 'Stop listening' : 'Start listening';
+  if(!on) tickerMsg('Not listening.');
+  else tickerMsg('Listening...');
+}
+
+// ── WAKE LOCK ─────────────────────────────────────────
+async function requestWake(){
+  try{ if('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); }catch(_){}
+}
+function releaseWake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock=null; } }catch(_){} }
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && listening) requestWake();
+});
+
+// ── TRANSCRIPT RENDER ─────────────────────────────────
+function renderTranscript(){
+  const last = transcript.slice(-2).join(' ');
+  const t = document.getElementById('ticker');
+  t.innerHTML = escapeHtml(last).slice(-160) + (interim ? ' <span class="interim">' + escapeHtml(interim) + '</span>' : '');
+  const log = document.getElementById('tlog');
+  log.innerHTML = transcript.slice(-40).map(s=>'<div class="seg">'+escapeHtml(s)+'</div>').join('')
+    + (interim ? '<div class="seg interim">'+escapeHtml(interim)+'</div>' : '');
+  log.scrollTop = log.scrollHeight;
+}
+function tickerMsg(m){ document.getElementById('ticker').textContent = m; }
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── GROQ CALL ─────────────────────────────────────────
+async function firePointers(manual){
+  if(busy) return;
+  const recent = (manual ? transcript.slice(-12).join(' ') : pendingSinceLastCall).trim();
+  const fullRecent = transcript.slice(-12).join(' ').trim();
+  if(!fullRecent){ if(manual) tickerMsg('Nothing heard yet.'); return; }
+  pendingSinceLastCall = '';
+  busy = true;
+
+  const ctx = document.getElementById('ctx').value.trim();
+  const sys =
+    'You are a silent meeting coach. You see a live rough transcript of a conversation the user is in. ' +
+    MODE_CONTEXT[modeSel.value] + ' ' +
+    (ctx ? 'Context for this specific call: ' + ctx + '. ' : '') +
+    'Return 1 to 3 short pointers the user can act on RIGHT NOW: a fact to mention, a question to ask, a risk to flag, or a next step to propose. ' +
+    'Rules: each pointer is max 12 words. No preamble, no numbering, no markdown. One pointer per line. ' +
+    'The transcript is rough speech-to-text, work off the gist. If nothing useful can be said, respond with exactly: SKIP';
+
+  const body = {
+    model: model,
+    max_tokens: 160,
+    temperature: 0.4,
+    messages: [
+      { role:'system', content: sys },
+      { role:'user', content: 'Recent transcript:\n' + fullRecent }
+    ]
+  };
+  if(model.startsWith('openai/gpt-oss')) body.reasoning_effort = 'low';
+
+  try{
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + apiKey },
+      body: JSON.stringify(body)
+    });
+    if(!res.ok){
+      const err = await res.text();
+      if(res.status === 401){ tickerMsg('API key rejected. Open settings and check it.'); }
+      else tickerMsg('API error ' + res.status);
+      console.error(err);
+      busy = false; return;
+    }
+    const data = await res.json();
+    let out = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+    // strip any reasoning artifacts
+    out = out.replace(/<think>[\s\S]*?<\/think>/gi,'')
+             .replace(/^(reasoning|analysis|thinking)\s*:?[\s\S]*?\n\n/i,'')
+             .trim();
+    if(!out || /^SKIP\b/i.test(out)){ busy=false; return; }
+    const lines = out.split('\n').map(l=>l.replace(/^[-*\u2022\d.\s]+/,'').trim()).filter(Boolean).slice(0,3);
+    if(lines.length) addCard(lines);
+  }catch(e){
+    tickerMsg('Network error calling Groq.');
+    console.error(e);
+  }
+  busy = false;
+}
+
+// ── CARD FEED ─────────────────────────────────────────
+function addCard(lines){
+  const feed = document.getElementById('feed');
+  feed.querySelectorAll('.card.newest').forEach(c=>c.classList.remove('newest'));
+  const card = document.createElement('div');
+  card.className = 'card newest';
+  const t = new Date();
+  card.innerHTML = '<div class="when">'+ t.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}) +'</div><ul>'
+    + lines.map(l=>'<li>'+escapeHtml(l)+'</li>').join('') + '</ul>';
+  feed.insertBefore(card, feed.firstChild);
+  while(feed.children.length > 20) feed.removeChild(feed.lastChild);
+  feed.scrollTop = 0;
+}
+
+// ── KEYBOARD SHORTCUTS ────────────────────────────────
+document.addEventListener('keydown', (e)=>{
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  if(tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+  if(e.key === 'p' || e.key === 'P'){ e.preventDefault(); firePointers(true); }
+  if(e.key === 's' || e.key === 'S'){ e.preventDefault(); toggleListen(); }
+});
+
+// ── INIT ──────────────────────────────────────────────
+setScenario(scenario, !localStorage.getItem(LS.seen));
+localStorage.setItem(LS.seen, '1');
+if(!apiKey) setTimeout(openSettings, 400);
+</script>
+</body>
+</html>
