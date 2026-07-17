@@ -650,7 +650,7 @@ function generatePDF() {
     doc.setTextColor(...MGRAY);
     const toolNames = cmas.map(c => c.tool).join(' + ');
     doc.text(`${toolNames}:  ${cmaCluster} tightest cluster`, M + 8, y + 17);
-    y += 10;
+    y += 30;
   }
 
   // ── RECOMMENDED PRICING TIERS ─────────────────────────────────────────
